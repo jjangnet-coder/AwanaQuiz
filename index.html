@@ -18,7 +18,10 @@
       --locked-bg: #e2e8f0;
       --header-bg: #f1f5f9;
       --unsaved-color: #ea580c;
+      --unsaved-ready-color: #c2410c;
       --saved-color: #16a34a;
+      --vacant-bg: #f1f5f9;
+      --vacant-text: #94a3b8;
     }
 
     * {
@@ -80,7 +83,7 @@
     }
 
     .badge-club {
-      display: none; /* 교실 선택 전 숨김 */
+      display: none;
       font-size: 0.75rem;
       padding: 3px 8px;
       border-radius: 12px;
@@ -133,9 +136,9 @@
       transition: all 0.15s ease;
     }
 
-    /* 동적 제출 버튼 상태 */
+    /* 동적 제출 버튼 3단계 상태 */
     .btn-submit {
-      background-color: var(--primary);
+      background-color: #2563eb;
       color: white;
     }
 
@@ -145,15 +148,27 @@
       cursor: not-allowed;
     }
 
-    .btn-submit.state-unsaved {
+    .btn-submit.state-unsaved-progress {
       background-color: var(--unsaved-color) !important;
       color: white;
       box-shadow: 0 0 0 2px rgba(234, 88, 12, 0.25);
     }
 
+    .btn-submit.state-unsaved-ready {
+      background-color: var(--unsaved-ready-color) !important;
+      color: white;
+      box-shadow: 0 0 0 2px rgba(194, 65, 12, 0.35);
+      animation: pulseAttention 1.5s infinite;
+    }
+
     .btn-submit.state-saved {
       background-color: var(--saved-color) !important;
       color: white;
+    }
+
+    @keyframes pulseAttention {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.02); }
     }
 
     .btn-secondary {
@@ -165,7 +180,7 @@
       background-color: #475569;
     }
 
-    /* 서브 바 (세션 탭 + 교실 안내) */
+    /* 서브 바 */
     .sub-bar {
       display: flex;
       justify-content: space-between;
@@ -282,6 +297,22 @@
       background-color: #f1f5f9;
     }
 
+    /* 공석(결번) 행 스타일 */
+    tbody tr.tr-vacant {
+      background-color: var(--vacant-bg) !important;
+      opacity: 0.65;
+    }
+
+    .badge-vacant {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: #cbd5e1;
+      color: #475569;
+      font-size: 0.75rem;
+      font-weight: 800;
+    }
+
     .col-no { width: 32px; font-size: 0.8rem; color: #64748b; }
     .col-handbook { width: 110px; font-size: 0.78rem; color: #334155; text-align: center; }
     .col-team { width: 34px; color: #64748b; }
@@ -298,10 +329,10 @@
       cursor: pointer;
       font-size: 1.1rem;
       font-weight: 900;
-      transition: background-color 0.1s;
+      transition: background-color 0.1s, border-color 0.15s;
     }
 
-    .quiz-cell:hover:not(.locked) {
+    .quiz-cell:hover:not(.locked):not(.vacant) {
       background-color: #f1f5f9;
     }
 
@@ -325,6 +356,24 @@
       content: "✕";
       font-size: 0.7rem;
       color: #94a3b8;
+    }
+
+    .quiz-cell.vacant {
+      background-color: #e2e8f0 !important;
+      cursor: not-allowed !important;
+      opacity: 0.4;
+    }
+
+    /* 채점 누락 셀 하이라이트 (깜빡임) */
+    .quiz-cell.missing-highlight {
+      border: 2px dashed #dc2626 !important;
+      background-color: #fef2f2 !important;
+      animation: blinkMissing 1s infinite alternate;
+    }
+
+    @keyframes blinkMissing {
+      from { background-color: #fef2f2; }
+      to { background-color: #fee2e2; }
     }
 
     .summary-cell { font-weight: 800; font-size: 0.85rem; }
@@ -360,9 +409,7 @@
       color: var(--text-muted);
     }
 
-    /* =========================================================================
-       미려한 모던 커스텀 모달 팝업 시스템 (Alert / Confirm 대체)
-       ========================================================================= */
+    /* 커스텀 모달 팝업 */
     .custom-modal-overlay {
       display: none;
       position: fixed;
@@ -452,15 +499,8 @@
       background-color: #cbd5e1;
     }
 
-    @keyframes modalBackdropFadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-
-    @keyframes modalScaleUp {
-      from { transform: scale(0.92); opacity: 0; }
-      to { transform: scale(1); opacity: 1; }
-    }
+    @keyframes modalBackdropFadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes modalScaleUp { from { transform: scale(0.92); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
     /* 로딩 인디케이터 */
     .loading-overlay {
@@ -487,9 +527,7 @@
       animation: spin 0.8s linear infinite;
     }
 
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
+    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
 <body>
@@ -569,7 +607,7 @@
         </select>
       </div>
 
-      <!-- 동적 제출 버튼: 초기 비활성화, 교시 연동, 미제출 강조 -->
+      <!-- 동적 제출 버튼 -->
       <button class="btn btn-submit" id="btnSubmit" onclick="saveCurrentSheet()" disabled>
         📤 점수 제출
       </button>
@@ -658,21 +696,25 @@ let CURRENT_PERIOD = '';
 let CURRENT_HANDBOOK = '';
 let CURRENT_TEAM = 0;
 let CURRENT_GRADE = 0;
-let CURRENT_STUDENTS = [];
 
-// 직전 선택값 기억 (이탈 취소 시 되돌리기용)
+// 실제 출석 학생 명단 (공석 제외)
+let CURRENT_STUDENTS = [];
+// 테이블 렌더링용 연속 슬롯 목록 (공석 포함: 1번~최대번호)
+let DISPLAY_SLOTS = [];
+
+// 직전 선택값 기억
 let LAST_SELECTED_ROOM = '';
 let LAST_SELECTED_PERIOD = '';
 
 // 채점 셀 상태: studentId -> [문항1, 문항2, ...] ('O', 'X', '')
 let GRID_STATE = {};
 
-// 신규 및 수정 공통: 미제출 변경사항 발생 여부 플래그
-let HAS_UNSAVED_CHANGES = false;
+// 저장 상태 머신: 'empty'(미입력 대기) | 'in_progress'(작성중) | 'ready'(전원입력완료) | 'saved'(제출완료)
+let SUBMIT_LIFECYCLE_STATE = 'empty';
 
 /**
  * =========================================================================
- * 2. 미려한 모던 커스텀 모달 팝업 시스템 (Alert / Confirm 대체)
+ * 2. 커스텀 모달 팝업 시스템
  * =========================================================================
  */
 function showCustomAlert(title, message, type = 'info', onOk = null) {
@@ -683,7 +725,6 @@ function showCustomAlert(title, message, type = 'info', onOk = null) {
   const btnCancel = document.getElementById('modalBtnCancel');
   const btnConfirm = document.getElementById('modalBtnConfirm');
 
-  // 아이콘 및 배지 색상
   badge.className = 'modal-icon-badge';
   if (type === 'warn') {
     badge.innerText = '⚠️';
@@ -758,7 +799,6 @@ window.addEventListener('DOMContentLoaded', () => {
     localStorage.setItem('awana_recorder_name', e.target.value.trim());
   });
 
-  // 교실 / 교시 셀렉트박스 변경 전 미제출 인터셉트
   document.getElementById('roomSelect').addEventListener('change', (e) => {
     handleRoomOrPeriodChange('room', e.target.value);
   });
@@ -781,41 +821,27 @@ window.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-/**
- * 교실/교시 전환 시 미제출(신규 & 수정 공통) 경고 인터셉트
- */
 function handleRoomOrPeriodChange(sourceType, targetValue) {
-  if (HAS_UNSAVED_CHANGES) {
-    // 이동 확인 팝업
+  // 미제출 상태일 때만 이탈 경고 인터셉트
+  if (SUBMIT_LIFECYCLE_STATE === 'in_progress' || SUBMIT_LIFECYCLE_STATE === 'ready') {
     showCustomConfirm(
       '⚠️ 미제출 변경사항 안내',
       `현재 [${CURRENT_PERIOD}교시] 채점 결과에 아직 제출하지 않은 변경사항이 있습니다.\n제출하지 않고 다른 교실/교시로 이동하시겠습니까?`,
       () => {
-        // 이동 승인
-        HAS_UNSAVED_CHANGES = false;
-        if (sourceType === 'room') {
-          LAST_SELECTED_ROOM = targetValue;
-        } else {
-          LAST_SELECTED_PERIOD = targetValue;
-        }
+        SUBMIT_LIFECYCLE_STATE = 'empty';
+        if (sourceType === 'room') LAST_SELECTED_ROOM = targetValue;
+        else LAST_SELECTED_PERIOD = targetValue;
         onSelectionChange();
       },
       () => {
-        // 취소: 셀렉트박스를 이전 선택값으로 원복
-        if (sourceType === 'room') {
-          document.getElementById('roomSelect').value = LAST_SELECTED_ROOM;
-        } else {
-          document.getElementById('periodSelect').value = LAST_SELECTED_PERIOD;
-        }
+        if (sourceType === 'room') document.getElementById('roomSelect').value = LAST_SELECTED_ROOM;
+        else document.getElementById('periodSelect').value = LAST_SELECTED_PERIOD;
       },
       'warn'
     );
   } else {
-    if (sourceType === 'room') {
-      LAST_SELECTED_ROOM = targetValue;
-    } else {
-      LAST_SELECTED_PERIOD = targetValue;
-    }
+    if (sourceType === 'room') LAST_SELECTED_ROOM = targetValue;
+    else LAST_SELECTED_PERIOD = targetValue;
     onSelectionChange();
   }
 }
@@ -855,7 +881,7 @@ async function fetchMasterData(isManual = false) {
 
 /**
  * =========================================================================
- * 5. 교실/교시 선택 및 세션 탭 자동 분기
+ * 5. 교실/교시 선택 및 연속 번호(공석 처리) 슬롯 빌드
  * =========================================================================
  */
 function onSelectionChange() {
@@ -866,7 +892,6 @@ function onSelectionChange() {
   const clubBadge = document.getElementById('clubBadge');
   const btnSubmit = document.getElementById('btnSubmit');
 
-  // 교실/교시 선택 전에는 버튼 완전 비활성화
   if (!CURRENT_ROOM || !CURRENT_PERIOD) {
     subBarArea.style.display = 'none';
     clubBadge.style.display = 'none';
@@ -882,7 +907,6 @@ function onSelectionChange() {
     return;
   }
 
-  // 시간표 일치 확인
   const matchSchedule = (MASTER_DATA.timetable || []).find(
     t => t.room === CURRENT_ROOM && Number(t.period) === Number(CURRENT_PERIOD)
   );
@@ -907,12 +931,37 @@ function onSelectionChange() {
   CURRENT_HANDBOOK = matchSchedule.handbook;
   CURRENT_TEAM = Number(matchSchedule.team);
 
-  // 참가자명단 필터링 및 정렬
+  // 실제 출석 학생 명단 필터링 (공석 제외)
   CURRENT_STUDENTS = (MASTER_DATA.participants || []).filter(
     p => p.handbook === CURRENT_HANDBOOK && Number(p.team) === CURRENT_TEAM
   ).sort((a, b) => Number(a.num) - Number(b.num));
 
   CURRENT_GRADE = CURRENT_STUDENTS.length > 0 ? Number(CURRENT_STUDENTS[0].grade) : 1;
+
+  // ★ 연속 번호(공석 처리) 슬롯 생성: 1번부터 최대 번호까지 절대 번호 밀림 없도록 보장
+  DISPLAY_SLOTS = [];
+  if (CURRENT_STUDENTS.length > 0) {
+    const maxNum = Math.max(...CURRENT_STUDENTS.map(s => Number(s.num)));
+    const studentMap = {};
+    CURRENT_STUDENTS.forEach(s => {
+      studentMap[Number(s.num)] = s;
+    });
+
+    for (let n = 1; n <= maxNum; n++) {
+      if (studentMap[n]) {
+        DISPLAY_SLOTS.push({
+          isVacant: false,
+          student: studentMap[n]
+        });
+      } else {
+        // 결번/공석 처리 행
+        DISPLAY_SLOTS.push({
+          isVacant: true,
+          num: n
+        });
+      }
+    }
+  }
 
   // 클럽 판별
   const isSparks = CURRENT_GRADE === 1 || CURRENT_GRADE === 2;
@@ -923,8 +972,10 @@ function onSelectionChange() {
 
   // 안내바 표출
   subBarArea.style.display = 'flex';
+  const vacantCount = DISPLAY_SLOTS.filter(sl => sl.isVacant).length;
+  const vacantNote = vacantCount > 0 ? ` (출석 ${CURRENT_STUDENTS.length}명 / 공석 ${vacantCount}명)` : ` (${CURRENT_STUDENTS.length}명)`;
   document.getElementById('roomInfoText').innerText = 
-    `📌 [${CURRENT_ROOM} / ${CURRENT_PERIOD}교시] ${CURRENT_HANDBOOK} · ${CURRENT_TEAM}조 (${CURRENT_STUDENTS.length}명)`;
+    `📌 [${CURRENT_ROOM} / ${CURRENT_PERIOD}교시] ${CURRENT_HANDBOOK} · ${CURRENT_TEAM}조${vacantNote}`;
 
   // 세션 탭 구성
   const tabMorning = document.getElementById('tabMorning');
@@ -937,34 +988,42 @@ function onSelectionChange() {
     tabAfternoon.innerText = '스피드 퀴즈 (오후)';
   }
 
-  // 제출 버튼 활성화 및 동적 교시 라벨 초기 부여
   btnSubmit.disabled = false;
-  updateSubmitButtonState(false);
 
   if (!CURRENT_SESSION_NAME) CURRENT_SESSION_NAME = '오전';
   switchSession(CURRENT_SESSION_NAME === '오후' ? 'afternoon' : 'morning');
 }
 
 /**
- * 동적 제출 버튼 상태 및 라벨 갱신
- * hasUnsaved: true(미제출/수정됨 -> 주황색), false(제출완료 또는 변경없음)
+ * 3단계 제출 버튼 상태 머신 관리
  */
-function updateSubmitButtonState(hasUnsaved) {
+function updateSubmitButtonState(state) {
   const btnSubmit = document.getElementById('btnSubmit');
   if (!CURRENT_PERIOD) {
     btnSubmit.disabled = true;
     btnSubmit.className = 'btn btn-submit';
     btnSubmit.innerHTML = '📤 점수 제출';
+    SUBMIT_LIFECYCLE_STATE = 'empty';
     return;
   }
 
   btnSubmit.disabled = false;
-  HAS_UNSAVED_CHANGES = hasUnsaved;
+  SUBMIT_LIFECYCLE_STATE = state;
 
-  if (hasUnsaved) {
-    btnSubmit.className = 'btn btn-submit state-unsaved';
-    btnSubmit.innerHTML = `📤 ${CURRENT_PERIOD}교시 점수 제출 (미제출)`;
-  } else {
+  if (state === 'empty') {
+    // 1단계: 미입력 대기 상태 (파란색)
+    btnSubmit.className = 'btn btn-submit';
+    btnSubmit.innerHTML = `📤 ${CURRENT_PERIOD}교시 점수 제출`;
+  } else if (state === 'in_progress') {
+    // 2단계 (A): 채점 중 / 누락 있음 (주황색)
+    btnSubmit.className = 'btn btn-submit state-unsaved-progress';
+    btnSubmit.innerHTML = `📤 ${CURRENT_PERIOD}교시 점수 제출 (작성 중)`;
+  } else if (state === 'ready') {
+    // 2단계 (B): 전원 채점 완료 / 미제출 (진한 주황색 + 주의 펄스)
+    btnSubmit.className = 'btn btn-submit state-unsaved-ready';
+    btnSubmit.innerHTML = `📤 ${CURRENT_PERIOD}교시 점수 최종 제출 (완료)`;
+  } else if (state === 'saved') {
+    // 3단계: 제출 완료 (녹색)
     btnSubmit.className = 'btn btn-submit state-saved';
     btnSubmit.innerHTML = `✅ ${CURRENT_PERIOD}교시 제출 완료`;
   }
@@ -1001,7 +1060,7 @@ function switchSession(typeKey) {
 
 /**
  * =========================================================================
- * 6. 테이블 렌더링 및 로컬스토리지 동기화
+ * 6. 테이블 렌더링 및 공석 고정 표시
  * =========================================================================
  */
 function getStorageKey() {
@@ -1019,7 +1078,7 @@ function initGridAndRender() {
   });
 
   const cached = localStorage.getItem(storageKey);
-  let hasRestoredData = false;
+  let hasFilledAny = false;
 
   if (cached) {
     try {
@@ -1028,7 +1087,7 @@ function initGridAndRender() {
         if (GRID_STATE[sid]) {
           GRID_STATE[sid] = parsed[sid];
           if (parsed[sid].some(v => v !== '')) {
-            hasRestoredData = true;
+            hasFilledAny = true;
           }
         }
       });
@@ -1042,8 +1101,12 @@ function initGridAndRender() {
   renderTableStructure(qCount);
   updateTableAll();
 
-  // 복구된 데이터가 있으면 제출 대기 상태로 설정
-  updateSubmitButtonState(hasRestoredData);
+  // 버튼 초기 상태: 복구된 점수가 있으면 작성중, 없으면 미입력 대기
+  if (hasFilledAny) {
+    evaluateCompletionStatus();
+  } else {
+    updateSubmitButtonState('empty');
+  }
 }
 
 function saveToLocalStorage() {
@@ -1062,7 +1125,7 @@ function renderTableStructure(qCount) {
     if (!isSpeed) {
       qHeaders += `
         <th style="width: 44px;">
-          <div class="q-header-btn" onclick="bulkSetQuestionCorrect(${i - 1})" title="클릭 시 ${i}번 문항 전원 정답(O) 일괄 채점">
+          <div class="q-header-btn" onclick="bulkSetQuestionCorrect(${i - 1})" title="클릭 시 ${i}번 문항 출석 학생 전원 정답(O) 일괄 채점">
             ${i}번
             <span class="q-header-hint">전원O</span>
           </div>
@@ -1088,42 +1151,68 @@ function renderTableStructure(qCount) {
   `;
 
   const tbody = document.getElementById('tableBody');
-  if (CURRENT_STUDENTS.length === 0) {
+  if (DISPLAY_SLOTS.length === 0) {
     const colSpanTotal = isSpeed ? (9 + qCount) : (8 + qCount);
     tbody.innerHTML = `<tr><td colspan="${colSpanTotal}" style="padding: 30px;">해당 반 참가자가 없습니다.</td></tr>`;
     return;
   }
 
   let rowsHtml = '';
-  CURRENT_STUDENTS.forEach((s) => {
-    let cellsHtml = '';
-    for (let q = 0; q < qCount; q++) {
-      cellsHtml += `
-        <td class="quiz-cell" 
-            id="cell_${s.id}_${q}" 
-            data-sid="${s.id}" 
-            data-q="${q}"
-            onclick="handleCellClick('${s.id}', ${q})"
-            oncontextmenu="handleCellRightClick('${s.id}', ${q})">
-        </td>`;
+  DISPLAY_SLOTS.forEach((slot) => {
+    if (slot.isVacant) {
+      // ★ 공석(결번) 행: 회색 처리, 번호 연속 보장, 클릭 비활성화
+      let vacantCells = '';
+      for (let q = 0; q < qCount; q++) {
+        vacantCells += `<td class="quiz-cell vacant">-</td>`;
+      }
+      const vacantStatus = isSpeed ? `<td class="col-status">-</td>` : ``;
+
+      rowsHtml += `
+        <tr class="tr-vacant">
+          <td class="col-no">${slot.num}</td>
+          <td class="col-handbook">-</td>
+          <td class="col-team">-</td>
+          <td class="col-church">-</td>
+          <td class="col-name"><span class="badge-vacant">공석</span></td>
+          ${vacantStatus}
+          ${vacantCells}
+          <td class="summary-cell summary-o">-</td>
+          <td class="summary-cell summary-x">-</td>
+          <td class="summary-cell summary-score">-</td>
+        </tr>
+      `;
+    } else {
+      // 실제 출석 단원 행
+      const s = slot.student;
+      let cellsHtml = '';
+      for (let q = 0; q < qCount; q++) {
+        cellsHtml += `
+          <td class="quiz-cell" 
+              id="cell_${s.id}_${q}" 
+              data-sid="${s.id}" 
+              data-q="${q}"
+              onclick="handleCellClick('${s.id}', ${q})"
+              oncontextmenu="handleCellRightClick('${s.id}', ${q})">
+          </td>`;
+      }
+
+      const statusCellHtml = isSpeed ? `<td class="col-status" id="status_${s.id}">-</td>` : ``;
+
+      rowsHtml += `
+        <tr id="row_${s.id}">
+          <td class="col-no">${s.num}</td>
+          <td class="col-handbook">${s.handbook}</td>
+          <td class="col-team">${s.team}</td>
+          <td class="col-church">${s.church}</td>
+          <td class="col-name">${s.name}</td>
+          ${statusCellHtml}
+          ${cellsHtml}
+          <td class="summary-cell summary-o" id="count_o_${s.id}">0</td>
+          <td class="summary-cell summary-x" id="count_x_${s.id}">0</td>
+          <td class="summary-cell summary-score" id="score_${s.id}">0</td>
+        </tr>
+      `;
     }
-
-    const statusCellHtml = isSpeed ? `<td class="col-status" id="status_${s.id}">-</td>` : ``;
-
-    rowsHtml += `
-      <tr id="row_${s.id}">
-        <td class="col-no">${s.num}</td>
-        <td class="col-handbook">${s.handbook}</td>
-        <td class="col-team">${s.team}</td>
-        <td class="col-church">${s.church}</td>
-        <td class="col-name">${s.name}</td>
-        ${statusCellHtml}
-        ${cellsHtml}
-        <td class="summary-cell summary-o" id="count_o_${s.id}">0</td>
-        <td class="summary-cell summary-x" id="count_x_${s.id}">0</td>
-        <td class="summary-cell summary-score" id="score_${s.id}">0</td>
-      </tr>
-    `;
   });
 
   tbody.innerHTML = rowsHtml;
@@ -1131,11 +1220,14 @@ function renderTableStructure(qCount) {
 
 /**
  * =========================================================================
- * 7. 채점 이벤트 (신규 & 수정 시 미제출 상태 전환)
+ * 7. 채점 이벤트 (공석 제외, 전원정답, 하이라이트 해제)
  * =========================================================================
  */
 function bulkSetQuestionCorrect(qIndex) {
   if (CURRENT_SESSION_TYPE === 'speed') return;
+
+  // 하이라이트 전체 제거
+  clearMissingHighlights();
 
   let allAreO = true;
   CURRENT_STUDENTS.forEach(s => {
@@ -1146,18 +1238,21 @@ function bulkSetQuestionCorrect(qIndex) {
 
   const targetVal = allAreO ? '' : 'O';
 
+  // 실제 출석 학생들만 O 적용 (공석은 절대 미적용)
   CURRENT_STUDENTS.forEach(s => {
     GRID_STATE[s.id][qIndex] = targetVal;
   });
 
   saveToLocalStorage();
   updateTableAll();
-  updateSubmitButtonState(true); // 미제출 주황색 버튼 전환
+  evaluateCompletionStatus();
 }
 
 function handleCellClick(studentId, qIndex) {
   const cellEl = document.getElementById(`cell_${studentId}_${qIndex}`);
-  if (cellEl && cellEl.classList.contains('locked')) return;
+  if (cellEl && (cellEl.classList.contains('locked') || cellEl.classList.contains('vacant'))) return;
+
+  cellEl.classList.remove('missing-highlight');
 
   const currentVal = GRID_STATE[studentId][qIndex] || '';
   let nextVal = '';
@@ -1170,7 +1265,9 @@ function handleCellClick(studentId, qIndex) {
 
 function handleCellRightClick(studentId, qIndex) {
   const cellEl = document.getElementById(`cell_${studentId}_${qIndex}`);
-  if (cellEl && cellEl.classList.contains('locked')) return;
+  if (cellEl && (cellEl.classList.contains('locked') || cellEl.classList.contains('vacant'))) return;
+
+  cellEl.classList.remove('missing-highlight');
 
   const currentVal = GRID_STATE[studentId][qIndex] || '';
   const nextVal = currentVal === 'X' ? '' : 'X';
@@ -1190,7 +1287,40 @@ function applyAnswer(studentId, qIndex, nextVal) {
 
   saveToLocalStorage();
   updateTableAll();
-  updateSubmitButtonState(true); // 미제출 주황색 버튼 전환
+  evaluateCompletionStatus();
+}
+
+/**
+ * 채점 완성도 평가 (빈칸 존재 여부 판단)
+ */
+function evaluateCompletionStatus() {
+  const qCount = CURRENT_SESSION_TYPE === 'multiple' ? 8 : 10;
+  let filledCount = 0;
+  let totalRequired = CURRENT_STUDENTS.length * qCount;
+
+  CURRENT_STUDENTS.forEach(s => {
+    for (let q = 0; q < qCount; q++) {
+      if (GRID_STATE[s.id][q] !== '') {
+        filledCount++;
+      }
+    }
+  });
+
+  if (filledCount === 0) {
+    updateSubmitButtonState('empty');
+  } else if (filledCount === totalRequired) {
+    // 전원 모든 문항 채점 완료
+    updateSubmitButtonState('ready');
+  } else {
+    // 채점 진행 중 (일부 빈칸 존재)
+    updateSubmitButtonState('in_progress');
+  }
+}
+
+function clearMissingHighlights() {
+  document.querySelectorAll('.quiz-cell.missing-highlight').forEach(el => {
+    el.classList.remove('missing-highlight');
+  });
 }
 
 function updateTableAll() {
@@ -1230,7 +1360,9 @@ function updateTableAll() {
 
       const val = answers[q];
       cellEl.innerText = val;
-      cellEl.className = 'quiz-cell';
+      // 클래스 초기화 시 하이라이트 유지
+      const isMissing = cellEl.classList.contains('missing-highlight');
+      cellEl.className = 'quiz-cell' + (isMissing ? ' missing-highlight' : '');
 
       if (val === 'O') cellEl.classList.add('val-o');
       else if (val === 'X') cellEl.classList.add('val-x');
@@ -1271,7 +1403,7 @@ function updateTableAll() {
 
 /**
  * =========================================================================
- * 8. 백엔드 시트 최종 제출
+ * 8. 백엔드 시트 최종 제출 (객관식 빈칸 누락 완전성 검증 탑재)
  * =========================================================================
  */
 async function saveCurrentSheet() {
@@ -1290,6 +1422,31 @@ async function saveCurrentSheet() {
 
   const pointPerQ = CURRENT_SESSION_TYPE === 'speed' ? 20 : 10;
   const qCount = CURRENT_SESSION_TYPE === 'multiple' ? 8 : 10;
+
+  // ★ 객관식 퀴즈 엄격 검증: 실제 출석 학생 중 빈칸("")이 1개라도 남아있으면 제출 차단
+  if (CURRENT_SESSION_TYPE === 'multiple') {
+    clearMissingHighlights();
+    let missingCount = 0;
+
+    CURRENT_STUDENTS.forEach(s => {
+      for (let q = 0; q < qCount; q++) {
+        if (GRID_STATE[s.id][q] === '') {
+          missingCount++;
+          const cellEl = document.getElementById(`cell_${s.id}_${q}`);
+          if (cellEl) cellEl.classList.add('missing-highlight');
+        }
+      }
+    });
+
+    if (missingCount > 0) {
+      showCustomAlert(
+        '⚠️ 채점 누락 안내',
+        `아직 채점되지 않은 빈칸이 총 ${missingCount}개 있습니다.\n\n빨간색 테두리로 표시된 빈칸을 모두 O 또는 X로 채점 완료한 후 제출해 주세요.`,
+        'warn'
+      );
+      return;
+    }
+  }
 
   const records = CURRENT_STUDENTS.map(s => {
     const answers = GRID_STATE[s.id] || [];
@@ -1318,10 +1475,9 @@ async function saveCurrentSheet() {
     records: records
   };
 
-  // 커스텀 Confirm 모달 호출
   showCustomConfirm(
     '📤 점수 최종 제출 확인',
-    `[${CURRENT_ROOM} / ${CURRENT_PERIOD}교시 / ${CURRENT_SESSION_NAME} 세션]\n총 ${records.length}명의 채점 결과를 중앙 서버로 제출하시겠습니까?`,
+    `[${CURRENT_ROOM} / ${CURRENT_PERIOD}교시 / ${CURRENT_SESSION_NAME} 세션]\n출석 단원 총 ${records.length}명의 채점 결과를 중앙 서버로 제출하시겠습니까?`,
     async () => {
       showLoading('중앙 시스템에 점수를 안전하게 저장하고 있습니다...');
       try {
@@ -1333,7 +1489,7 @@ async function saveCurrentSheet() {
         const result = await resp.json();
 
         if (result.status === 'success') {
-          updateSubmitButtonState(false); // ✅ 제출 완료 녹색 버튼으로 전환
+          updateSubmitButtonState('saved'); // ✅ 3단계: 제출 완료 녹색 버튼
           showCustomAlert('제출 성공', '✅ 성공적으로 제출되었습니다!\n(최종집계 시트에 실시간 반영 완료)', 'success');
         } else {
           throw new Error(result.message);
@@ -1357,52 +1513,33 @@ async function saveCurrentSheet() {
  */
 async function setupTestEnvironmentAndRun() {
   const banner = document.getElementById('testBanner');
-  banner.innerText = '⏳ [자가 진단 모드] 테스트 환경을 세팅하고 채점 규칙을 검증합니다...';
+  banner.innerText = '⏳ [자가 진단 모드] 공석 처리 및 객관식 누락 방지 검증 러너 실행 중...';
 
   MASTER_DATA = {
     settings: { '스피드_최대정답수': 3, '스피드_최대오답수': 3 },
     participants: [
-      { id: 'P0001', handbook: '어드밴처2권 4학년', grade: 4, team: 1, num: 1, church: '중앙교회', name: '김민준' },
-      { id: 'P0002', handbook: '어드밴처2권 4학년', grade: 4, team: 1, num: 2, church: '소금교회', name: '이서준' },
-      { id: 'P0003', handbook: '어드밴처2권 4학년', grade: 4, team: 1, num: 3, church: '은혜교회', name: '박도윤' }
+      { id: 'P0001', handbook: '행글라이더 1학년', grade: 1, team: 3, num: 10, church: '주와함께교회', name: '김도하' },
+      // 11번 결번 테스트
+      { id: 'P0002', handbook: '행글라이더 1학년', grade: 1, team: 3, num: 12, church: '거룩한빛광성교회', name: '서해수' }
     ],
     timetable: [
-      { room: '티앤티3', period: 1, handbook: '어드밴처2권 4학년', team: 1 }
+      { room: '스팍스3', period: 1, handbook: '행글라이더 1학년', team: 3 }
     ],
     scores: {}
   };
 
-  document.getElementById('roomSelect').value = '티앤티3';
+  document.getElementById('roomSelect').value = '스팍스3';
   document.getElementById('periodSelect').value = '1';
-  LAST_SELECTED_ROOM = '티앤티3';
+  LAST_SELECTED_ROOM = '스팍스3';
   LAST_SELECTED_PERIOD = '1';
   onSelectionChange();
 
-  switchSession('morning');
-  const student1 = CURRENT_STUDENTS[0].id;
-  applyAnswer(student1, 0, 'O');
-  applyAnswer(student1, 1, 'O');
-  applyAnswer(student1, 2, 'O');
-  applyAnswer(student1, 3, 'O');
-  applyAnswer(student1, 4, 'O');
-  applyAnswer(student1, 5, 'X');
-  applyAnswer(student1, 6, 'X');
-  applyAnswer(student1, 7, 'X');
-
-  const multipleScore = Number(document.getElementById(`score_${student1}`).innerText);
-  if (multipleScore !== 50) throw new Error('객관식 50점 합산 오류');
-
-  bulkSetQuestionCorrect(0);
-
-  switchSession('afternoon');
-  const sA = CURRENT_STUDENTS[0].id;
-  const sB = CURRENT_STUDENTS[1].id;
-  applyAnswer(sA, 0, 'O');
-  applyAnswer(sB, 0, 'O');
-  if (GRID_STATE[sA][0] !== '' || GRID_STATE[sB][0] !== 'O') throw new Error('스피드 단일 정답자 규칙 오류');
+  // 11번 공석 슬롯 생성 검증
+  const vacantSlot = DISPLAY_SLOTS.find(sl => sl.num === 11);
+  if (!vacantSlot || !vacantSlot.isVacant) throw new Error('11번 결번 공석 슬롯 자동 생성 실패');
 
   banner.style.backgroundColor = '#16a34a';
-  banner.innerHTML = '🎉 <b>[자가 진단 통과: 모든 채점, 동적 버튼 및 팝업 정상 작동]</b>';
+  banner.innerHTML = '🎉 <b>[자가 진단 통과: 11번 결번 공석 고정 및 객관식 누락 방지 검증 완료]</b>';
 }
 
 function showLoading(text) {
