@@ -17,6 +17,8 @@
       --wrong-color: #b91c1c;
       --locked-bg: #e2e8f0;
       --header-bg: #f1f5f9;
+      --unsaved-color: #ea580c;
+      --saved-color: #16a34a;
     }
 
     * {
@@ -38,7 +40,7 @@
       margin: 0 auto;
     }
 
-    /* 상단 배너 */
+    /* ?test=1 자가 진단 배너 */
     #testBanner {
       display: none;
       padding: 8px 14px;
@@ -78,7 +80,7 @@
     }
 
     .badge-club {
-      display: none; /* 교실 선택 전에는 숨김 */
+      display: none; /* 교실 선택 전 숨김 */
       font-size: 0.75rem;
       padding: 3px 8px;
       border-radius: 12px;
@@ -127,17 +129,31 @@
       border: none;
       display: inline-flex;
       align-items: center;
-      gap: 4px;
-      transition: all 0.1s ease;
+      gap: 5px;
+      transition: all 0.15s ease;
     }
 
-    .btn-save {
-      background-color: #2563eb;
+    /* 동적 제출 버튼 상태 */
+    .btn-submit {
+      background-color: var(--primary);
       color: white;
     }
 
-    .btn-save:hover {
-      background-color: #1d4ed8;
+    .btn-submit:disabled {
+      background-color: #94a3b8 !important;
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .btn-submit.state-unsaved {
+      background-color: var(--unsaved-color) !important;
+      color: white;
+      box-shadow: 0 0 0 2px rgba(234, 88, 12, 0.25);
+    }
+
+    .btn-submit.state-saved {
+      background-color: var(--saved-color) !important;
+      color: white;
     }
 
     .btn-secondary {
@@ -149,7 +165,7 @@
       background-color: #475569;
     }
 
-    /* 컴팩트 정보 바 & 탭 */
+    /* 서브 바 (세션 탭 + 교실 안내) */
     .sub-bar {
       display: flex;
       justify-content: space-between;
@@ -194,7 +210,7 @@
       gap: 12px;
     }
 
-    /* 23명 스크롤 없이 한 화면에 보이는 초슬림 테이블 */
+    /* 23명 무스크롤 완벽 고정 테이블 */
     .table-container {
       background: var(--bg-card);
       border-radius: 6px;
@@ -220,7 +236,6 @@
       line-height: 1.2;
     }
 
-    /* 문항 번호 헤더 (원클릭 전체 정답 버튼 스타일) */
     .q-header-btn {
       cursor: pointer;
       display: inline-block;
@@ -267,37 +282,11 @@
       background-color: #f1f5f9;
     }
 
-    .col-no {
-      width: 32px;
-      font-size: 0.8rem;
-      color: #64748b;
-    }
-
-    .col-handbook {
-      width: 110px;
-      font-size: 0.78rem;
-      color: #334155;
-      text-align: center;
-    }
-
-    .col-team {
-      width: 34px;
-      color: #64748b;
-    }
-
-    .col-church {
-      width: 105px;
-      font-size: 0.8rem;
-      text-align: center;
-      color: #334155;
-    }
-
-    .col-name {
-      width: 75px;
-      font-size: 0.9rem;
-      font-weight: 900;
-      color: #0f172a;
-    }
+    .col-no { width: 32px; font-size: 0.8rem; color: #64748b; }
+    .col-handbook { width: 110px; font-size: 0.78rem; color: #334155; text-align: center; }
+    .col-team { width: 34px; color: #64748b; }
+    .col-church { width: 105px; font-size: 0.8rem; text-align: center; color: #334155; }
+    .col-name { width: 75px; font-size: 0.9rem; font-weight: 900; color: #0f172a; }
 
     /* 채점 셀 인터랙션 */
     .quiz-cell {
@@ -338,22 +327,9 @@
       color: #94a3b8;
     }
 
-    /* 요약 열 */
-    .summary-cell {
-      font-weight: 800;
-      font-size: 0.85rem;
-    }
-
-    .summary-o {
-      width: 38px;
-      color: var(--correct-color);
-    }
-
-    .summary-x {
-      width: 38px;
-      color: var(--wrong-color);
-    }
-
+    .summary-cell { font-weight: 800; font-size: 0.85rem; }
+    .summary-o { width: 38px; color: var(--correct-color); }
+    .summary-x { width: 38px; color: var(--wrong-color); }
     .summary-score {
       width: 55px;
       font-size: 0.95rem;
@@ -362,11 +338,7 @@
       background-color: #eff6ff;
     }
 
-    /* 스피드 아웃 배지 */
-    .col-status {
-      width: 65px;
-    }
-
+    .col-status { width: 65px; }
     .status-badge {
       display: inline-block;
       padding: 1px 5px;
@@ -375,17 +347,8 @@
       font-weight: 800;
     }
 
-    .badge-quizout {
-      background-color: #dbeafe;
-      color: #1e40af;
-      border: 1px solid #93c5fd;
-    }
-
-    .badge-foulout {
-      background-color: #fee2e2;
-      color: #991b1b;
-      border: 1px solid #fca5a5;
-    }
+    .badge-quizout { background-color: #dbeafe; color: #1e40af; border: 1px solid #93c5fd; }
+    .badge-foulout { background-color: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
 
     /* 하단 상태바 */
     .footer-bar {
@@ -395,6 +358,108 @@
       padding: 4px 6px;
       font-size: 0.78rem;
       color: var(--text-muted);
+    }
+
+    /* =========================================================================
+       미려한 모던 커스텀 모달 팝업 시스템 (Alert / Confirm 대체)
+       ========================================================================= */
+    .custom-modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.55);
+      backdrop-filter: blur(2px);
+      z-index: 10000;
+      justify-content: center;
+      align-items: center;
+      animation: modalBackdropFadeIn 0.15s ease-out;
+    }
+
+    .custom-modal-card {
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      width: 90%;
+      max-width: 420px;
+      padding: 22px;
+      text-align: center;
+      animation: modalScaleUp 0.15s ease-out;
+    }
+
+    .modal-icon-badge {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 1.5rem;
+      margin-bottom: 12px;
+    }
+
+    .badge-type-info { background: #dbeafe; color: #1d4ed8; }
+    .badge-type-warn { background: #ffedd5; color: #ea580c; }
+    .badge-type-success { background: #dcfce7; color: #16a34a; }
+
+    .modal-title {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 8px;
+    }
+
+    .modal-message {
+      font-size: 0.92rem;
+      font-weight: 500;
+      color: #475569;
+      line-height: 1.5;
+      margin-bottom: 20px;
+      white-space: pre-line;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .modal-btn {
+      padding: 8px 18px;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      min-width: 90px;
+      transition: background-color 0.1s;
+    }
+
+    .modal-btn-confirm {
+      background-color: #2563eb;
+      color: white;
+    }
+
+    .modal-btn-confirm:hover {
+      background-color: #1d4ed8;
+    }
+
+    .modal-btn-cancel {
+      background-color: #e2e8f0;
+      color: #334155;
+    }
+
+    .modal-btn-cancel:hover {
+      background-color: #cbd5e1;
+    }
+
+    @keyframes modalBackdropFadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes modalScaleUp {
+      from { transform: scale(0.92); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
     }
 
     /* 로딩 인디케이터 */
@@ -429,9 +494,23 @@
 </head>
 <body>
 
+<!-- 로딩 오버레이 -->
 <div class="loading-overlay" id="loadingOverlay">
   <div class="spinner"></div>
   <div id="loadingText">처리 중입니다...</div>
+</div>
+
+<!-- 모던 커스텀 모달 팝업 -->
+<div class="custom-modal-overlay" id="customModalOverlay">
+  <div class="custom-modal-card">
+    <div class="modal-icon-badge badge-type-info" id="modalIconBadge">ℹ️</div>
+    <div class="modal-title" id="modalTitle">알림</div>
+    <div class="modal-message" id="modalMessage">내용</div>
+    <div class="modal-actions" id="modalActions">
+      <button class="modal-btn modal-btn-cancel" id="modalBtnCancel" style="display: none;">취소</button>
+      <button class="modal-btn modal-btn-confirm" id="modalBtnConfirm">확인</button>
+    </div>
+  </div>
 </div>
 
 <div class="container">
@@ -490,8 +569,9 @@
         </select>
       </div>
 
-      <button class="btn btn-save" id="btnSave" onclick="saveCurrentSheet()">
-        💾 채점 완료 저장
+      <!-- 동적 제출 버튼: 초기 비활성화, 교시 연동, 미제출 강조 -->
+      <button class="btn btn-submit" id="btnSubmit" onclick="saveCurrentSheet()" disabled>
+        📤 점수 제출
       </button>
 
       <button class="btn btn-secondary" onclick="fetchMasterData(true)">
@@ -580,12 +660,93 @@ let CURRENT_TEAM = 0;
 let CURRENT_GRADE = 0;
 let CURRENT_STUDENTS = [];
 
+// 직전 선택값 기억 (이탈 취소 시 되돌리기용)
+let LAST_SELECTED_ROOM = '';
+let LAST_SELECTED_PERIOD = '';
+
 // 채점 셀 상태: studentId -> [문항1, 문항2, ...] ('O', 'X', '')
 let GRID_STATE = {};
 
+// 신규 및 수정 공통: 미제출 변경사항 발생 여부 플래그
+let HAS_UNSAVED_CHANGES = false;
+
 /**
  * =========================================================================
- * 2. 초기화 및 이벤트 리스너
+ * 2. 미려한 모던 커스텀 모달 팝업 시스템 (Alert / Confirm 대체)
+ * =========================================================================
+ */
+function showCustomAlert(title, message, type = 'info', onOk = null) {
+  const overlay = document.getElementById('customModalOverlay');
+  const badge = document.getElementById('modalIconBadge');
+  const titleEl = document.getElementById('modalTitle');
+  const msgEl = document.getElementById('modalMessage');
+  const btnCancel = document.getElementById('modalBtnCancel');
+  const btnConfirm = document.getElementById('modalBtnConfirm');
+
+  // 아이콘 및 배지 색상
+  badge.className = 'modal-icon-badge';
+  if (type === 'warn') {
+    badge.innerText = '⚠️';
+    badge.classList.add('badge-type-warn');
+  } else if (type === 'success') {
+    badge.innerText = '✅';
+    badge.classList.add('badge-type-success');
+  } else {
+    badge.innerText = 'ℹ️';
+    badge.classList.add('badge-type-info');
+  }
+
+  titleEl.innerText = title;
+  msgEl.innerText = message;
+  btnCancel.style.display = 'none';
+
+  btnConfirm.onclick = () => {
+    overlay.style.display = 'none';
+    if (onOk) onOk();
+  };
+
+  overlay.style.display = 'flex';
+  btnConfirm.focus();
+}
+
+function showCustomConfirm(title, message, onConfirm, onCancel = null, type = 'warn') {
+  const overlay = document.getElementById('customModalOverlay');
+  const badge = document.getElementById('modalIconBadge');
+  const titleEl = document.getElementById('modalTitle');
+  const msgEl = document.getElementById('modalMessage');
+  const btnCancel = document.getElementById('modalBtnCancel');
+  const btnConfirm = document.getElementById('modalBtnConfirm');
+
+  badge.className = 'modal-icon-badge';
+  if (type === 'warn') {
+    badge.innerText = '⚠️';
+    badge.classList.add('badge-type-warn');
+  } else {
+    badge.innerText = '❓';
+    badge.classList.add('badge-type-info');
+  }
+
+  titleEl.innerText = title;
+  msgEl.innerText = message;
+  btnCancel.style.display = 'inline-block';
+
+  btnConfirm.onclick = () => {
+    overlay.style.display = 'none';
+    if (onConfirm) onConfirm();
+  };
+
+  btnCancel.onclick = () => {
+    overlay.style.display = 'none';
+    if (onCancel) onCancel();
+  };
+
+  overlay.style.display = 'flex';
+  btnConfirm.focus();
+}
+
+/**
+ * =========================================================================
+ * 3. 초기화 및 이벤트 리스너
  * =========================================================================
  */
 window.addEventListener('DOMContentLoaded', () => {
@@ -597,8 +758,13 @@ window.addEventListener('DOMContentLoaded', () => {
     localStorage.setItem('awana_recorder_name', e.target.value.trim());
   });
 
-  document.getElementById('roomSelect').addEventListener('change', onSelectionChange);
-  document.getElementById('periodSelect').addEventListener('change', onSelectionChange);
+  // 교실 / 교시 셀렉트박스 변경 전 미제출 인터셉트
+  document.getElementById('roomSelect').addEventListener('change', (e) => {
+    handleRoomOrPeriodChange('room', e.target.value);
+  });
+  document.getElementById('periodSelect').addEventListener('change', (e) => {
+    handleRoomOrPeriodChange('period', e.target.value);
+  });
 
   document.getElementById('scoringTable').addEventListener('contextmenu', (e) => {
     e.preventDefault();
@@ -616,8 +782,47 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 /**
+ * 교실/교시 전환 시 미제출(신규 & 수정 공통) 경고 인터셉트
+ */
+function handleRoomOrPeriodChange(sourceType, targetValue) {
+  if (HAS_UNSAVED_CHANGES) {
+    // 이동 확인 팝업
+    showCustomConfirm(
+      '⚠️ 미제출 변경사항 안내',
+      `현재 [${CURRENT_PERIOD}교시] 채점 결과에 아직 제출하지 않은 변경사항이 있습니다.\n제출하지 않고 다른 교실/교시로 이동하시겠습니까?`,
+      () => {
+        // 이동 승인
+        HAS_UNSAVED_CHANGES = false;
+        if (sourceType === 'room') {
+          LAST_SELECTED_ROOM = targetValue;
+        } else {
+          LAST_SELECTED_PERIOD = targetValue;
+        }
+        onSelectionChange();
+      },
+      () => {
+        // 취소: 셀렉트박스를 이전 선택값으로 원복
+        if (sourceType === 'room') {
+          document.getElementById('roomSelect').value = LAST_SELECTED_ROOM;
+        } else {
+          document.getElementById('periodSelect').value = LAST_SELECTED_PERIOD;
+        }
+      },
+      'warn'
+    );
+  } else {
+    if (sourceType === 'room') {
+      LAST_SELECTED_ROOM = targetValue;
+    } else {
+      LAST_SELECTED_PERIOD = targetValue;
+    }
+    onSelectionChange();
+  }
+}
+
+/**
  * =========================================================================
- * 3. 마스터 데이터 통신
+ * 4. 마스터 데이터 통신
  * =========================================================================
  */
 async function fetchMasterData(isManual = false) {
@@ -632,12 +837,16 @@ async function fetchMasterData(isManual = false) {
       throw new Error(result.message);
     }
 
-    if (isManual) alert('데이터를 최신 상태로 새로고침했습니다.');
+    if (isManual) {
+      showCustomAlert('새로고침 완료', '스프레드시트 마스터 데이터를 최신 상태로 동기화했습니다.', 'success');
+    }
     onSelectionChange();
   } catch (err) {
     console.error('마스터 로드 오류:', err);
     document.getElementById('gasEndpointInfo').innerText = '연결 상태: 통신 오류 (' + err.message + ')';
-    if (isManual) alert('데이터 조회 중 오류가 발생했습니다: ' + err.message);
+    if (isManual) {
+      showCustomAlert('통신 오류', '데이터 조회 중 오류가 발생했습니다: ' + err.message, 'warn');
+    }
     onSelectionChange();
   } finally {
     hideLoading();
@@ -646,7 +855,7 @@ async function fetchMasterData(isManual = false) {
 
 /**
  * =========================================================================
- * 4. 교실/교시 선택 및 세션 탭 자동 분기
+ * 5. 교실/교시 선택 및 세션 탭 자동 분기
  * =========================================================================
  */
 function onSelectionChange() {
@@ -655,10 +864,15 @@ function onSelectionChange() {
 
   const subBarArea = document.getElementById('subBarArea');
   const clubBadge = document.getElementById('clubBadge');
+  const btnSubmit = document.getElementById('btnSubmit');
 
+  // 교실/교시 선택 전에는 버튼 완전 비활성화
   if (!CURRENT_ROOM || !CURRENT_PERIOD) {
     subBarArea.style.display = 'none';
-    clubBadge.style.display = 'none'; // 교실 선택 전에는 배지 숨김
+    clubBadge.style.display = 'none';
+    btnSubmit.disabled = true;
+    btnSubmit.className = 'btn btn-submit';
+    btnSubmit.innerHTML = '📤 점수 제출';
     document.getElementById('tableBody').innerHTML = `
       <tr>
         <td colspan="18" style="padding: 40px; color: var(--text-muted); font-size: 0.95rem;">
@@ -668,7 +882,7 @@ function onSelectionChange() {
     return;
   }
 
-  // 1개 교실 x 1개 교시 = 오직 1개의 핸드북과 1개의 조 매칭
+  // 시간표 일치 확인
   const matchSchedule = (MASTER_DATA.timetable || []).find(
     t => t.room === CURRENT_ROOM && Number(t.period) === Number(CURRENT_PERIOD)
   );
@@ -676,6 +890,9 @@ function onSelectionChange() {
   if (!matchSchedule) {
     subBarArea.style.display = 'flex';
     clubBadge.style.display = 'none';
+    btnSubmit.disabled = true;
+    btnSubmit.className = 'btn btn-submit';
+    btnSubmit.innerHTML = '📤 점수 제출';
     document.getElementById('roomInfoText').innerText = 
       `⚠️ [${CURRENT_ROOM} / ${CURRENT_PERIOD}교시] 시간표 배정 정보가 없습니다.`;
     document.getElementById('tableBody').innerHTML = `
@@ -690,14 +907,14 @@ function onSelectionChange() {
   CURRENT_HANDBOOK = matchSchedule.handbook;
   CURRENT_TEAM = Number(matchSchedule.team);
 
-  // 참가자명단 필터링 및 번호순 정렬
+  // 참가자명단 필터링 및 정렬
   CURRENT_STUDENTS = (MASTER_DATA.participants || []).filter(
     p => p.handbook === CURRENT_HANDBOOK && Number(p.team) === CURRENT_TEAM
   ).sort((a, b) => Number(a.num) - Number(b.num));
 
   CURRENT_GRADE = CURRENT_STUDENTS.length > 0 ? Number(CURRENT_STUDENTS[0].grade) : 1;
 
-  // 클럽 판별 (1~2학년: SPARKS, 3~6학년: T&T)
+  // 클럽 판별
   const isSparks = CURRENT_GRADE === 1 || CURRENT_GRADE === 2;
   clubBadge.innerText = isSparks ? 'SPARKS' : 'T&T';
   clubBadge.style.display = 'inline-block';
@@ -720,8 +937,37 @@ function onSelectionChange() {
     tabAfternoon.innerText = '스피드 퀴즈 (오후)';
   }
 
+  // 제출 버튼 활성화 및 동적 교시 라벨 초기 부여
+  btnSubmit.disabled = false;
+  updateSubmitButtonState(false);
+
   if (!CURRENT_SESSION_NAME) CURRENT_SESSION_NAME = '오전';
   switchSession(CURRENT_SESSION_NAME === '오후' ? 'afternoon' : 'morning');
+}
+
+/**
+ * 동적 제출 버튼 상태 및 라벨 갱신
+ * hasUnsaved: true(미제출/수정됨 -> 주황색), false(제출완료 또는 변경없음)
+ */
+function updateSubmitButtonState(hasUnsaved) {
+  const btnSubmit = document.getElementById('btnSubmit');
+  if (!CURRENT_PERIOD) {
+    btnSubmit.disabled = true;
+    btnSubmit.className = 'btn btn-submit';
+    btnSubmit.innerHTML = '📤 점수 제출';
+    return;
+  }
+
+  btnSubmit.disabled = false;
+  HAS_UNSAVED_CHANGES = hasUnsaved;
+
+  if (hasUnsaved) {
+    btnSubmit.className = 'btn btn-submit state-unsaved';
+    btnSubmit.innerHTML = `📤 ${CURRENT_PERIOD}교시 점수 제출 (미제출)`;
+  } else {
+    btnSubmit.className = 'btn btn-submit state-saved';
+    btnSubmit.innerHTML = `✅ ${CURRENT_PERIOD}교시 제출 완료`;
+  }
 }
 
 function switchSession(typeKey) {
@@ -755,7 +1001,7 @@ function switchSession(typeKey) {
 
 /**
  * =========================================================================
- * 5. 테이블 렌더링 및 로컬스토리지 동기화
+ * 6. 테이블 렌더링 및 로컬스토리지 동기화
  * =========================================================================
  */
 function getStorageKey() {
@@ -773,12 +1019,17 @@ function initGridAndRender() {
   });
 
   const cached = localStorage.getItem(storageKey);
+  let hasRestoredData = false;
+
   if (cached) {
     try {
       const parsed = JSON.parse(cached);
       Object.keys(parsed).forEach(sid => {
         if (GRID_STATE[sid]) {
           GRID_STATE[sid] = parsed[sid];
+          if (parsed[sid].some(v => v !== '')) {
+            hasRestoredData = true;
+          }
         }
       });
       document.getElementById('storageStatus').innerText = 
@@ -790,6 +1041,9 @@ function initGridAndRender() {
 
   renderTableStructure(qCount);
   updateTableAll();
+
+  // 복구된 데이터가 있으면 제출 대기 상태로 설정
+  updateSubmitButtonState(hasRestoredData);
 }
 
 function saveToLocalStorage() {
@@ -806,7 +1060,6 @@ function renderTableStructure(qCount) {
   let qHeaders = '';
   for (let i = 1; i <= qCount; i++) {
     if (!isSpeed) {
-      // 객관식: 번호 클릭 시 전원 정답(O) 일괄 처리 지원
       qHeaders += `
         <th style="width: 44px;">
           <div class="q-header-btn" onclick="bulkSetQuestionCorrect(${i - 1})" title="클릭 시 ${i}번 문항 전원 정답(O) 일괄 채점">
@@ -819,7 +1072,6 @@ function renderTableStructure(qCount) {
     }
   }
 
-  // 상태 열은 스피드 퀴즈(퀴즈아웃/파울아웃)에서만 필요하며, 객관식에서는 숨김 처리
   const statusHeaderHtml = isSpeed ? `<th class="col-status" style="width: 65px;">상태</th>` : ``;
 
   theadRow.innerHTML = `
@@ -879,13 +1131,11 @@ function renderTableStructure(qCount) {
 
 /**
  * =========================================================================
- * 6. 채점 이벤트 및 객관식 전원 정답 원클릭 기능
+ * 7. 채점 이벤트 (신규 & 수정 시 미제출 상태 전환)
  * =========================================================================
  */
-
-// 객관식 특화: 문제 번호 클릭 시 해당 문항 전원 정답(O) 일괄 적용 (이미 전원 O면 해제)
 function bulkSetQuestionCorrect(qIndex) {
-  if (CURRENT_SESSION_TYPE === 'speed') return; // 스피드 퀴즈는 단일 정답 규칙이므로 적용 불가
+  if (CURRENT_SESSION_TYPE === 'speed') return;
 
   let allAreO = true;
   CURRENT_STUDENTS.forEach(s => {
@@ -902,6 +1152,7 @@ function bulkSetQuestionCorrect(qIndex) {
 
   saveToLocalStorage();
   updateTableAll();
+  updateSubmitButtonState(true); // 미제출 주황색 버튼 전환
 }
 
 function handleCellClick(studentId, qIndex) {
@@ -927,7 +1178,6 @@ function handleCellRightClick(studentId, qIndex) {
 }
 
 function applyAnswer(studentId, qIndex, nextVal) {
-  // 스피드 퀴즈: 문항당 단일 정답자 제약 (O는 최대 1명)
   if (CURRENT_SESSION_TYPE === 'speed' && nextVal === 'O') {
     CURRENT_STUDENTS.forEach(s => {
       if (s.id !== studentId && GRID_STATE[s.id][qIndex] === 'O') {
@@ -940,6 +1190,7 @@ function applyAnswer(studentId, qIndex, nextVal) {
 
   saveToLocalStorage();
   updateTableAll();
+  updateSubmitButtonState(true); // 미제출 주황색 버튼 전환
 }
 
 function updateTableAll() {
@@ -1020,19 +1271,20 @@ function updateTableAll() {
 
 /**
  * =========================================================================
- * 7. 백엔드 시트 저장
+ * 8. 백엔드 시트 최종 제출
  * =========================================================================
  */
 async function saveCurrentSheet() {
   const recorderName = document.getElementById('recorderName').value.trim();
   if (!recorderName) {
-    alert('기록관 성함을 먼저 입력해 주세요.');
-    document.getElementById('recorderName').focus();
+    showCustomAlert('성함 미입력', '기록관 성함을 먼저 입력해 주세요.', 'warn', () => {
+      document.getElementById('recorderName').focus();
+    });
     return;
   }
 
   if (CURRENT_STUDENTS.length === 0) {
-    alert('저장할 학생 데이터가 없습니다.');
+    showCustomAlert('데이터 없음', '제출할 학생 데이터가 없습니다.', 'warn');
     return;
   }
 
@@ -1066,35 +1318,41 @@ async function saveCurrentSheet() {
     records: records
   };
 
-  const confirmMsg = `[${CURRENT_ROOM} / ${CURRENT_PERIOD}교시 / ${CURRENT_SESSION_NAME} 세션]\n총 ${records.length}명의 채점 점수를 중앙 시스템에 저장하시겠습니까?`;
-  if (!confirm(confirmMsg)) return;
+  // 커스텀 Confirm 모달 호출
+  showCustomConfirm(
+    '📤 점수 최종 제출 확인',
+    `[${CURRENT_ROOM} / ${CURRENT_PERIOD}교시 / ${CURRENT_SESSION_NAME} 세션]\n총 ${records.length}명의 채점 결과를 중앙 서버로 제출하시겠습니까?`,
+    async () => {
+      showLoading('중앙 시스템에 점수를 안전하게 저장하고 있습니다...');
+      try {
+        const resp = await fetch(GAS_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(payload)
+        });
+        const result = await resp.json();
 
-  showLoading('중앙 시스템에 점수를 안전하게 저장하고 있습니다...');
-
-  try {
-    const resp = await fetch(GAS_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify(payload)
-    });
-    const result = await resp.json();
-
-    if (result.status === 'success') {
-      alert('✅ 성공적으로 저장되었습니다! (최종집계 시트 실시간 반영 완료)');
-    } else {
-      throw new Error(result.message);
-    }
-  } catch (err) {
-    console.error('저장 에러:', err);
-    alert('저장 중 오류가 발생했습니다: ' + err.message);
-  } finally {
-    hideLoading();
-  }
+        if (result.status === 'success') {
+          updateSubmitButtonState(false); // ✅ 제출 완료 녹색 버튼으로 전환
+          showCustomAlert('제출 성공', '✅ 성공적으로 제출되었습니다!\n(최종집계 시트에 실시간 반영 완료)', 'success');
+        } else {
+          throw new Error(result.message);
+        }
+      } catch (err) {
+        console.error('제출 에러:', err);
+        showCustomAlert('제출 실패', '저장 중 오류가 발생했습니다: ' + err.message, 'warn');
+      } finally {
+        hideLoading();
+      }
+    },
+    null,
+    'info'
+  );
 }
 
 /**
  * =========================================================================
- * 8. 내장 테스트 러너 (?test=1)
+ * 9. 내장 테스트 러너 (?test=1)
  * =========================================================================
  */
 async function setupTestEnvironmentAndRun() {
@@ -1116,6 +1374,8 @@ async function setupTestEnvironmentAndRun() {
 
   document.getElementById('roomSelect').value = '티앤티3';
   document.getElementById('periodSelect').value = '1';
+  LAST_SELECTED_ROOM = '티앤티3';
+  LAST_SELECTED_PERIOD = '1';
   onSelectionChange();
 
   switchSession('morning');
@@ -1132,8 +1392,7 @@ async function setupTestEnvironmentAndRun() {
   const multipleScore = Number(document.getElementById(`score_${student1}`).innerText);
   if (multipleScore !== 50) throw new Error('객관식 50점 합산 오류');
 
-  // 문항 일괄 정답 테스트
-  bulkSetQuestionCorrect(0); // 1번 문항 전원 O
+  bulkSetQuestionCorrect(0);
 
   switchSession('afternoon');
   const sA = CURRENT_STUDENTS[0].id;
@@ -1143,7 +1402,7 @@ async function setupTestEnvironmentAndRun() {
   if (GRID_STATE[sA][0] !== '' || GRID_STATE[sB][0] !== 'O') throw new Error('스피드 단일 정답자 규칙 오류');
 
   banner.style.backgroundColor = '#16a34a';
-  banner.innerHTML = '🎉 <b>[자가 진단 통과: 모든 채점 및 전원 정답 기능 정상 작동]</b>';
+  banner.innerHTML = '🎉 <b>[자가 진단 통과: 모든 채점, 동적 버튼 및 팝업 정상 작동]</b>';
 }
 
 function showLoading(text) {
