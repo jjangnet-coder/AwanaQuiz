@@ -11,7 +11,7 @@
  * - 브라우저 콘솔: 코드 복사 후 runConcurrencyLoadTest("배포된_GAS_URL") 실행
  */
 
-const DEFAULT_GAS_URL = "https://script.google.com/macros/s/AKfycbz_awana_placeholder/exec";
+const DEFAULT_GAS_URL = "https://script.google.com/macros/s/AKfycbwtGz5tGcXgJt-VJsYFaHOkPULVX1XOuYtTnZY2u6-6sgRXHOqWJRRcK6jkdz815yQ3Yw/exec";
 
 async function runConcurrencyLoadTest(gasUrl = DEFAULT_GAS_URL) {
   console.log("================================================================================");
