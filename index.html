@@ -1,0 +1,1189 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Awana 성경퀴즈대회 현장 채점 시스템</title>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --bg-body: #f8fafc;
+      --bg-card: #ffffff;
+      --border-color: #cbd5e1;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --correct-color: #16a34a;
+      --wrong-color: #dc2626;
+      --locked-bg: #e2e8f0;
+      --header-bg: #f1f5f9;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Pretendard", "Segoe UI", Roboto, "Malgun Gothic", sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-body);
+      color: var(--text-main);
+      padding: 16px;
+      user-select: none;
+    }
+
+    .container {
+      max-width: 1560px;
+      margin: 0 auto;
+    }
+
+    /* 상단 배너 */
+    #testBanner {
+      display: none;
+      padding: 12px 18px;
+      background-color: #10b981;
+      color: #ffffff;
+      font-weight: 700;
+      border-radius: 8px;
+      margin-bottom: 14px;
+      box-shadow: 0 2px 6px rgba(16, 185, 129, 0.25);
+      animation: fadeIn 0.3s ease;
+    }
+
+    .header-bar {
+      background: var(--bg-card);
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+      padding: 14px 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+      margin-bottom: 14px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .header-title-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .header-title {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #1e293b;
+      letter-spacing: -0.5px;
+    }
+
+    .badge-club {
+      font-size: 0.8rem;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-weight: 700;
+      text-transform: uppercase;
+      background: #e0e7ff;
+      color: #3730a3;
+    }
+
+    .controls-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .control-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    select, input[type="text"] {
+      padding: 7px 12px;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-main);
+      background-color: #ffffff;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    select:focus, input[type="text"]:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(37,99,235,0.15);
+    }
+
+    .btn {
+      padding: 8px 18px;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+
+    .btn-primary {
+      background-color: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background-color: var(--primary-dark);
+    }
+
+    .btn-secondary {
+      background-color: #64748b;
+      color: white;
+    }
+
+    .btn-secondary:hover {
+      background-color: #475569;
+    }
+
+    .btn-danger {
+      background-color: #ef4444;
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background-color: #dc2626;
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* 탭 네비게이션 */
+    .session-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .tab-btn {
+      padding: 10px 20px;
+      background: #e2e8f0;
+      border: none;
+      border-radius: 8px 8px 0 0;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #475569;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .tab-btn.active {
+      background: #ffffff;
+      color: var(--primary);
+      border-bottom: 3px solid var(--primary);
+      box-shadow: 0 -2px 6px rgba(0,0,0,0.03);
+    }
+
+    .tab-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    /* 교실/교시 배지 안내 */
+    .room-badge-info {
+      background: #eff6ff;
+      border-left: 4px solid var(--primary);
+      padding: 10px 16px;
+      border-radius: 4px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #1e40af;
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* 종이 기록지형 가로 테이블 */
+    .table-container {
+      background: var(--bg-card);
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      overflow-x: auto;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+      margin-bottom: 16px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: center;
+      min-width: 900px;
+    }
+
+    thead th {
+      background-color: var(--header-bg);
+      color: #334155;
+      font-size: 0.85rem;
+      font-weight: 800;
+      padding: 10px 6px;
+      border: 1px solid var(--border-color);
+      white-space: nowrap;
+    }
+
+    tbody tr:hover {
+      background-color: #f8fafc;
+    }
+
+    tbody td {
+      border: 1px solid var(--border-color);
+      padding: 8px 6px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      vertical-align: middle;
+      white-space: nowrap;
+    }
+
+    .col-meta {
+      font-size: 0.85rem;
+      color: #475569;
+    }
+
+    .col-name {
+      font-size: 1rem;
+      font-weight: 800;
+      color: #0f172a;
+      letter-spacing: -0.3px;
+    }
+
+    /* 채점 셀 인터랙션 */
+    .quiz-cell {
+      width: 46px;
+      height: 44px;
+      cursor: pointer;
+      font-size: 1.3rem;
+      font-weight: 900;
+      transition: background-color 0.12s, transform 0.08s;
+      border-radius: 4px;
+    }
+
+    .quiz-cell:hover:not(.locked) {
+      background-color: #f1f5f9;
+      transform: scale(1.04);
+    }
+
+    .quiz-cell.val-o {
+      color: var(--correct-color);
+      background-color: #dcfce7 !important;
+    }
+
+    .quiz-cell.val-x {
+      color: var(--wrong-color);
+      background-color: #fee2e2 !important;
+    }
+
+    .quiz-cell.locked {
+      background-color: var(--locked-bg) !important;
+      cursor: not-allowed;
+      opacity: 0.65;
+      position: relative;
+    }
+
+    .quiz-cell.locked::after {
+      content: "✕";
+      font-size: 0.75rem;
+      color: #94a3b8;
+    }
+
+    /* 우측 요약 열 */
+    .summary-cell {
+      font-weight: 800;
+      font-size: 1rem;
+    }
+
+    .summary-o {
+      color: var(--correct-color);
+    }
+
+    .summary-x {
+      color: var(--wrong-color);
+    }
+
+    .summary-score {
+      font-size: 1.15rem;
+      font-weight: 900;
+      color: var(--primary-dark);
+      background-color: #eff6ff;
+    }
+
+    /* 아웃(OUT) 배지 */
+    .status-badge {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 800;
+    }
+
+    .badge-quizout {
+      background-color: #dbeafe;
+      color: #1e40af;
+      border: 1px solid #93c5fd;
+    }
+
+    .badge-foulout {
+      background-color: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fca5a5;
+    }
+
+    /* 하단 상태바 */
+    .footer-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 4px;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    /* 로딩 인디케이터 모달 */
+    .loading-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.45);
+      z-index: 9999;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      gap: 12px;
+      color: #ffffff;
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+
+    .spinner {
+      width: 44px;
+      height: 44px;
+      border: 4px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: #ffffff;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="spinner"></div>
+  <div id="loadingText">데이터를 안전하게 처리하고 있습니다...</div>
+</div>
+
+<div class="container">
+  <!-- ?test=1 자가 진단 배너 -->
+  <div id="testBanner">
+    🚀 [자가 진단 모드 (?test=1)] 채점 및 잠금 규칙 검증 테스트 러너가 실행 중입니다...
+  </div>
+
+  <!-- 상단 컨트롤 헤더 바 -->
+  <header class="header-bar">
+    <div class="header-title-group">
+      <div class="header-title">Awana 성경퀴즈 현장 채점</div>
+      <span class="badge-club" id="clubBadge">SPARKS / T&T</span>
+    </div>
+
+    <div class="controls-row">
+      <div class="control-item">
+        <label for="recorderName">기록관:</label>
+        <input type="text" id="recorderName" placeholder="성함 입력" style="width: 110px;" />
+      </div>
+
+      <div class="control-item">
+        <label for="roomSelect">교실:</label>
+        <select id="roomSelect">
+          <option value="">교실 선택</option>
+          <optgroup label="SPARKS 시험장">
+            <option value="스팍스1">스팍스1</option>
+            <option value="스팍스2">스팍스2</option>
+            <option value="스팍스3">스팍스3</option>
+            <option value="스팍스4">스팍스4</option>
+            <option value="스팍스5">스팍스5</option>
+          </optgroup>
+          <optgroup label="T&T 시험장">
+            <option value="티앤티1">티앤티1</option>
+            <option value="티앤티2">티앤티2</option>
+            <option value="티앤티3">티앤티3</option>
+            <option value="티앤티4">티앤티4</option>
+            <option value="티앤티5">티앤티5</option>
+            <option value="티앤티6">티앤티6</option>
+            <option value="티앤티7">티앤티7</option>
+          </optgroup>
+        </select>
+      </div>
+
+      <div class="control-item">
+        <label for="periodSelect">교시:</label>
+        <select id="periodSelect">
+          <option value="">교시 선택</option>
+          <option value="1">1교시</option>
+          <option value="2">2교시</option>
+          <option value="3">3교시</option>
+          <option value="4">4교시</option>
+          <option value="5">5교시</option>
+          <option value="6">6교시</option>
+          <option value="7">7교시</option>
+        </select>
+      </div>
+
+      <button class="btn btn-primary" id="btnSave" onclick="saveCurrentSheet()">
+        💾 본부 시트 저장
+      </button>
+
+      <button class="btn btn-secondary" onclick="fetchMasterData(true)">
+        🔄 새로고침
+      </button>
+    </div>
+  </header>
+
+  <!-- 교실/교시 배지 안내 정보 -->
+  <div class="room-badge-info" id="roomInfoBar" style="display: none;">
+    <div>
+      <span id="roomInfoText">교실과 교시를 선택해 주세요.</span>
+    </div>
+    <div style="font-size: 0.85rem; font-weight: 500;">
+      * 좌클릭: O/X 토글 | 우클릭: X 즉시 설정
+    </div>
+  </div>
+
+  <!-- 세션 탭 (학년 기반 자동 분기) -->
+  <div class="session-tabs" id="sessionTabs" style="display: none;">
+    <!-- Sparks 1~2학년: 객관식(오전), 객관식(오후) -->
+    <!-- T&T 3~6학년: 객관식(오전), 스피드(오후) -->
+    <button class="tab-btn active" id="tabMorning" onclick="switchSession('morning')">객관식 (오전)</button>
+    <button class="tab-btn" id="tabAfternoon" onclick="switchSession('afternoon')">오후 세션</button>
+  </div>
+
+  <!-- 가로형 채점 테이블 -->
+  <div class="table-container">
+    <table id="scoringTable">
+      <thead>
+        <tr id="tableHeaderRow">
+          <th style="width: 45px;">NO</th>
+          <th style="width: 140px;">핸드북</th>
+          <th style="width: 45px;">조</th>
+          <th style="width: 120px;">교회명</th>
+          <th style="width: 100px;">이름</th>
+          <th style="width: 80px;">상태</th>
+          <!-- 문항 헤더 (동적 생성: 객관식 1~8 or 스피드 1~10) -->
+          <th style="width: 50px;">O수</th>
+          <th style="width: 50px;">X수</th>
+          <th style="width: 70px;">총점</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody">
+        <tr>
+          <td colspan="17" style="padding: 40px; color: var(--text-muted); font-size: 1rem;">
+            상단에서 <b>교실명</b>과 <b>교시</b>를 선택하면 해당 반 채점 명단이 나타납니다.
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 하단 상태 바 -->
+  <footer class="footer-bar">
+    <div>
+      <span id="storageStatus">📦 로컬 임시저장: 대기 중</span>
+    </div>
+    <div>
+      <span id="gasEndpointInfo">연결 상태: 미설정</span>
+    </div>
+  </footer>
+</div>
+
+<script>
+/**
+ * =========================================================================
+ * 1. 시스템 환경 설정 및 전역 상태 관리
+ * =========================================================================
+ */
+// Google Apps Script 배포 URL (Web App URL)
+const GAS_URL = "https://script.google.com/macros/s/AKfycbz_awana_placeholder/exec";
+
+// 전역 상태
+let MASTER_DATA = {
+  settings: {
+    '스피드_최대정답수': 3,
+    '스피드_최대오답수': 3
+  },
+  participants: [],
+  timetable: [],
+  scores: {}
+};
+
+let CURRENT_SESSION_TYPE = 'multiple'; // 'multiple' | 'speed'
+let CURRENT_SESSION_NAME = '오전';     // '오전' | '오후'
+let CURRENT_ROOM = '';
+let CURRENT_PERIOD = '';
+let CURRENT_HANDBOOK = '';
+let CURRENT_TEAM = 0;
+let CURRENT_GRADE = 0; // 1~2: SPARKS, 3~6: T&T
+let CURRENT_STUDENTS = []; // 현재 교실/교시에 배정된 참가자 리스트
+
+// 채점 셀 상태: studentId -> [문항1, 문항2, ...] ('O', 'X', '')
+let GRID_STATE = {};
+
+/**
+ * =========================================================================
+ * 2. 초기화 및 이벤트 리스너
+ * =========================================================================
+ */
+window.addEventListener('DOMContentLoaded', () => {
+  // 기록관 성함 기억 복구
+  const savedRecorder = localStorage.getItem('awana_recorder_name');
+  if (savedRecorder) {
+    document.getElementById('recorderName').value = savedRecorder;
+  }
+  document.getElementById('recorderName').addEventListener('input', (e) => {
+    localStorage.setItem('awana_recorder_name', e.target.value.trim());
+  });
+
+  // 교실 및 교시 체인지 이벤트
+  document.getElementById('roomSelect').addEventListener('change', onSelectionChange);
+  document.getElementById('periodSelect').addEventListener('change', onSelectionChange);
+
+  // 테이블 우클릭 메뉴 방지 (X 입력 전용 인터랙션)
+  document.getElementById('scoringTable').addEventListener('contextmenu', (e) => {
+    e.preventDefault();
+  });
+
+  // ?test=1 자가 진단 모드 확인
+  const urlParams = new URLSearchParams(window.location.search);
+  const isTestMode = urlParams.get('test') === '1';
+
+  if (isTestMode) {
+    document.getElementById('testBanner').style.display = 'block';
+    setupTestEnvironmentAndRun();
+  } else {
+    fetchMasterData();
+  }
+});
+
+/**
+ * =========================================================================
+ * 3. 마스터 데이터 통신 및 로컬 캐시 관리
+ * =========================================================================
+ */
+async function fetchMasterData(isManual = false) {
+  showLoading('마스터 데이터 및 기존 점수를 불러오는 중...');
+  try {
+    if (GAS_URL.includes('placeholder')) {
+      console.warn('GAS_URL이 설정되지 않아 로컬 테스트용 Mock 데이터를 로드합니다.');
+      loadMockData();
+    } else {
+      const resp = await fetch(GAS_URL, { method: 'GET' });
+      const result = await resp.json();
+      if (result.status === 'success') {
+        MASTER_DATA = result.data;
+        document.getElementById('gasEndpointInfo').innerText = '연결 상태: 정상 (GAS 동기화 완료)';
+      } else {
+        throw new Error(result.message);
+      }
+    }
+
+    if (isManual) alert('데이터를 성공적으로 새로고침했습니다.');
+    onSelectionChange();
+  } catch (err) {
+    console.error('마스터 로드 오류:', err);
+    alert('데이터 조회 중 오류가 발생하여 내장 오프라인 데이터를 로드합니다: ' + err.message);
+    loadMockData();
+    onSelectionChange();
+  } finally {
+    hideLoading();
+  }
+}
+
+/**
+ * =========================================================================
+ * 4. 교실/교시 선택 및 학년별 세션 탭 자동 분기
+ * =========================================================================
+ */
+function onSelectionChange() {
+  CURRENT_ROOM = document.getElementById('roomSelect').value;
+  CURRENT_PERIOD = document.getElementById('periodSelect').value;
+
+  const roomInfoBar = document.getElementById('roomInfoBar');
+  const sessionTabs = document.getElementById('sessionTabs');
+  const clubBadge = document.getElementById('clubBadge');
+
+  if (!CURRENT_ROOM || !CURRENT_PERIOD) {
+    roomInfoBar.style.display = 'none';
+    sessionTabs.style.display = 'none';
+    document.getElementById('tableBody').innerHTML = `
+      <tr>
+        <td colspan="17" style="padding: 40px; color: var(--text-muted); font-size: 1rem;">
+          상단에서 <b>교실명</b>과 <b>교시</b>를 선택하면 해당 반 채점 명단이 나타납니다.
+        </td>
+      </tr>`;
+    return;
+  }
+
+  // 시간표에서 일치하는 핸드북 및 조 매핑 검색
+  // 규칙: 1개 교실 x 1개 교시 = 오직 1개의 핸드북과 1개의 조 매칭
+  const matchSchedule = MASTER_DATA.timetable.find(
+    t => t.room === CURRENT_ROOM && Number(t.period) === Number(CURRENT_PERIOD)
+  );
+
+  if (!matchSchedule) {
+    roomInfoBar.style.display = 'flex';
+    sessionTabs.style.display = 'none';
+    document.getElementById('roomInfoText').innerText = 
+      `⚠️ [${CURRENT_ROOM} / ${CURRENT_PERIOD}교시] 에 배정된 시간표 정보가 없습니다.`;
+    document.getElementById('tableBody').innerHTML = `
+      <tr>
+        <td colspan="17" style="padding: 30px; color: #ef4444; font-weight: 700;">
+          시간표 시트에 해당 교실/교시 배정이 없습니다.
+        </td>
+      </tr>`;
+    return;
+  }
+
+  CURRENT_HANDBOOK = matchSchedule.handbook;
+  CURRENT_TEAM = Number(matchSchedule.team);
+
+  // 참가자명단에서 해당 반 학생들 추출 (번호 순 정렬)
+  CURRENT_STUDENTS = MASTER_DATA.participants.filter(
+    p => p.handbook === CURRENT_HANDBOOK && Number(p.team) === CURRENT_TEAM
+  ).sort((a, b) => Number(a.num) - Number(b.num));
+
+  // 학년 추출 (첫 번째 학생 기준 혹은 핸드북 분석)
+  CURRENT_GRADE = CURRENT_STUDENTS.length > 0 ? Number(CURRENT_STUDENTS[0].grade) : 1;
+
+  // 클럽 판별: 1~2학년 SPARKS, 3~6학년 T&T
+  const isSparks = CURRENT_GRADE === 1 || CURRENT_GRADE === 2;
+  clubBadge.innerText = isSparks ? 'SPARKS' : 'T&T';
+  clubBadge.style.backgroundColor = isSparks ? '#fef3c7' : '#e0e7ff';
+  clubBadge.style.color = isSparks ? '#b45309' : '#3730a3';
+
+  // 안내바 표출
+  roomInfoBar.style.display = 'flex';
+  document.getElementById('roomInfoText').innerText = 
+    `📌 [${CURRENT_ROOM} / ${CURRENT_PERIOD}교시] ${CURRENT_HANDBOOK} · ${CURRENT_TEAM}조 (총 ${CURRENT_STUDENTS.length}명)`;
+
+  // 세션 탭 구성
+  sessionTabs.style.display = 'flex';
+  const tabMorning = document.getElementById('tabMorning');
+  const tabAfternoon = document.getElementById('tabAfternoon');
+
+  tabMorning.innerText = '객관식 (오전)';
+
+  if (isSparks) {
+    // SPARKS: 객관식(오전) + 객관식(오후)
+    tabAfternoon.innerText = '객관식 (오후)';
+  } else {
+    // T&T: 객관식(오전) + 스피드(오후)
+    tabAfternoon.innerText = '스피드 퀴즈 (오후)';
+  }
+
+  // 기본 활성화 세션 선택 (현재 선택 유지 또는 오전 기본)
+  if (!CURRENT_SESSION_NAME) CURRENT_SESSION_NAME = '오전';
+  switchSession(CURRENT_SESSION_NAME === '오후' ? 'afternoon' : 'morning');
+}
+
+/**
+ * 세션 전환 (오전 vs 오후)
+ */
+function switchSession(typeKey) {
+  const isMorning = typeKey === 'morning';
+  CURRENT_SESSION_NAME = isMorning ? '오전' : '오후';
+
+  const tabMorning = document.getElementById('tabMorning');
+  const tabAfternoon = document.getElementById('tabAfternoon');
+
+  if (isMorning) {
+    tabMorning.classList.add('active');
+    tabAfternoon.classList.remove('active');
+    CURRENT_SESSION_TYPE = 'multiple';
+  } else {
+    tabMorning.classList.remove('active');
+    tabAfternoon.classList.add('active');
+    // SPARKS는 오후도 multiple, T&T는 speed
+    const isSparks = CURRENT_GRADE === 1 || CURRENT_GRADE === 2;
+    CURRENT_SESSION_TYPE = isSparks ? 'multiple' : 'speed';
+  }
+
+  initGridAndRender();
+}
+
+/**
+ * =========================================================================
+ * 5. 채점 그리드 초기화, 로컬스토리지 복구 및 렌더링
+ * =========================================================================
+ */
+function initGridAndRender() {
+  const qCount = CURRENT_SESSION_TYPE === 'multiple' ? 8 : 10;
+  const storageKey = getStorageKey();
+
+  GRID_STATE = {};
+
+  // 1. 기본 빈 배열 세팅
+  CURRENT_STUDENTS.forEach(s => {
+    GRID_STATE[s.id] = new Array(qCount).fill('');
+  });
+
+  // 2. localStorage 임시저장 데이터가 있으면 우선 복원
+  const cached = localStorage.getItem(storageKey);
+  if (cached) {
+    try {
+      const parsed = JSON.parse(cached);
+      Object.keys(parsed).forEach(sid => {
+        if (GRID_STATE[sid]) {
+          GRID_STATE[sid] = parsed[sid];
+        }
+      });
+      document.getElementById('storageStatus').innerText = 
+        `📦 로컬 임시저장: 자동 복구됨 (${new Date().toLocaleTimeString()})`;
+    } catch (e) {
+      console.warn('로컬 복구 실패:', e);
+    }
+  }
+
+  renderTableStructure(qCount);
+  updateTableAll();
+}
+
+/**
+ * 로컬스토리지 고유 키
+ */
+function getStorageKey() {
+  return `awana_${CURRENT_ROOM}_${CURRENT_PERIOD}_${CURRENT_HANDBOOK}_${CURRENT_TEAM}_${CURRENT_SESSION_NAME}_${CURRENT_SESSION_TYPE}`;
+}
+
+/**
+ * 변경 시 로컬스토리지 자동 저장
+ */
+function saveToLocalStorage() {
+  const key = getStorageKey();
+  localStorage.setItem(key, JSON.stringify(GRID_STATE));
+  document.getElementById('storageStatus').innerText = 
+    `📦 로컬 임시저장: 저장 완료 (${new Date().toLocaleTimeString()})`;
+}
+
+/**
+ * 테이블 헤더 및 전체 골격 렌더링
+ */
+function renderTableStructure(qCount) {
+  const theadRow = document.getElementById('tableHeaderRow');
+  
+  let qHeaders = '';
+  for (let i = 1; i <= qCount; i++) {
+    qHeaders += `<th style="width: 48px;">${i}번</th>`;
+  }
+
+  theadRow.innerHTML = `
+    <th style="width: 40px;">NO</th>
+    <th style="width: 140px;">핸드북</th>
+    <th style="width: 40px;">조</th>
+    <th style="width: 110px;">교회명</th>
+    <th style="width: 90px;">이름</th>
+    <th style="width: 75px;">상태</th>
+    ${qHeaders}
+    <th style="width: 48px;">O수</th>
+    <th style="width: 48px;">X수</th>
+    <th style="width: 65px;">총점</th>
+  `;
+
+  const tbody = document.getElementById('tableBody');
+  if (CURRENT_STUDENTS.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="${9 + qCount}" style="padding: 30px;">해당 반 참가자가 없습니다.</td></tr>`;
+    return;
+  }
+
+  let rowsHtml = '';
+  CURRENT_STUDENTS.forEach((s) => {
+    let cellsHtml = '';
+    for (let q = 0; q < qCount; q++) {
+      cellsHtml += `
+        <td class="quiz-cell" 
+            id="cell_${s.id}_${q}" 
+            data-sid="${s.id}" 
+            data-q="${q}"
+            onclick="handleCellClick('${s.id}', ${q})"
+            oncontextmenu="handleCellRightClick('${s.id}', ${q})">
+        </td>`;
+    }
+
+    rowsHtml += `
+      <tr id="row_${s.id}">
+        <td class="col-meta">${s.num}</td>
+        <td class="col-meta">${s.handbook}</td>
+        <td class="col-meta">${s.team}</td>
+        <td class="col-meta">${s.church}</td>
+        <td class="col-name">${s.name}</td>
+        <td id="status_${s.id}">-</td>
+        ${cellsHtml}
+        <td class="summary-cell summary-o" id="count_o_${s.id}">0</td>
+        <td class="summary-cell summary-x" id="count_x_${s.id}">0</td>
+        <td class="summary-cell summary-score" id="score_${s.id}">0</td>
+      </tr>
+    `;
+  });
+
+  tbody.innerHTML = rowsHtml;
+}
+
+/**
+ * =========================================================================
+ * 6. 채점 클릭 이벤트 및 스피드 퀴즈 3중 잠금 비즈니스 로직
+ * =========================================================================
+ */
+
+// 좌클릭: 공백 -> O -> X -> 공백
+function handleCellClick(studentId, qIndex) {
+  const currentVal = GRID_STATE[studentId][qIndex] || '';
+
+  // 잠금 상태인 경우 클릭 무시
+  const cellEl = document.getElementById(`cell_${studentId}_${qIndex}`);
+  if (cellEl && cellEl.classList.contains('locked')) {
+    return;
+  }
+
+  let nextVal = '';
+  if (currentVal === '') nextVal = 'O';
+  else if (currentVal === 'O') nextVal = 'X';
+  else if (currentVal === 'X') nextVal = '';
+
+  applyAnswer(studentId, qIndex, nextVal);
+}
+
+// 우클릭: X 즉시 설정 (이미 X면 해제)
+function handleCellRightClick(studentId, qIndex) {
+  const currentVal = GRID_STATE[studentId][qIndex] || '';
+
+  const cellEl = document.getElementById(`cell_${studentId}_${qIndex}`);
+  if (cellEl && cellEl.classList.contains('locked')) {
+    return;
+  }
+
+  const nextVal = currentVal === 'X' ? '' : 'X';
+  applyAnswer(studentId, qIndex, nextVal);
+}
+
+/**
+ * 정답 적용 및 스피드 퀴즈 규칙 집행
+ */
+function applyAnswer(studentId, qIndex, nextVal) {
+  // 스피드 퀴즈 [규칙 A]: 문항당 단일 정답자 제약 (O는 최대 1명)
+  if (CURRENT_SESSION_TYPE === 'speed' && nextVal === 'O') {
+    CURRENT_STUDENTS.forEach(s => {
+      if (s.id !== studentId && GRID_STATE[s.id][qIndex] === 'O') {
+        GRID_STATE[s.id][qIndex] = ''; // 기존 O 자동 해제
+      }
+    });
+  }
+
+  GRID_STATE[studentId][qIndex] = nextVal;
+
+  saveToLocalStorage();
+  updateTableAll();
+}
+
+/**
+ * 전체 테이블 상태 및 잠금 계산 동기화
+ */
+function updateTableAll() {
+  const qCount = CURRENT_SESSION_TYPE === 'multiple' ? 8 : 10;
+  const isSpeed = CURRENT_SESSION_TYPE === 'speed';
+  const pointPerQ = isSpeed ? 20 : 10;
+
+  const maxO = Number(MASTER_DATA.settings['스피드_최대정답수'] || 3);
+  const maxX = Number(MASTER_DATA.settings['스피드_최대오답수'] || 3);
+
+  // 학생별 O, X 누적 개수 계산 및 잠금 위치 추적
+  CURRENT_STUDENTS.forEach(s => {
+    const answers = GRID_STATE[s.id];
+    let oCount = 0;
+    let xCount = 0;
+
+    let quizOutLockIndex = -1; // 이 인덱스 이후부터 O 잠금
+    let foulOutLockIndex = -1; // 이 인덱스 이후부터 X 잠금
+
+    for (let q = 0; q < qCount; q++) {
+      const val = answers[q];
+      if (val === 'O') {
+        oCount++;
+        if (isSpeed && oCount >= maxO && quizOutLockIndex === -1) {
+          quizOutLockIndex = q + 1; // 다음 문항부터 잠금
+        }
+      } else if (val === 'X') {
+        xCount++;
+        if (isSpeed && xCount >= maxX && foulOutLockIndex === -1) {
+          foulOutLockIndex = q + 1; // 다음 문항부터 잠금
+        }
+      }
+    }
+
+    // 각 셀 UI 업데이트
+    for (let q = 0; q < qCount; q++) {
+      const cellEl = document.getElementById(`cell_${s.id}_${q}`);
+      if (!cellEl) continue;
+
+      const val = answers[q];
+      cellEl.innerText = val;
+      cellEl.className = 'quiz-cell';
+
+      if (val === 'O') cellEl.classList.add('val-o');
+      else if (val === 'X') cellEl.classList.add('val-x');
+
+      // 스피드 퀴즈 잠금 [규칙 B & C]: 퀴즈아웃/파울아웃 도달 시 이후 셀 잠금
+      if (isSpeed) {
+        const isLockedByQuizOut = (quizOutLockIndex !== -1 && q >= quizOutLockIndex);
+        const isLockedByFoulOut = (foulOutLockIndex !== -1 && q >= foulOutLockIndex);
+
+        if (isLockedByQuizOut || isLockedByFoulOut) {
+          cellEl.classList.add('locked');
+        }
+      }
+    }
+
+    // 상태 배지 업데이트
+    const statusEl = document.getElementById(`status_${s.id}`);
+    if (statusEl) {
+      if (isSpeed && oCount >= maxO) {
+        statusEl.innerHTML = `<span class="status-badge badge-quizout">퀴즈아웃</span>`;
+      } else if (isSpeed && xCount >= maxX) {
+        statusEl.innerHTML = `<span class="status-badge badge-foulout">파울아웃</span>`;
+      } else {
+        statusEl.innerText = '-';
+      }
+    }
+
+    // 통계 및 총점 업데이트
+    const totalScore = oCount * pointPerQ;
+    const countOEl = document.getElementById(`count_o_${s.id}`);
+    const countXEl = document.getElementById(`count_x_${s.id}`);
+    const scoreEl = document.getElementById(`score_${s.id}`);
+
+    if (countOEl) countOEl.innerText = oCount;
+    if (countXEl) countXEl.innerText = xCount;
+    if (scoreEl) scoreEl.innerText = totalScore;
+  });
+}
+
+/**
+ * =========================================================================
+ * 7. 백엔드 시트 저장 (doPost 통신)
+ * =========================================================================
+ */
+async function saveCurrentSheet() {
+  const recorderName = document.getElementById('recorderName').value.trim();
+  if (!recorderName) {
+    alert('기록관 성함을 입력해 주세요.');
+    document.getElementById('recorderName').focus();
+    return;
+  }
+
+  if (CURRENT_STUDENTS.length === 0) {
+    alert('저장할 학생 데이터가 없습니다.');
+    return;
+  }
+
+  const pointPerQ = CURRENT_SESSION_TYPE === 'speed' ? 20 : 10;
+  const qCount = CURRENT_SESSION_TYPE === 'multiple' ? 8 : 10;
+
+  // 페이로드 빌드
+  const records = CURRENT_STUDENTS.map(s => {
+    const answers = GRID_STATE[s.id] || [];
+    let oCount = 0;
+    for (let i = 0; i < qCount; i++) {
+      if (answers[i] === 'O') oCount++;
+    }
+    const score = oCount * pointPerQ;
+
+    return {
+      id: s.id,
+      name: s.name,
+      answers: answers,
+      score: score
+    };
+  });
+
+  const payload = {
+    type: CURRENT_SESSION_TYPE, // 'multiple' | 'speed'
+    session: CURRENT_SESSION_NAME, // '오전' | '오후'
+    room: CURRENT_ROOM,
+    period: Number(CURRENT_PERIOD),
+    handbook: CURRENT_HANDBOOK,
+    team: Number(CURRENT_TEAM),
+    recorder: recorderName,
+    records: records
+  };
+
+  const confirmMsg = `[${CURRENT_ROOM} / ${CURRENT_PERIOD}교시 / ${CURRENT_SESSION_NAME} 세션]\n총 ${records.length}명의 점수를 본부 스프레드시트에 영구 저장하시겠습니까?`;
+  if (!confirm(confirmMsg)) return;
+
+  showLoading('본부 시트에 점수를 동기화하고 있습니다. 잠시만 기다려 주세요...');
+
+  try {
+    if (GAS_URL.includes('placeholder')) {
+      await new Promise(r => setTimeout(r, 800)); // 모의 지연
+      alert(`[오프라인 테스트] 저장이 성공적으로 시뮬레이션되었습니다.\n(기록관: ${recorderName}, 저장인원: ${records.length}명)`);
+    } else {
+      // CORS Preflight 방지를 위해 text/plain 전송
+      const resp = await fetch(GAS_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload)
+      });
+      const result = await resp.json();
+
+      if (result.status === 'success') {
+        alert('✅ 본부 스프레드시트에 성공적으로 저장 및 갱신되었습니다!');
+      } else {
+        throw new Error(result.message);
+      }
+    }
+  } catch (err) {
+    console.error('저장 에러:', err);
+    alert('저장 중 오류가 발생했습니다: ' + err.message);
+  } finally {
+    hideLoading();
+  }
+}
+
+/**
+ * =========================================================================
+ * 8. 내장 Mock 데이터 및 ?test=1 자가 진단 테스트 러너
+ * =========================================================================
+ */
+function loadMockData() {
+  MASTER_DATA = {
+    settings: {
+      '스피드_최대정답수': 3,
+      '스피드_최대오답수': 3
+    },
+    participants: [
+      { id: 'P0001', handbook: '어드밴처2권 4학년', grade: 4, team: 1, num: 1, church: '서울중앙교회', name: '김민준' },
+      { id: 'P0002', handbook: '어드밴처2권 4학년', grade: 4, team: 1, num: 2, church: '빛과소금교회', name: '이서준' },
+      { id: 'P0003', handbook: '어드밴처2권 4학년', grade: 4, team: 1, num: 3, church: '은혜교회', name: '박도윤' },
+      { id: 'P0004', handbook: '행글라이더 1학년', grade: 1, team: 1, num: 1, church: '소망교회', name: '정예준' },
+      { id: 'P0005', handbook: '행글라이더 1학년', grade: 1, team: 1, num: 2, church: '사랑의교회', name: '최시우' }
+    ],
+    timetable: [
+      { room: '티앤티3', period: 1, handbook: '어드밴처2권 4학년', team: 1 },
+      { room: '스팍스1', period: 1, handbook: '행글라이더 1학년', team: 1 }
+    ],
+    scores: {}
+  };
+}
+
+/**
+ * ?test=1 접속 시 프론트엔드 규칙 자동 검증 러너
+ */
+async function setupTestEnvironmentAndRun() {
+  const banner = document.getElementById('testBanner');
+  banner.innerText = '⏳ [자가 진단 모드] 테스트 환경을 세팅하고 4대 핵심 규칙을 자동 검증합니다...';
+
+  // 1. Mock 데이터 로드
+  loadMockData();
+
+  // 2. T&T 교실(티앤티3 / 1교시) 선택
+  document.getElementById('roomSelect').value = '티앤티3';
+  document.getElementById('periodSelect').value = '1';
+  onSelectionChange();
+
+  // 3. 테스트 1: 객관식 합산 검증 (8문항 중 O 5개, X 3개 -> 총점 50점)
+  switchSession('morning'); // 객관식(오전)
+  const student1 = CURRENT_STUDENTS[0].id;
+
+  applyAnswer(student1, 0, 'O');
+  applyAnswer(student1, 1, 'O');
+  applyAnswer(student1, 2, 'O');
+  applyAnswer(student1, 3, 'O');
+  applyAnswer(student1, 4, 'O');
+  applyAnswer(student1, 5, 'X');
+  applyAnswer(student1, 6, 'X');
+  applyAnswer(student1, 7, 'X');
+
+  const multipleScore = Number(document.getElementById(`score_${student1}`).innerText);
+  if (multipleScore !== 50) {
+    throw new Error(`객관식 합산 오류: 기대값 50, 실제값 ${multipleScore}`);
+  }
+
+  // 4. 스피드 퀴즈 세션으로 전환
+  switchSession('afternoon'); // 스피드(오후)
+  const studentA = CURRENT_STUDENTS[0].id;
+  const studentB = CURRENT_STUDENTS[1].id;
+  const studentC = CURRENT_STUDENTS[2].id;
+
+  // 테스트 2: 스피드 단일 정답자 제약 (1번 문항에서 A 정답 클릭 후 B 정답 클릭 -> A 정답 자동 해제)
+  applyAnswer(studentA, 0, 'O');
+  if (GRID_STATE[studentA][0] !== 'O') throw new Error('스피드 정답 입력 실패');
+  applyAnswer(studentB, 0, 'O');
+  if (GRID_STATE[studentA][0] !== '' || GRID_STATE[studentB][0] !== 'O') {
+    throw new Error('스피드 단일 정답자 제약(문항당 O 1명) 규칙 실패');
+  }
+
+  // 테스트 3: 스피드 퀴즈아웃 (O 3개 입력 시 이후 문항 셀 잠금 및 취소 시 잠금 해제)
+  // B 단원에게 2번, 3번 문항 정답 추가 부여 -> 총 O 3개 도달
+  applyAnswer(studentB, 1, 'O');
+  applyAnswer(studentB, 2, 'O');
+
+  const cellB3 = document.getElementById(`cell_${studentB}_3`);
+  if (!cellB3 || !cellB3.classList.contains('locked')) {
+    throw new Error('스피드 퀴즈아웃(3개 정답) 이후 셀 잠금(disabled) 실패');
+  }
+
+  // B 단원의 2번 문항 O 취소 -> 잠금 즉시 해제 검증
+  applyAnswer(studentB, 2, '');
+  if (cellB3.classList.contains('locked')) {
+    throw new Error('스피드 퀴즈아웃 취소 시 잠금 해제 실패');
+  }
+
+  // 테스트 4: 스피드 파울아웃 (X 3개 입력 시 이후 문항 셀 잠금)
+  applyAnswer(studentC, 0, 'X');
+  applyAnswer(studentC, 1, 'X');
+  applyAnswer(studentC, 2, 'X');
+
+  const cellC3 = document.getElementById(`cell_${studentC}_3`);
+  if (!cellC3 || !cellC3.classList.contains('locked')) {
+    throw new Error('스피드 파울아웃(3개 오답) 이후 셀 잠금 실패');
+  }
+
+  // 모든 테스트 통과
+  banner.style.backgroundColor = '#16a34a';
+  banner.innerHTML = '🎉 <b>[자가 진단 통과: 모든 채점 및 잠금 규칙 정상 작동]</b> (객관식 50점 합산, 단일 정답자 강제, 퀴즈아웃/파울아웃 3중 제어 검증 완료)';
+}
+
+function showLoading(text) {
+  const overlay = document.getElementById('loadingOverlay');
+  document.getElementById('loadingText').innerText = text;
+  overlay.style.display = 'flex';
+}
+
+function hideLoading() {
+  document.getElementById('loadingOverlay').style.display = 'none';
+}
+</script>
+
+</body>
+</html>
+

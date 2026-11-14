@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Awana 성경퀴즈대회 본부 필기시험 채점 입력 시스템</title>
+  <style>
+    :root {
+      --primary: #4338ca;
+      --primary-dark: #3730a3;
+      --accent: #2563eb;
+      --bg-body: #f1f5f9;
+      --bg-card: #ffffff;
+      --border-color: #cbd5e1;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --success-color: #16a34a;
+      --danger-color: #dc2626;
+      --header-bg: #e2e8f0;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Pretendard", "Segoe UI", Roboto, "Malgun Gothic", sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-body);
+      color: var(--text-main);
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* 상단 헤더 바 */
+    .header-bar {
+      background: var(--bg-card);
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+      padding: 16px 24px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+      margin-bottom: 16px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .header-title-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .header-title {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: #1e1b4b;
+      letter-spacing: -0.5px;
+    }
+
+    .badge-hq {
+      font-size: 0.8rem;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-weight: 800;
+      background: #ede9fe;
+      color: var(--primary);
+      text-transform: uppercase;
+    }
+
+    .staff-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--text-muted);
+    }
+
+    input[type="text"], input[type="number"], select {
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-main);
+      background-color: #ffffff;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(67, 56, 202, 0.15);
+    }
+
+    .btn {
+      padding: 8px 18px;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+
+    .btn-primary {
+      background-color: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background-color: var(--primary-dark);
+    }
+
+    .btn-success {
+      background-color: var(--success-color);
+      color: white;
+    }
+
+    .btn-success:hover {
+      background-color: #15803d;
+    }
+
+    .btn-secondary {
+      background-color: #64748b;
+      color: white;
+    }
+
+    .btn-secondary:hover {
+      background-color: #475569;
+    }
+
+    /* 탭 메뉴 */
+    .tab-container {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .tab-btn {
+      padding: 12px 24px;
+      background: #e2e8f0;
+      border: none;
+      border-radius: 8px 8px 0 0;
+      font-size: 1rem;
+      font-weight: 800;
+      color: #475569;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .tab-btn.active {
+      background: #ffffff;
+      color: var(--primary);
+      border-top: 3px solid var(--primary);
+      box-shadow: 0 -2px 6px rgba(0,0,0,0.03);
+    }
+
+    /* 메인 카드 영역 */
+    .card {
+      background: var(--bg-card);
+      border-radius: 0 8px 8px 8px;
+      border: 1px solid var(--border-color);
+      padding: 24px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.04);
+      margin-bottom: 20px;
+    }
+
+    .filter-panel {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 16px;
+      padding-bottom: 20px;
+      margin-bottom: 20px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .filter-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+
+    /* 테이블 스타일 */
+    .table-container {
+      overflow-x: auto;
+      max-height: 65vh;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: center;
+    }
+
+    thead th {
+      position: sticky;
+      top: 0;
+      background-color: var(--header-bg);
+      color: #334155;
+      font-size: 0.9rem;
+      font-weight: 800;
+      padding: 12px 8px;
+      border: 1px solid var(--border-color);
+      z-index: 10;
+    }
+
+    tbody td {
+      border: 1px solid var(--border-color);
+      padding: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      vertical-align: middle;
+    }
+
+    tbody tr:hover {
+      background-color: #f8fafc;
+    }
+
+    .score-input {
+      width: 90px;
+      text-align: center;
+      font-size: 1.15rem;
+      font-weight: 900;
+      color: var(--primary);
+      padding: 6px;
+    }
+
+    .score-input:focus {
+      background-color: #eef2ff;
+    }
+
+    /* 빠른 검색 모드 전용 */
+    .search-box-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .search-input-large {
+      flex: 1;
+      max-width: 480px;
+      font-size: 1.15rem;
+      padding: 10px 16px;
+      font-weight: 700;
+    }
+
+    .search-result-card {
+      display: none;
+      background: #f8fafc;
+      border: 2px solid var(--primary);
+      border-radius: 8px;
+      padding: 20px;
+      max-width: 600px;
+      margin-top: 10px;
+      animation: fadeIn 0.2s ease;
+    }
+
+    .search-meta-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      font-size: 1rem;
+      margin-bottom: 16px;
+    }
+
+    .search-score-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding-top: 14px;
+      border-top: 1px dashed var(--border-color);
+    }
+
+    /* 로딩 인디케이터 */
+    .loading-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.45);
+      z-index: 9999;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      gap: 12px;
+      color: #ffffff;
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+
+    .spinner {
+      width: 44px;
+      height: 44px;
+      border: 4px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: #ffffff;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="spinner"></div>
+  <div id="loadingText">처리 중입니다...</div>
+</div>
+
+<div class="container">
+  <!-- 상단 헤더 바 -->
+  <header class="header-bar">
+    <div class="header-title-group">
+      <div class="header-title">Awana 성경퀴즈 본부 채점실</div>
+      <span class="badge-hq">필기시험 전용</span>
+    </div>
+
+    <div class="staff-group">
+      <label for="staffName">본부 입력자:</label>
+      <input type="text" id="staffName" placeholder="성함 입력" style="width: 120px;" />
+      <button class="btn btn-secondary" onclick="fetchMasterData(true)">
+        🔄 새로고침
+      </button>
+    </div>
+  </header>
+
+  <!-- 탭 네비게이션 -->
+  <div class="tab-container">
+    <button class="tab-btn active" id="tabBtnBatch" onclick="switchHqTab('batch')">
+      📋 모드 1: 핸드북·조별 일괄 입력 (키보드 Tab/Enter 연속)
+    </button>
+    <button class="tab-btn" id="tabBtnSearch" onclick="switchHqTab('search')">
+      🔍 모드 2: 번호 / 이름 빠른 검색 즉시 입력
+    </button>
+  </div>
+
+  <!-- 메인 카드: 모드 1 (일괄 입력) -->
+  <div class="card" id="modeBatchCard">
+    <div class="filter-panel">
+      <div class="filter-item">
+        <label for="batchHandbook">핸드북:</label>
+        <select id="batchHandbook" onchange="onBatchFilterChange()">
+          <option value="">핸드북 선택</option>
+          <optgroup label="SPARKS (1~2학년)">
+            <option value="행글라이더 1학년">행글라이더 1학년</option>
+            <option value="행글라이더 2학년">행글라이더 2학년</option>
+            <option value="윙러너 1학년">윙러너 1학년</option>
+            <option value="윙러너 2학년">윙러너 2학년</option>
+            <option value="스카이스토머 2학년">스카이스토머 2학년</option>
+          </optgroup>
+          <optgroup label="T&T (3~6학년)">
+            <option value="어드밴처1권 3학년">어드밴처1권 3학년</option>
+            <option value="어드밴처1권 4학년">어드밴처1권 4학년</option>
+            <option value="어드밴처2권 4학년">어드밴처2권 4학년</option>
+            <option value="챌린지1권 5학년">챌린지1권 5학년</option>
+            <option value="챌린지1권 6학년">챌린지1권 6학년</option>
+            <option value="챌린지2권 6학년">챌린지2권 6학년</option>
+          </optgroup>
+        </select>
+      </div>
+
+      <div class="filter-item">
+        <label for="batchTeam">조:</label>
+        <select id="batchTeam" onchange="onBatchFilterChange()">
+          <option value="">조 선택</option>
+          <option value="1">1조</option>
+          <option value="2">2조</option>
+          <option value="3">3조</option>
+          <option value="4">4조</option>
+        </select>
+      </div>
+
+      <button class="btn btn-success" onclick="saveBatchScores()" id="btnSaveBatch">
+        💾 해당 반 일괄 저장 (Enter 완료)
+      </button>
+
+      <span id="batchCountBadge" style="margin-left: auto; font-weight: 700; color: var(--primary);">
+        총 0명
+      </span>
+    </div>
+
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 60px;">번호</th>
+            <th style="width: 100px;">참가자ID</th>
+            <th style="width: 150px;">핸드북</th>
+            <th style="width: 60px;">조</th>
+            <th style="width: 140px;">교회명</th>
+            <th style="width: 110px;">이름</th>
+            <th style="width: 120px;">현재 필기점수</th>
+            <th style="width: 140px;">새 필기점수 입력 (0~100)</th>
+          </tr>
+        </thead>
+        <tbody id="batchTableBody">
+          <tr>
+            <td colspan="8" style="padding: 40px; color: var(--text-muted);">
+              상단에서 <b>핸드북</b>과 <b>조</b>를 선택하면 명단이 표출됩니다.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 메인 카드: 모드 2 (빠른 검색 입력) -->
+  <div class="card" id="modeSearchCard" style="display: none;">
+    <div class="search-box-group">
+      <input type="text" 
+             id="quickSearchInput" 
+             class="search-input-large" 
+             placeholder="참가자ID (예: P0001) 또는 이름 검색 후 Enter"
+             onkeydown="handleQuickSearchKeyDown(event)" />
+      <button class="btn btn-primary" onclick="performQuickSearch()">
+        검색
+      </button>
+      <span style="font-size: 0.9rem; color: var(--text-muted); font-weight: 600;">
+        * 시험지 상단의 참가자ID나 이름을 입력하고 Enter를 누르면 즉시 조회됩니다.
+      </span>
+    </div>
+
+    <!-- 검색 결과 카드 -->
+    <div class="search-result-card" id="searchResultCard">
+      <div class="search-meta-row">
+        <div><b>참가자ID:</b> <span id="resPid" style="color: var(--primary); font-weight: 800;">-</span></div>
+        <div><b>이름:</b> <span id="resName" style="font-weight: 800;">-</span></div>
+        <div><b>핸드북:</b> <span id="resHandbook">-</span></div>
+        <div><b>소속:</b> <span id="resChurchTeam">-</span></div>
+      </div>
+
+      <div class="search-score-row">
+        <label for="quickScoreInput" style="font-size: 1.1rem; font-weight: 800; color: #1e1b4b;">
+          필기 점수:
+        </label>
+        <input type="number" 
+               id="quickScoreInput" 
+               class="score-input" 
+               min="0" max="100" 
+               placeholder="점수"
+               onkeydown="handleQuickScoreKeyDown(event)" />
+        <span style="font-weight: 600; color: var(--text-muted);">점 (0~100)</span>
+        
+        <button class="btn btn-success" style="margin-left: auto;" onclick="saveQuickScore()">
+          저장 후 다음 검색 (Enter)
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/**
+ * =========================================================================
+ * 1. 시스템 설정 및 전역 상태
+ * =========================================================================
+ */
+const GAS_URL = "https://script.google.com/macros/s/AKfycbz_awana_placeholder/exec";
+
+let MASTER_DATA = {
+  participants: [],
+  scores: {}
+};
+
+let CURRENT_BATCH_STUDENTS = [];
+let CURRENT_SEARCHED_STUDENT = null;
+
+window.addEventListener('DOMContentLoaded', () => {
+  // 본부 입력자 성함 복구
+  const savedStaff = localStorage.getItem('awana_hq_staff_name');
+  if (savedStaff) {
+    document.getElementById('staffName').value = savedStaff;
+  }
+  document.getElementById('staffName').addEventListener('input', (e) => {
+    localStorage.setItem('awana_hq_staff_name', e.target.value.trim());
+  });
+
+  fetchMasterData();
+});
+
+/**
+ * =========================================================================
+ * 2. 마스터 데이터 통신
+ * =========================================================================
+ */
+async function fetchMasterData(isManual = false) {
+  showLoading('마스터 데이터 및 필기점수 현황을 불러오고 있습니다...');
+  try {
+    if (GAS_URL.includes('placeholder')) {
+      loadHqMockData();
+    } else {
+      const resp = await fetch(GAS_URL, { method: 'GET' });
+      const result = await resp.json();
+      if (result.status === 'success') {
+        MASTER_DATA = result.data;
+      } else {
+        throw new Error(result.message);
+      }
+    }
+
+    if (isManual) alert('데이터를 최신 상태로 새로고침했습니다.');
+    onBatchFilterChange();
+  } catch (err) {
+    console.error('마스터 로드 오류:', err);
+    loadHqMockData();
+    onBatchFilterChange();
+  } finally {
+    hideLoading();
+  }
+}
+
+/**
+ * =========================================================================
+ * 3. 탭 전환 제어
+ * =========================================================================
+ */
+function switchHqTab(tabKey) {
+  const btnBatch = document.getElementById('tabBtnBatch');
+  const btnSearch = document.getElementById('tabBtnSearch');
+  const cardBatch = document.getElementById('modeBatchCard');
+  const cardSearch = document.getElementById('modeSearchCard');
+
+  if (tabKey === 'batch') {
+    btnBatch.classList.add('active');
+    btnSearch.classList.remove('active');
+    cardBatch.style.display = 'block';
+    cardSearch.style.display = 'none';
+  } else {
+    btnBatch.classList.remove('active');
+    btnSearch.classList.add('active');
+    cardBatch.style.display = 'none';
+    cardSearch.style.display = 'block';
+    setTimeout(() => {
+      document.getElementById('quickSearchInput').focus();
+    }, 50);
+  }
+}
+
+/**
+ * =========================================================================
+ * 4. 모드 1: 핸드북 · 조별 일괄 입력 로직
+ * =========================================================================
+ */
+function onBatchFilterChange() {
+  const handbook = document.getElementById('batchHandbook').value;
+  const teamVal = document.getElementById('batchTeam').value;
+  const tbody = document.getElementById('batchTableBody');
+  const countBadge = document.getElementById('batchCountBadge');
+
+  if (!handbook || !teamVal) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="8" style="padding: 40px; color: var(--text-muted);">
+          상단에서 <b>핸드북</b>과 <b>조</b>를 모두 선택하면 명단이 표출됩니다.
+        </td>
+      </tr>`;
+    countBadge.innerText = '총 0명';
+    return;
+  }
+
+  const team = Number(teamVal);
+  CURRENT_BATCH_STUDENTS = (MASTER_DATA.participants || [])
+    .filter(p => p.handbook === handbook && Number(p.team) === team)
+    .sort((a, b) => Number(a.num) - Number(b.num));
+
+  countBadge.innerText = `총 ${CURRENT_BATCH_STUDENTS.length}명`;
+
+  if (CURRENT_BATCH_STUDENTS.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="8" style="padding: 30px; color: #ef4444; font-weight: 700;">
+          해당 조건의 참가자가 명단에 없습니다.
+        </td>
+      </tr>`;
+    return;
+  }
+
+  let html = '';
+  CURRENT_BATCH_STUDENTS.forEach((s, idx) => {
+    const existingScore = MASTER_DATA.scores && MASTER_DATA.scores[s.id] && MASTER_DATA.scores[s.id].written !== null
+      ? MASTER_DATA.scores[s.id].written
+      : '-';
+
+    html += `
+      <tr>
+        <td>${s.num}</td>
+        <td style="color: var(--primary); font-weight: 700;">${s.id}</td>
+        <td>${s.handbook}</td>
+        <td>${s.team}</td>
+        <td>${s.church}</td>
+        <td style="font-weight: 800;">${s.name}</td>
+        <td style="color: var(--text-muted);">${existingScore}</td>
+        <td>
+          <input type="number" 
+                 id="batch_input_${idx}" 
+                 class="score-input batch-field" 
+                 data-idx="${idx}"
+                 data-sid="${s.id}" 
+                 min="0" max="100" 
+                 placeholder="${existingScore !== '-' ? existingScore : '입력'}"
+                 onkeydown="handleBatchInputKeyDown(event, ${idx})" />
+        </td>
+      </tr>
+    `;
+  });
+
+  tbody.innerHTML = html;
+  setTimeout(() => {
+    const firstInput = document.getElementById('batch_input_0');
+    if (firstInput) firstInput.focus();
+  }, 50);
+}
+
+// Enter 또는 Tab 키로 다음 번호 자동 이동
+function handleBatchInputKeyDown(e, currentIndex) {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    const nextInput = document.getElementById(`batch_input_${currentIndex + 1}`);
+    if (nextInput) {
+      nextInput.focus();
+      nextInput.select();
+    } else {
+      // 마지막 참가자에서 Enter 누를 시 일괄 저장 확인
+      saveBatchScores();
+    }
+  }
+}
+
+// 모드 1 일괄 저장
+async function saveBatchScores() {
+  const staff = document.getElementById('staffName').value.trim();
+  if (!staff) {
+    alert('본부 입력자 성함을 먼저 입력해 주세요.');
+    document.getElementById('staffName').focus();
+    return;
+  }
+
+  const inputs = document.querySelectorAll('.batch-field');
+  const records = [];
+
+  inputs.forEach(input => {
+    const val = input.value.trim();
+    if (val !== '') {
+      const score = Number(val);
+      const sid = input.dataset.sid;
+      const student = CURRENT_BATCH_STUDENTS.find(s => s.id === sid);
+
+      if (student && !isNaN(score) && score >= 0 && score <= 100) {
+        records.push({
+          id: student.id,
+          handbook: student.handbook,
+          team: Number(student.team),
+          name: student.name,
+          score: score
+        });
+      }
+    }
+  });
+
+  if (records.length === 0) {
+    alert('새로 입력된 점수가 없습니다.');
+    return;
+  }
+
+  if (!confirm(`총 ${records.length}명의 필기점수를 일괄 저장하시겠습니까?`)) {
+    return;
+  }
+
+  await postWrittenScores(records, staff);
+}
+
+/**
+ * =========================================================================
+ * 5. 모드 2: 빠른 검색 즉시 입력 로직
+ * =========================================================================
+ */
+function handleQuickSearchKeyDown(e) {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    performQuickSearch();
+  }
+}
+
+function performQuickSearch() {
+  const query = document.getElementById('quickSearchInput').value.trim();
+  if (!query) return;
+
+  // 참가자ID 또는 이름으로 검색
+  const matched = (MASTER_DATA.participants || []).filter(p => 
+    p.id.toLowerCase() === query.toLowerCase() || p.name === query
+  );
+
+  if (matched.length === 0) {
+    alert(`'${query}'에 해당하는 참가자를 찾을 수 없습니다.`);
+    document.getElementById('searchResultCard').style.display = 'none';
+    CURRENT_SEARCHED_STUDENT = null;
+    return;
+  }
+
+  // 첫 번째 일치 학생 선택
+  CURRENT_SEARCHED_STUDENT = matched[0];
+
+  document.getElementById('resPid').innerText = CURRENT_SEARCHED_STUDENT.id;
+  document.getElementById('resName').innerText = CURRENT_SEARCHED_STUDENT.name;
+  document.getElementById('resHandbook').innerText = CURRENT_SEARCHED_STUDENT.handbook;
+  document.getElementById('resChurchTeam').innerText = `${CURRENT_SEARCHED_STUDENT.church} (${CURRENT_SEARCHED_STUDENT.team}조 ${CURRENT_SEARCHED_STUDENT.num}번)`;
+
+  const card = document.getElementById('searchResultCard');
+  card.style.display = 'block';
+
+  const scoreInput = document.getElementById('quickScoreInput');
+  const existingScore = MASTER_DATA.scores && MASTER_DATA.scores[CURRENT_SEARCHED_STUDENT.id] && MASTER_DATA.scores[CURRENT_SEARCHED_STUDENT.id].written !== null
+    ? MASTER_DATA.scores[CURRENT_SEARCHED_STUDENT.id].written
+    : '';
+  
+  scoreInput.value = existingScore !== '' ? existingScore : '';
+  scoreInput.focus();
+  scoreInput.select();
+}
+
+function handleQuickScoreKeyDown(e) {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    saveQuickScore();
+  }
+}
+
+async function saveQuickScore() {
+  const staff = document.getElementById('staffName').value.trim();
+  if (!staff) {
+    alert('본부 입력자 성함을 입력해 주세요.');
+    document.getElementById('staffName').focus();
+    return;
+  }
+
+  if (!CURRENT_SEARCHED_STUDENT) return;
+
+  const scoreVal = document.getElementById('quickScoreInput').value.trim();
+  if (scoreVal === '' || isNaN(scoreVal) || Number(scoreVal) < 0 || Number(scoreVal) > 100) {
+    alert('0부터 100 사이의 올바른 점수를 입력해 주세요.');
+    document.getElementById('quickScoreInput').focus();
+    return;
+  }
+
+  const record = {
+    id: CURRENT_SEARCHED_STUDENT.id,
+    handbook: CURRENT_SEARCHED_STUDENT.handbook,
+    team: Number(CURRENT_SEARCHED_STUDENT.team),
+    name: CURRENT_SEARCHED_STUDENT.name,
+    score: Number(scoreVal)
+  };
+
+  const success = await postWrittenScores([record], staff);
+  if (success) {
+    // 성공 시 검색창 초기화 및 자동 포커스 복귀로 키보드만으로 연속 입력 가능
+    const searchInput = document.getElementById('quickSearchInput');
+    searchInput.value = '';
+    document.getElementById('searchResultCard').style.display = 'none';
+    CURRENT_SEARCHED_STUDENT = null;
+    searchInput.focus();
+  }
+}
+
+/**
+ * =========================================================================
+ * 6. GAS doPost 필기 점수 전송 공통 함수
+ * =========================================================================
+ */
+async function postWrittenScores(records, staff) {
+  showLoading('본부 시트에 필기점수를 안전하게 저장하고 있습니다...');
+  try {
+    const payload = {
+      type: 'written',
+      recorder: staff,
+      records: records
+    };
+
+    if (GAS_URL.includes('placeholder')) {
+      await new Promise(r => setTimeout(r, 600)); // 지연 시뮬레이션
+      records.forEach(r => {
+        if (!MASTER_DATA.scores[r.id]) MASTER_DATA.scores[r.id] = {};
+        MASTER_DATA.scores[r.id].written = r.score;
+      });
+      alert(`[로컬 모의 저장 성공] ${records.length}명의 필기점수가 반영되었습니다.`);
+    } else {
+      const resp = await fetch(GAS_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload)
+      });
+      const result = await resp.json();
+      if (result.status === 'success') {
+        records.forEach(r => {
+          if (!MASTER_DATA.scores[r.id]) MASTER_DATA.scores[r.id] = {};
+          MASTER_DATA.scores[r.id].written = r.score;
+        });
+        alert('✅ 필기 점수가 성공적으로 본부 시트에 저장되었습니다!');
+      } else {
+        throw new Error(result.message);
+      }
+    }
+
+    onBatchFilterChange();
+    return true;
+  } catch (err) {
+    alert('저장 중 오류 발생: ' + err.message);
+    return false;
+  } finally {
+    hideLoading();
+  }
+}
+
+/**
+ * =========================================================================
+ * 7. Mock 데이터 및 유틸리티
+ * =========================================================================
+ */
+function loadHqMockData() {
+  MASTER_DATA = {
+    participants: [
+      { id: 'P0001', handbook: '어드밴처2권 4학년', grade: 4, team: 1, num: 1, church: '서울중앙교회', name: '김민준' },
+      { id: 'P0002', handbook: '어드밴처2권 4학년', grade: 4, team: 1, num: 2, church: '빛과소금교회', name: '이서준' },
+      { id: 'P0003', handbook: '어드밴처2권 4학년', grade: 4, team: 1, num: 3, church: '은혜교회', name: '박도윤' },
+      { id: 'P0004', handbook: '어드밴처2권 4학년', grade: 4, team: 1, num: 4, church: '소망교회', name: '정예준' },
+      { id: 'P0005', handbook: '행글라이더 1학년', grade: 1, team: 1, num: 1, church: '사랑의교회', name: '최시우' }
+    ],
+    scores: {
+      'P0001': { written: 92 },
+      'P0002': { written: 88 }
+    }
+  };
+}
+
+function showLoading(text) {
+  document.getElementById('loadingText').innerText = text;
+  document.getElementById('loadingOverlay').style.display = 'flex';
+}
+
+function hideLoading() {
+  document.getElementById('loadingOverlay').style.display = 'none';
+}
+</script>
+
+</body>
+</html>
+
