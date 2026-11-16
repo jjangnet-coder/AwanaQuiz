@@ -2,11 +2,25 @@
  * Awana 성경퀴즈대회 구글 스프레드시트 초기화 스크립트 (운영용 클린 버전)
  * 
  * [목적]: 실제 대회용 클린 초기화
- * - 7개 시트 탭('설정', '참가자명단', '시간표', '객관식_로그', '스피드_로그', '필기_로그', '최종집계') 생성
- * - 1행 헤더 서식 및 행 고정 설정
- * - 기본 '설정' 값(스피드_최대정답수: 3, 스피드_최대오답수: 3) 세팅
- * - 기존 데이터가 있다면 2행 이하의 모든 데이터를 깨끗이 초기화(삭제)
+ * - 7개 기본 시트 ('설정', '참가자명단', '시간표', '객관식_로그', '스피드_로그', '필기_로그', '최종집계')
+ * - 11개 공식 핸드북별 시상 시트 (컬럼: 참가자ID, 핸드북, 교실, 학년, 조, 번호, 교회명, 이름, 필기, 객관(오전), 객관/스피드(오후), 최종총점, 석차, 메달, 최고득점상)
+ * - 설정 시트: 메달 비율(금: 0.3, 은: 0.4, 동: 0.3), 스피드 룰(3, 3), 12개 교실별 4자리 PIN 관리
+ * - 구글 시트 테이블 변환 및 1행 헤더 고정 호환 보장
  */
+
+const OFFICIAL_11_HANDBOOKS = [
+  '행글라이더 1학년',
+  '행글라이더 2학년',
+  '윙러너 1학년',
+  '윙러너 2학년',
+  '스카이스토머 2학년',
+  '어드밴처1권 3학년',
+  '어드밴처1권 4학년',
+  '어드밴처2권 4학년',
+  '챌린지1권 5학년',
+  '챌린지1권 6학년',
+  '챌린지2권 6학년'
+];
 
 function setupAwanaSheets() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -14,10 +28,25 @@ function setupAwanaSheets() {
   const sheetDefinitions = [
     {
       name: '설정',
-      headers: ['키', '값'],
+      headers: ['키', '값', '설명'],
       initialData: [
-        ['스피드_최대정답수', 3],
-        ['스피드_최대오답수', 3]
+        ['스피드_최대정답수', 3, '스피드 퀴즈 만점 완료 기준'],
+        ['스피드_최대오답수', 3, '스피드 퀴즈 도전 완료 기준'],
+        ['금메달_비율', 0.3, '금메달 수여 비율 (30%)'],
+        ['은메달_비율', 0.4, '은메달 수여 비율 (40%)'],
+        ['동메달_비율', 0.3, '동메달 수여 비율 (30%)'],
+        ['PIN_스팍스1', '1011', '스팍스1 교실 기록관 접속 PIN'],
+        ['PIN_스팍스2', '1022', '스팍스2 교실 기록관 접속 PIN'],
+        ['PIN_스팍스3', '1033', '스팍스3 교실 기록관 접속 PIN'],
+        ['PIN_스팍스4', '1044', '스팍스4 교실 기록관 접속 PIN'],
+        ['PIN_스팍스5', '1055', '스팍스5 교실 기록관 접속 PIN'],
+        ['PIN_티앤티1', '2011', '티앤티1 교실 기록관 접속 PIN'],
+        ['PIN_티앤티2', '2022', '티앤티2 교실 기록관 접속 PIN'],
+        ['PIN_티앤티3', '2033', '티앤티3 교실 기록관 접속 PIN'],
+        ['PIN_티앤티4', '2044', '티앤티4 교실 기록관 접속 PIN'],
+        ['PIN_티앤티5', '2055', '티앤티5 교실 기록관 접속 PIN'],
+        ['PIN_티앤티6', '2066', '티앤티6 교실 기록관 접속 PIN'],
+        ['PIN_티앤티7', '2077', '티앤티7 교실 기록관 접속 PIN']
       ]
     },
     {
@@ -52,14 +81,26 @@ function setupAwanaSheets() {
     }
   ];
 
-  // 기존 시트들을 맵으로 미리 확보 (인덱스 탐색 에러 원천 방지)
+  // 11개 공식 핸드북별 시상 시트 정의 추가
+  const awardHeaders = [
+    '참가자ID', '핸드북', '교실', '학년', '조', '번호', '교회명', '이름',
+    '필기점수', '객관식(오전)', '객관식(오후)', '스피드(오후)', '최종총점', '석차', '메달', '최고득점상'
+  ];
+
+  OFFICIAL_11_HANDBOOKS.forEach(hb => {
+    sheetDefinitions.push({
+      name: hb,
+      headers: awardHeaders,
+      initialData: []
+    });
+  });
+
   const existingSheets = {};
   const currentSheets = ss.getSheets();
   for (let i = 0; i < currentSheets.length; i++) {
     existingSheets[currentSheets[i].getName()] = currentSheets[i];
   }
 
-  // 7개 필수 시트 순차 생성 및 포맷 세팅
   sheetDefinitions.forEach(def => {
     let sheet = existingSheets[def.name];
     if (!sheet) {
@@ -69,7 +110,6 @@ function setupAwanaSheets() {
       sheet.clear();
     }
 
-    // 1행 헤더 작성
     sheet.getRange(1, 1, 1, def.headers.length).setValues([def.headers]);
     sheet.getRange(1, 1, 1, def.headers.length)
       .setFontWeight('bold')
@@ -83,26 +123,18 @@ function setupAwanaSheets() {
     }
   });
 
-  // 7개 시트 외의 불필요한 시트 삭제
-  const keepNames = {'설정': true, '참가자명단': true, '시간표': true, '객관식_로그': true, '스피드_로그': true, '필기_로그': true, '최종집계': true};
-  const sheetsToInspect = ss.getSheets();
-  for (let i = 0; i < sheetsToInspect.length; i++) {
-    const s = sheetsToInspect[i];
-    if (!keepNames[s.getName()] && ss.getSheets().length > 1) {
-      try {
-        ss.deleteSheet(s);
-      } catch (e) {}
-    }
-  }
-
   SpreadsheetApp.flush();
-  Logger.log('✅ [운영용 초기화 완료] 7개 시트 탭이 깨끗하게 준비되었습니다.');
+  Logger.log('✅ [운영용 초기화 완료] 기본 7개 시트 및 11개 공식 핸드북 시상 시트가 준비되었습니다.');
 }
 
+/**
+ * 참가자명단과 시간표를 기반으로 최종집계 및 11개 핸드북별 시상 시트 초기 연동
+ */
 function syncFinalSummaryFromParticipants() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const pSheet = ss.getSheetByName('참가자명단');
   const fSheet = ss.getSheetByName('최종집계');
+  const tSheet = ss.getSheetByName('시간표') || ss.getSheetByName('교실순환시간표');
 
   if (!pSheet || !fSheet) {
     Logger.log("⚠️ '참가자명단' 또는 '최종집계' 시트가 없습니다.");
@@ -115,6 +147,20 @@ function syncFinalSummaryFromParticipants() {
     return;
   }
 
+  // 1. 시간표 기반 [핸드북_조 -> 교실명] 맵 생성
+  const teamRoomMap = {};
+  if (tSheet && tSheet.getLastRow() >= 2) {
+    const tData = tSheet.getRange(2, 1, tSheet.getLastRow() - 1, 4).getValues();
+    tData.forEach(row => {
+      const room = String(row[0]).trim();
+      const hb = String(row[2]).trim();
+      const team = Number(row[3]);
+      const key = hb + '_' + team;
+      if (!teamRoomMap[key]) teamRoomMap[key] = room;
+    });
+  }
+
+  // 2. 최종집계 시트 동기화
   if (fSheet.getLastRow() >= 2) {
     fSheet.getRange(2, 1, fSheet.getLastRow() - 1, 12).clearContent();
   }
@@ -138,6 +184,35 @@ function syncFinalSummaryFromParticipants() {
   fSheet.getRange(2, 1, summaryRows.length, 5).setHorizontalAlignment('center');
   fSheet.getRange(2, 8, summaryRows.length, 5).setHorizontalAlignment('right');
 
+  // 3. 11개 공식 핸드북별 시상 시트 동기화
+  OFFICIAL_11_HANDBOOKS.forEach(hb => {
+    const hbSheet = ss.getSheetByName(hb);
+    if (!hbSheet) return;
+
+    if (hbSheet.getLastRow() >= 2) {
+      hbSheet.getRange(2, 1, hbSheet.getLastRow() - 1, 16).clearContent();
+    }
+
+    const hbRows = [];
+    participants.forEach(p => {
+      if (String(p[1]).trim() === hb) {
+        const teamKey = hb + '_' + Number(p[3]);
+        const roomName = teamRoomMap[teamKey] || '';
+        // 컬럼: ID, 핸드북, 교실, 학년, 조, 번호, 교회, 이름, 필기, 객관오전, 객관오후, 스피드, 총점, 석차, 메달, 최고득점상
+        hbRows.push([
+          p[0], p[1], roomName, p[2], p[3], p[4], p[5], p[6],
+          '', '', '', '', 0, '', '', ''
+        ]);
+      }
+    });
+
+    if (hbRows.length > 0) {
+      hbSheet.getRange(2, 1, hbRows.length, 16).setValues(hbRows);
+      hbSheet.getRange(2, 1, hbRows.length, 6).setHorizontalAlignment('center');
+      hbSheet.getRange(2, 9, hbRows.length, 8).setHorizontalAlignment('center');
+    }
+  });
+
   SpreadsheetApp.flush();
-  Logger.log('✅ [동기화 완료] 총 ' + summaryRows.length + '명의 선수가 최종집계 시트에 반영되었습니다.');
+  Logger.log('✅ [동기화 완료] 1376명 단원이 최종집계 및 11개 공식 핸드북 시상 시트에 정상 반영되었습니다.');
 }

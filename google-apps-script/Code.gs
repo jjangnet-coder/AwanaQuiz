@@ -10,7 +10,7 @@ function doGet(e) {
   try {
     const ss = SpreadsheetApp.getActiveSpreadsheet();
 
-    // 1. 설정 시트 읽기 (설정 또는 대회설정 호환)
+    // 1. 설정 시트 읽기 (설정 또는 대회설정 호환, 설명 컬럼 호환)
     const settingsSheet = ss.getSheetByName('설정') || ss.getSheetByName('대회설정');
     const settings = {};
     if (settingsSheet && settingsSheet.getLastRow() >= 2) {
@@ -22,39 +22,41 @@ function doGet(e) {
       });
     }
 
-    // 2. 참가자명단 시트 읽기
+    // 2. 참가자명단 시트 읽기 (테이블 변환 방어: 빈 행 자동 필터)
     // 컬럼: 참가자ID(0) | 핸드북(1) | 학년(2) | 조(3) | 번호(4) | 교회명(5) | 이름(6)
     const pSheet = ss.getSheetByName('참가자명단');
     const participants = [];
     if (pSheet && pSheet.getLastRow() >= 2) {
       const pData = pSheet.getRange(2, 1, pSheet.getLastRow() - 1, 7).getValues();
       pData.forEach(row => {
-        if (row[0]) {
+        const pid = String(row[0] || '').trim();
+        if (pid) {
           participants.push({
-            id: String(row[0]).trim(),
-            handbook: String(row[1]).trim(),
+            id: pid,
+            handbook: String(row[1] || '').trim(),
             grade: Number(row[2]),
             team: Number(row[3]),
             num: Number(row[4]),
-            church: String(row[5]).trim(),
-            name: String(row[6]).trim()
+            church: String(row[5] || '').trim(),
+            name: String(row[6] || '').trim()
           });
         }
       });
     }
 
-    // 3. 시간표 시트 읽기 (시간표 또는 교실순환시간표 호환)
+    // 3. 시간표 시트 읽기 (시간표 또는 교실순환시간표 호환, 테이블 변환 방어)
     // 컬럼: 교실명(0) | 교시(1) | 핸드북(2) | 조(3)
     const tSheet = ss.getSheetByName('시간표') || ss.getSheetByName('교실순환시간표');
     const timetable = [];
     if (tSheet && tSheet.getLastRow() >= 2) {
       const tData = tSheet.getRange(2, 1, tSheet.getLastRow() - 1, 4).getValues();
       tData.forEach(row => {
-        if (row[0]) {
+        const room = String(row[0] || '').trim();
+        if (room) {
           timetable.push({
-            room: String(row[0]).trim(),
+            room: room,
             period: Number(row[1]),
-            handbook: String(row[2]).trim(),
+            handbook: String(row[2] || '').trim(),
             team: Number(row[3])
           });
         }
@@ -297,6 +299,13 @@ function doPost(e) {
     // 변경사항 즉시 시트에 반영
     SpreadsheetApp.flush();
 
+    // [시상 시트 비동기적 동기화] 저장된 점수를 11개 핸드북별 시상 시트에 자동 반영
+    try {
+      updateHandBookAwards(ss);
+    } catch (awardErr) {
+      Logger.log('시상 시트 갱신 중 경고: ' + awardErr.toString());
+    }
+
     return ContentService.createTextOutput(JSON.stringify({
       status: 'success',
       type: type,
@@ -314,5 +323,157 @@ function doPost(e) {
     // 트랜잭션 종료 후 Lock 반드시 해제
     lock.releaseLock();
   }
+}
+
+/**
+ * 11개 공식 핸드북별 시상 시트 실시간 점수, 공동 석차, 메달 및 최고득점상 산출 엔진
+ */
+const OFFICIAL_11_HANDBOOKS = [
+  '행글라이더 1학년',
+  '행글라이더 2학년',
+  '윙러너 1학년',
+  '윙러너 2학년',
+  '스카이스토머 2학년',
+  '어드밴처1권 3학년',
+  '어드밴처1권 4학년',
+  '어드밴처2권 4학년',
+  '챌린지1권 5학년',
+  '챌린지1권 6학년',
+  '챌린지2권 6학년'
+];
+
+function updateHandBookAwards(ss) {
+  const finalSheet = ss.getSheetByName('최종집계');
+  if (!finalSheet || finalSheet.getLastRow() < 2) return;
+
+  const settingsSheet = ss.getSheetByName('설정') || ss.getSheetByName('대회설정');
+  let goldRatio = 0.3;
+  let silverRatio = 0.4;
+  let bronzeRatio = 0.3;
+
+  if (settingsSheet && settingsSheet.getLastRow() >= 2) {
+    const sData = settingsSheet.getRange(2, 1, settingsSheet.getLastRow() - 1, 2).getValues();
+    sData.forEach(r => {
+      const k = String(r[0] || '').trim();
+      const v = Number(r[1]);
+      if (k === '금메달_비율' && !isNaN(v)) goldRatio = v;
+      if (k === '은메달_비율' && !isNaN(v)) silverRatio = v;
+      if (k === '동메달_비율' && !isNaN(v)) bronzeRatio = v;
+    });
+  }
+
+  // 최종집계 전체 데이터 1회 읽기
+  // 컬럼: ID(0), 핸드북(1), 학년(2), 조(3), 번호(4), 교회(5), 이름(6), 필기(7), 오전(8), 오후(9), 스피드(10), 총점(11)
+  const finalRows = finalSheet.getRange(2, 1, finalSheet.getLastRow() - 1, 12).getValues();
+  const scoreMap = {}; // ID -> { written, morning, afternoon, speed, total }
+  finalRows.forEach(r => {
+    const pid = String(r[0] || '').trim();
+    if (pid) {
+      scoreMap[pid] = {
+        written: r[7] === '' ? '' : Number(r[7]),
+        morning: r[8] === '' ? '' : Number(r[8]),
+        afternoon: r[9] === '' ? '' : Number(r[9]),
+        speed: r[10] === '' ? '' : Number(r[10]),
+        total: r[11] === '' ? 0 : Number(r[11])
+      };
+    }
+  });
+
+  // 11개 핸드북 시트 각각 순회 갱신
+  OFFICIAL_11_HANDBOOKS.forEach(hb => {
+    const hbSheet = ss.getSheetByName(hb);
+    if (!hbSheet || hbSheet.getLastRow() < 2) return;
+
+    // 컬럼: ID(0), 핸드북(1), 교실(2), 학년(3), 조(4), 번호(5), 교회(6), 이름(7), 필기(8), 오전(9), 오후(10), 스피드(11), 총점(12), 석차(13), 메달(14), 최고득점상(15)
+    const hbData = hbSheet.getRange(2, 1, hbSheet.getLastRow() - 1, 16).getValues();
+    const students = [];
+
+    hbData.forEach((row, idx) => {
+      const pid = String(row[0] || '').trim();
+      if (!pid) return;
+
+      const sc = scoreMap[pid] || { written: '', morning: '', afternoon: '', speed: '', total: 0 };
+      row[8] = sc.written;
+      row[9] = sc.morning;
+      row[10] = sc.afternoon;
+      row[11] = sc.speed;
+      row[12] = sc.total;
+
+      const hasParticipated = (sc.written !== '' || sc.morning !== '' || sc.afternoon !== '' || sc.speed !== '');
+      students.push({
+        idx: idx,
+        id: pid,
+        total: sc.total,
+        hasParticipated: hasParticipated
+      });
+    });
+
+    // 1. 유효 참가자만 추출하여 총점 내림차순 정렬
+    const validStudents = students.filter(s => s.hasParticipated);
+    validStudents.sort((a, b) => b.total - a.total);
+
+    const N = validStudents.length;
+    if (N === 0) {
+      hbSheet.getRange(2, 1, hbData.length, 16).setValues(hbData);
+      return;
+    }
+
+    // 2. 공동 석차 (Standard Ranking: 1, 1, 3...) 및 최고득점상 계산
+    let currentRank = 1;
+    const maxScore = validStudents[0].total;
+
+    for (let i = 0; i < N; i++) {
+      if (i > 0 && validStudents[i].total < validStudents[i - 1].total) {
+        currentRank = i + 1;
+      }
+      validStudents[i].rank = currentRank;
+      validStudents[i].isTop = (validStudents[i].total === maxScore && maxScore > 0);
+    }
+
+    // 3. 메달 수여 및 동점자 컷오프 규칙 (금 30%, 은 40%, 동 30%)
+    const targetGold = Math.max(1, Math.round(N * goldRatio));
+    let goldCutScore = validStudents[Math.min(targetGold - 1, N - 1)].total;
+    let goldCount = 0;
+    validStudents.forEach(s => {
+      if (s.total >= goldCutScore) {
+        s.medal = '🥇 금메달';
+        goldCount++;
+      }
+    });
+
+    const targetSilver = Math.max(1, Math.round(N * silverRatio));
+    const silverCutIndex = Math.min(goldCount + targetSilver - 1, N - 1);
+    let silverCutScore = validStudents[silverCutIndex].total;
+    let silverCount = 0;
+    validStudents.forEach(s => {
+      if (!s.medal && s.total >= silverCutScore) {
+        s.medal = '🥈 은메달';
+        silverCount++;
+      }
+    });
+
+    validStudents.forEach(s => {
+      if (!s.medal) {
+        s.medal = '🥉 동메달';
+      }
+    });
+
+    // 4. 원본 2차원 배열에 석차, 메달, 최고득점상 반영
+    validStudents.forEach(s => {
+      hbData[s.idx][13] = s.rank;
+      hbData[s.idx][14] = s.medal || '';
+      hbData[s.idx][15] = s.isTop ? '🏆 최고득점상' : '';
+    });
+
+    // 참가 기록 없는 학생 초기화
+    students.filter(s => !s.hasParticipated).forEach(s => {
+      hbData[s.idx][13] = '';
+      hbData[s.idx][14] = '';
+      hbData[s.idx][15] = '';
+    });
+
+    // 5. 시트에 단 1회의 setValues로 일괄 저장
+    hbSheet.getRange(2, 1, hbData.length, 16).setValues(hbData);
+  });
 }
 

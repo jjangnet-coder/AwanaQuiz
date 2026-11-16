@@ -644,6 +644,9 @@
       <div class="modal-icon-badge badge-type-info" id="modalIconBadge">ℹ️</div>
       <div class="modal-title" id="modalTitle">알림</div>
       <div class="modal-message" id="modalMessage">내용</div>
+      <div id="modalInputContainer" style="display: none; margin-bottom: 15px;">
+        <input type="password" id="modalInputBox" maxlength="8" placeholder="PIN 번호 입력" style="width: 140px; text-align: center; font-size: 1.2rem; letter-spacing: 4px; padding: 6px; border: 2px solid #3b82f6; border-radius: 6px; outline: none;" />
+      </div>
       <div class="modal-actions" id="modalActions">
         <button class="modal-btn modal-btn-cancel" id="modalBtnCancel" style="display: none;">취소</button>
         <button class="modal-btn modal-btn-confirm" id="modalBtnConfirm">확인</button>
@@ -812,6 +815,23 @@
     // 저장 상태 머신: 'empty'(미입력 대기) | 'in_progress'(작성중) | 'ready'(전원입력완료) | 'saved'(제출완료)
     let SUBMIT_LIFECYCLE_STATE = 'empty';
 
+    // 교실 보안 잠금 상태
+    let LOCKED_ROOM = ''; // URL 토큰 또는 PIN 인증으로 고정된 교실명
+    const ROOM_KEY_MAP = {
+      'SP1-9482': '스팍스1',
+      'SP2-8371': '스팍스2',
+      'SP3-7264': '스팍스3',
+      'SP4-6153': '스팍스4',
+      'SP5-5042': '스팍스5',
+      'TT1-4931': '티앤티1',
+      'TT2-3820': '티앤티2',
+      'TT3-2719': '티앤티3',
+      'TT4-1608': '티앤티4',
+      'TT5-9597': '티앤티5',
+      'TT6-8486': '티앤티6',
+      'TT7-7375': '티앤티7'
+    };
+
     /**
      * =========================================================================
      * 2. 커스텀 모달 팝업 시스템
@@ -841,6 +861,7 @@
       msgEl.innerText = message;
       btnCancel.style.display = 'none';
 
+      document.getElementById('modalInputContainer').style.display = 'none';
       btnConfirm.onclick = () => {
         overlay.style.display = 'none';
         if (onOk) onOk();
@@ -870,6 +891,7 @@
       titleEl.innerText = title;
       msgEl.innerText = message;
       btnCancel.style.display = 'inline-block';
+      document.getElementById('modalInputContainer').style.display = 'none';
 
       btnConfirm.onclick = () => {
         overlay.style.display = 'none';
@@ -886,6 +908,45 @@
     }
 
     /**
+     * 교실 PIN 인증용 커스텀 프롬프트 모달
+     */
+    function showPinPrompt(roomName, onValidPin, onCancel = null) {
+      const overlay = document.getElementById('customModalOverlay');
+      const badge = document.getElementById('modalIconBadge');
+      const titleEl = document.getElementById('modalTitle');
+      const msgEl = document.getElementById('modalMessage');
+      const btnCancel = document.getElementById('modalBtnCancel');
+      const btnConfirm = document.getElementById('modalBtnConfirm');
+      const inputContainer = document.getElementById('modalInputContainer');
+      const inputBox = document.getElementById('modalInputBox');
+
+      badge.className = 'modal-icon-badge badge-type-info';
+      badge.innerText = '🔒';
+      titleEl.innerText = `[${roomName}] 교실 인증`;
+      msgEl.innerText = `본부에서 발급한 [${roomName}]의\n기록관 전용 4자리 PIN 번호를 입력해 주세요.`;
+
+      inputContainer.style.display = 'block';
+      inputBox.value = '';
+      btnCancel.style.display = 'inline-block';
+
+      btnConfirm.onclick = () => {
+        const pin = inputBox.value.trim();
+        overlay.style.display = 'none';
+        inputContainer.style.display = 'none';
+        if (onValidPin) onValidPin(pin);
+      };
+
+      btnCancel.onclick = () => {
+        overlay.style.display = 'none';
+        inputContainer.style.display = 'none';
+        if (onCancel) onCancel();
+      };
+
+      overlay.style.display = 'flex';
+      inputBox.focus();
+    }
+
+    /**
      * =========================================================================
      * 3. 초기화 및 이벤트 리스너
      * =========================================================================
@@ -899,9 +960,56 @@
         localStorage.setItem('awana_recorder_name', e.target.value.trim());
       });
 
+      // URL 파라미터 기반 보안 토큰(?token=...) 확인
+      const urlParams = new URLSearchParams(window.location.search);
+      const token = urlParams.get('token') || urlParams.get('key');
+      if (token && ROOM_KEY_MAP[token]) {
+        LOCKED_ROOM = ROOM_KEY_MAP[token];
+        const roomSelect = document.getElementById('roomSelect');
+        roomSelect.value = LOCKED_ROOM;
+        roomSelect.disabled = true;
+        roomSelect.style.backgroundColor = '#f1f5f9';
+        roomSelect.style.fontWeight = 'bold';
+        LAST_SELECTED_ROOM = LOCKED_ROOM;
+      }
+
       document.getElementById('roomSelect').addEventListener('change', (e) => {
-        handleRoomOrPeriodChange('room', e.target.value);
+        const targetRoom = e.target.value;
+        if (!targetRoom) {
+          handleRoomOrPeriodChange('room', '');
+          return;
+        }
+
+        // 이미 잠금 인증된 상태라면 바로 진행
+        if (LOCKED_ROOM === targetRoom) {
+          handleRoomOrPeriodChange('room', targetRoom);
+          return;
+        }
+
+        // 다른 교실 선택 시 PIN 인증 모달 실행
+        const expectedPin = (MASTER_DATA.settings && MASTER_DATA.settings['PIN_' + targetRoom]) || '';
+        showPinPrompt(
+          targetRoom,
+          (enteredPin) => {
+            if (expectedPin && enteredPin === String(expectedPin)) {
+              LOCKED_ROOM = targetRoom;
+              const rSel = document.getElementById('roomSelect');
+              rSel.disabled = true; // 해당 교실로 완전 잠금
+              rSel.style.backgroundColor = '#f1f5f9';
+              rSel.style.fontWeight = 'bold';
+              showCustomAlert('교실 인증 완료', `📍 [${targetRoom}] 기록관으로 정상 인증되었습니다.\n이제 채점을 시작하실 수 있습니다.`, 'success');
+              handleRoomOrPeriodChange('room', targetRoom);
+            } else {
+              showCustomAlert('인증 실패', `입력하신 PIN 번호가 일치하지 않습니다.\n본부에서 전달받은 [${targetRoom}]의 4자리 PIN을 확인해 주세요.`, 'warn');
+              document.getElementById('roomSelect').value = LAST_SELECTED_ROOM;
+            }
+          },
+          () => {
+            document.getElementById('roomSelect').value = LAST_SELECTED_ROOM;
+          }
+        );
       });
+
       document.getElementById('periodSelect').addEventListener('change', (e) => {
         handleRoomOrPeriodChange('period', e.target.value);
       });
@@ -910,7 +1018,6 @@
         e.preventDefault();
       });
 
-      const urlParams = new URLSearchParams(window.location.search);
       const isTestMode = urlParams.get('test') === '1';
 
       if (isTestMode) {
