@@ -356,9 +356,10 @@ function updateHandBookAwards(ss) {
     sData.forEach(r => {
       const k = String(r[0] || '').trim();
       const v = Number(r[1]);
-      if (k === '금메달_비율' && !isNaN(v)) goldRatio = v;
-      if (k === '은메달_비율' && !isNaN(v)) silverRatio = v;
-      if (k === '동메달_비율' && !isNaN(v)) bronzeRatio = v;
+      // 30(%), 40(%), 30(%) 정수 입력과 0.3, 0.4 소수점 입력 모두 지원
+      if (k === '금메달_비율' && !isNaN(v)) goldRatio = v > 1 ? v / 100 : v;
+      if (k === '은메달_비율' && !isNaN(v)) silverRatio = v > 1 ? v / 100 : v;
+      if (k === '동메달_비율' && !isNaN(v)) bronzeRatio = v > 1 ? v / 100 : v;
     });
   }
 

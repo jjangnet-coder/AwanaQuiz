@@ -816,21 +816,8 @@
     let SUBMIT_LIFECYCLE_STATE = 'empty';
 
     // 교실 보안 잠금 상태
-    let LOCKED_ROOM = ''; // URL 토큰 또는 PIN 인증으로 고정된 교실명
-    const ROOM_KEY_MAP = {
-      'SP1-9482': '스팍스1',
-      'SP2-8371': '스팍스2',
-      'SP3-7264': '스팍스3',
-      'SP4-6153': '스팍스4',
-      'SP5-5042': '스팍스5',
-      'TT1-4931': '티앤티1',
-      'TT2-3820': '티앤티2',
-      'TT3-2719': '티앤티3',
-      'TT4-1608': '티앤티4',
-      'TT5-9597': '티앤티5',
-      'TT6-8486': '티앤티6',
-      'TT7-7375': '티앤티7'
-    };
+    let LOCKED_ROOM = ''; // URL 단일 접속 코드(?code=...) 또는 모달 입력으로 인증된 교실명
+    let URL_PARAM_CODE = ''; // 초기 접속 URL 파라미터 코드 기억
 
     /**
      * =========================================================================
@@ -908,7 +895,7 @@
     }
 
     /**
-     * 교실 PIN 인증용 커스텀 프롬프트 모달
+     * 교실 접속 코드 인증용 커스텀 모달
      */
     function showPinPrompt(roomName, onValidPin, onCancel = null) {
       const overlay = document.getElementById('customModalOverlay');
@@ -922,11 +909,12 @@
 
       badge.className = 'modal-icon-badge badge-type-info';
       badge.innerText = '🔒';
-      titleEl.innerText = `[${roomName}] 교실 인증`;
-      msgEl.innerText = `본부에서 발급한 [${roomName}]의\n기록관 전용 4자리 PIN 번호를 입력해 주세요.`;
+      titleEl.innerText = `[${roomName}] 교실 접속 인증`;
+      msgEl.innerText = `본부에서 발급한 [${roomName}]의\n기록관 전용 접속 코드를 입력해 주세요.`;
 
       inputContainer.style.display = 'block';
       inputBox.value = '';
+      inputBox.placeholder = '접속 코드 입력';
       btnCancel.style.display = 'inline-block';
 
       btnConfirm.onclick = () => {
@@ -960,18 +948,9 @@
         localStorage.setItem('awana_recorder_name', e.target.value.trim());
       });
 
-      // URL 파라미터 기반 보안 토큰(?token=...) 확인
+      // URL 파라미터 기반 접속 코드(?code=... 또는 ?pin=...) 확인
       const urlParams = new URLSearchParams(window.location.search);
-      const token = urlParams.get('token') || urlParams.get('key');
-      if (token && ROOM_KEY_MAP[token]) {
-        LOCKED_ROOM = ROOM_KEY_MAP[token];
-        const roomSelect = document.getElementById('roomSelect');
-        roomSelect.value = LOCKED_ROOM;
-        roomSelect.disabled = true;
-        roomSelect.style.backgroundColor = '#f1f5f9';
-        roomSelect.style.fontWeight = 'bold';
-        LAST_SELECTED_ROOM = LOCKED_ROOM;
-      }
+      URL_PARAM_CODE = urlParams.get('code') || urlParams.get('pin') || urlParams.get('key') || '';
 
       document.getElementById('roomSelect').addEventListener('change', (e) => {
         const targetRoom = e.target.value;
@@ -980,18 +959,18 @@
           return;
         }
 
-        // 이미 잠금 인증된 상태라면 바로 진행
+        // 이미 인증된 교실이면 바로 진행
         if (LOCKED_ROOM === targetRoom) {
           handleRoomOrPeriodChange('room', targetRoom);
           return;
         }
 
-        // 다른 교실 선택 시 PIN 인증 모달 실행
-        const expectedPin = (MASTER_DATA.settings && MASTER_DATA.settings['PIN_' + targetRoom]) || '';
+        // 설정 시트의 CODE_교실명 (또는 PIN_교실명) 확인
+        const expectedCode = (MASTER_DATA.settings && (MASTER_DATA.settings['CODE_' + targetRoom] || MASTER_DATA.settings['PIN_' + targetRoom])) || '';
         showPinPrompt(
           targetRoom,
-          (enteredPin) => {
-            if (expectedPin && enteredPin === String(expectedPin)) {
+          (enteredCode) => {
+            if (expectedCode && String(enteredCode).toUpperCase() === String(expectedCode).toUpperCase()) {
               LOCKED_ROOM = targetRoom;
               const rSel = document.getElementById('roomSelect');
               rSel.disabled = true; // 해당 교실로 완전 잠금
@@ -1000,7 +979,7 @@
               showCustomAlert('교실 인증 완료', `📍 [${targetRoom}] 기록관으로 정상 인증되었습니다.\n이제 채점을 시작하실 수 있습니다.`, 'success');
               handleRoomOrPeriodChange('room', targetRoom);
             } else {
-              showCustomAlert('인증 실패', `입력하신 PIN 번호가 일치하지 않습니다.\n본부에서 전달받은 [${targetRoom}]의 4자리 PIN을 확인해 주세요.`, 'warn');
+              showCustomAlert('인증 실패', `입력하신 접속 코드가 일치하지 않습니다.\n본부에서 전달받은 [${targetRoom}] 전용 코드를 확인해 주세요.`, 'warn');
               document.getElementById('roomSelect').value = LAST_SELECTED_ROOM;
             }
           },
@@ -1066,6 +1045,33 @@
         if (result.status === 'success') {
           MASTER_DATA = result.data;
           document.getElementById('gasEndpointInfo').innerText = '연결 상태: 정상 (실시간 스프레드시트 연결됨)';
+
+          // URL 파라미터(?code=...)를 통해 접속한 경우 자동 인증 및 잠금
+          if (URL_PARAM_CODE && MASTER_DATA.settings) {
+            let matchedRoom = '';
+            for (const key in MASTER_DATA.settings) {
+              if (key.startsWith('CODE_') || key.startsWith('PIN_')) {
+                const settingVal = String(MASTER_DATA.settings[key]).trim().toUpperCase();
+                if (settingVal === URL_PARAM_CODE.trim().toUpperCase()) {
+                  matchedRoom = key.replace(/^(CODE_|PIN_)/, '');
+                  break;
+                }
+              }
+            }
+
+            if (matchedRoom) {
+              LOCKED_ROOM = matchedRoom;
+              const rSel = document.getElementById('roomSelect');
+              rSel.value = matchedRoom;
+              rSel.disabled = true; // 해당 교실로 완전 잠금
+              rSel.style.backgroundColor = '#f1f5f9';
+              rSel.style.fontWeight = 'bold';
+              LAST_SELECTED_ROOM = matchedRoom;
+              showCustomAlert('교실 인증 완료', `📍 [${matchedRoom}] 전용 링크로 정상 접속되었습니다.\n기록관 성함을 입력하고 교시를 선택해 주세요.`, 'success');
+            } else {
+              showCustomAlert('잘못된 링크', '유효하지 않은 교실 접속 코드입니다.\n본부에서 전달받은 링크를 다시 확인해 주세요.', 'warn');
+            }
+          }
         } else {
           throw new Error(result.message);
         }
