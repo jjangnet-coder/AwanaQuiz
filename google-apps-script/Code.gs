@@ -10,8 +10,8 @@ function doGet(e) {
   try {
     const ss = SpreadsheetApp.getActiveSpreadsheet();
 
-    // 1. 설정 시트 읽기
-    const settingsSheet = ss.getSheetByName('설정');
+    // 1. 설정 시트 읽기 (설정 또는 대회설정 호환)
+    const settingsSheet = ss.getSheetByName('설정') || ss.getSheetByName('대회설정');
     const settings = {};
     if (settingsSheet && settingsSheet.getLastRow() >= 2) {
       const sData = settingsSheet.getRange(2, 1, settingsSheet.getLastRow() - 1, 2).getValues();
@@ -43,9 +43,9 @@ function doGet(e) {
       });
     }
 
-    // 3. 시간표 시트 읽기
+    // 3. 시간표 시트 읽기 (시간표 또는 교실순환시간표 호환)
     // 컬럼: 교실명(0) | 교시(1) | 핸드북(2) | 조(3)
-    const tSheet = ss.getSheetByName('시간표');
+    const tSheet = ss.getSheetByName('시간표') || ss.getSheetByName('교실순환시간표');
     const timetable = [];
     if (tSheet && tSheet.getLastRow() >= 2) {
       const tData = tSheet.getRange(2, 1, tSheet.getLastRow() - 1, 4).getValues();
