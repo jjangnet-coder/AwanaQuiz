@@ -144,23 +144,21 @@ function doPost(e) {
 
     // 1. 객관식 점수 저장 처리
     if (type === 'multiple') {
-      // payload 구조:
-      // session ('오전' | '오후')
-      // room (교실명)
-      // period (교시, 숫자)
-      // handbook (핸드북명)
-      // team (조, 숫자)
-      // recorder (기록관명)
-      // records: [ { id, name, answers: ['O', 'X', ... 8개], score }, ... ]
       const logSheet = ss.getSheetByName('객관식_로그');
       if (!logSheet) throw new Error("'객관식_로그' 시트를 찾을 수 없습니다.");
 
       const logRows = [];
       const scoreColIndex = payload.session === '오전' ? 9 : 10; // 9열: '객관식(오전)', 10열: '객관식(오후)'
 
+      // [배치 최적화] 최종집계 점수 컬럼 전체를 메모리로 1회 읽기
+      const totalRowsCount = finalLastRow - 1;
+      let scoreColumnValues = [];
+      if (totalRowsCount > 0) {
+        scoreColumnValues = finalSheet.getRange(2, scoreColIndex, totalRowsCount, 1).getValues();
+      }
+
       payload.records.forEach(r => {
         // 감사 로그 행 생성
-        // 헤더: 입력시간 | 세션 | 교실명 | 교시 | 핸드북 | 조 | 참가자ID | 이름 | 1번~8번 | 총점 | 기록관명
         const answers = r.answers || [];
         const ans8 = [
           answers[0] || '', answers[1] || '', answers[2] || '', answers[3] || '',
@@ -181,12 +179,17 @@ function doPost(e) {
           payload.recorder || ''
         ]);
 
-        // 최종집계 직접 갱신
+        // 메모리 상에서 점수 치환 (0.0001초 소요)
         const rowNum = idToRowMap[r.id];
-        if (rowNum) {
-          finalSheet.getRange(rowNum, scoreColIndex).setValue(Number(r.score));
+        if (rowNum && rowNum >= 2 && (rowNum - 2) < scoreColumnValues.length) {
+          scoreColumnValues[rowNum - 2][0] = Number(r.score);
         }
       });
+
+      // [배치 최적화] 메모리에서 바뀐 점수 컬럼 전체를 단 1회의 setValues로 시트에 쓰기
+      if (scoreColumnValues.length > 0) {
+        finalSheet.getRange(2, scoreColIndex, scoreColumnValues.length, 1).setValues(scoreColumnValues);
+      }
 
       if (logRows.length > 0) {
         logSheet.getRange(logSheet.getLastRow() + 1, 1, logRows.length, 18).setValues(logRows);
@@ -194,22 +197,21 @@ function doPost(e) {
 
     // 2. 스피드 퀴즈 점수 저장 처리 (T&T 오후 전용)
     } else if (type === 'speed') {
-      // payload 구조:
-      // room (교실명)
-      // period (교시, 숫자)
-      // handbook (핸드북명)
-      // team (조, 숫자)
-      // recorder (기록관명)
-      // records: [ { id, name, answers: ['O', 'X', ... 10개], score }, ... ]
       const logSheet = ss.getSheetByName('스피드_로그');
       if (!logSheet) throw new Error("'스피드_로그' 시트를 찾을 수 없습니다.");
 
       const logRows = [];
       const scoreColIndex = 11; // 11열: '스피드(오후)'
 
+      // [배치 최적화] 최종집계 점수 컬럼 전체를 메모리로 1회 읽기
+      const totalRowsCount = finalLastRow - 1;
+      let scoreColumnValues = [];
+      if (totalRowsCount > 0) {
+        scoreColumnValues = finalSheet.getRange(2, scoreColIndex, totalRowsCount, 1).getValues();
+      }
+
       payload.records.forEach(r => {
         // 감사 로그 행 생성
-        // 헤더: 입력시간 | 교실명 | 교시 | 핸드북 | 조 | 참가자ID | 이름 | 1번~10번 | 총점 | 기록관명
         const answers = r.answers || [];
         const ans10 = [
           answers[0] || '', answers[1] || '', answers[2] || '', answers[3] || '', answers[4] || '',
@@ -229,12 +231,17 @@ function doPost(e) {
           payload.recorder || ''
         ]);
 
-        // 최종집계 직접 갱신
+        // 메모리 상에서 점수 치환 (0.0001초 소요)
         const rowNum = idToRowMap[r.id];
-        if (rowNum) {
-          finalSheet.getRange(rowNum, scoreColIndex).setValue(Number(r.score));
+        if (rowNum && rowNum >= 2 && (rowNum - 2) < scoreColumnValues.length) {
+          scoreColumnValues[rowNum - 2][0] = Number(r.score);
         }
       });
+
+      // [배치 최적화] 단 1회의 setValues로 시트에 쓰기
+      if (scoreColumnValues.length > 0) {
+        finalSheet.getRange(2, scoreColIndex, scoreColumnValues.length, 1).setValues(scoreColumnValues);
+      }
 
       if (logRows.length > 0) {
         logSheet.getRange(logSheet.getLastRow() + 1, 1, logRows.length, 19).setValues(logRows);
@@ -242,18 +249,21 @@ function doPost(e) {
 
     // 3. 필기 점수 저장 처리 (본부 입력)
     } else if (type === 'written') {
-      // payload 구조:
-      // recorder (본부입력자)
-      // records: [ { id, handbook, team, name, score }, ... ]
       const logSheet = ss.getSheetByName('필기_로그');
       if (!logSheet) throw new Error("'필기_로그' 시트를 찾을 수 없습니다.");
 
       const logRows = [];
       const scoreColIndex = 8; // 8열: '필기점수'
 
+      // [배치 최적화] 최종집계 점수 컬럼 전체를 메모리로 1회 읽기
+      const totalRowsCount = finalLastRow - 1;
+      let scoreColumnValues = [];
+      if (totalRowsCount > 0) {
+        scoreColumnValues = finalSheet.getRange(2, scoreColIndex, totalRowsCount, 1).getValues();
+      }
+
       payload.records.forEach(r => {
         // 감사 로그 행 생성
-        // 헤더: 입력시간 | 참가자ID | 핸드북 | 조 | 이름 | 필기점수 | 본부입력자
         logRows.push([
           timestamp,
           r.id,
@@ -264,12 +274,17 @@ function doPost(e) {
           payload.recorder || ''
         ]);
 
-        // 최종집계 직접 갱신
+        // 메모리 상에서 점수 치환 (0.0001초 소요)
         const rowNum = idToRowMap[r.id];
-        if (rowNum) {
-          finalSheet.getRange(rowNum, scoreColIndex).setValue(Number(r.score));
+        if (rowNum && rowNum >= 2 && (rowNum - 2) < scoreColumnValues.length) {
+          scoreColumnValues[rowNum - 2][0] = Number(r.score);
         }
       });
+
+      // [배치 최적화] 단 1회의 setValues로 시트에 쓰기
+      if (scoreColumnValues.length > 0) {
+        finalSheet.getRange(2, scoreColIndex, scoreColumnValues.length, 1).setValues(scoreColumnValues);
+      }
 
       if (logRows.length > 0) {
         logSheet.getRange(logSheet.getLastRow() + 1, 1, logRows.length, 7).setValues(logRows);
