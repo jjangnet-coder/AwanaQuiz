@@ -127,8 +127,9 @@ function setupAwanaSheets() {
 
   SpreadsheetApp.flush();
   reorderAwanaSheets(ss);   // 18개 시트 공식 순서 자동 재배치
+  syncFinalSummaryFromParticipants(ss); // 참가자명단 데이터를 최종집계 및 11개 시상 탭에 100% 자동 배치
   formatAllSheetsNicely(); // 18개 시트 전체 열너비/정렬 전수 표준화 적용
-  Logger.log('✅ [운영용 초기화 완료] 기본 7개 시트 및 11개 공식 핸드북 시상 시트가 준비되었습니다.');
+  Logger.log('✅ [운영용 초기화 완료] 기본 7개 시트 및 11개 공식 핸드북 시상 시트가 준비되었으며 명단 동기화가 완료되었습니다.');
 }
 
 /**
@@ -176,8 +177,8 @@ function reorderAwanaSheets(ss) {
 /**
  * 참가자명단과 시간표를 기반으로 최종집계 및 11개 핸드북별 시상 시트 초기 연동
  */
-function syncFinalSummaryFromParticipants() {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
+function syncFinalSummaryFromParticipants(optionalSs) {
+  const ss = optionalSs || SpreadsheetApp.getActiveSpreadsheet();
   const pSheet = ss.getSheetByName('참가자명단');
   const fSheet = ss.getSheetByName('최종집계');
   const tSheet = ss.getSheetByName('시간표') || ss.getSheetByName('교실순환시간표');
