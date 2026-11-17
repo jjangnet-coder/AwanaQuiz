@@ -76,7 +76,7 @@ function setupAwanaSheets() {
     },
     {
       name: '최종집계',
-      headers: ['참가자ID', '핸드북', '학년', '조', '번호', '교회명', '이름', '필기점수', '객관식(오전)', '객관식(오후)', '스피드(오후)', '최종총점'],
+      headers: ['참가자ID', '핸드북', '교실', '학년', '조', '번호', '교회명', '이름', '필기점수', '객관식(오전)', '객관식(오후)', '스피드(오후)', '최종총점'],
       initialData: []
     }
   ];
@@ -124,6 +124,7 @@ function setupAwanaSheets() {
   });
 
   SpreadsheetApp.flush();
+  formatAllSheetsNicely(); // 18개 시트 전체 열너비/정렬 전수 표준화 적용
   Logger.log('✅ [운영용 초기화 완료] 기본 7개 시트 및 11개 공식 핸드북 시상 시트가 준비되었습니다.');
 }
 
@@ -160,29 +161,33 @@ function syncFinalSummaryFromParticipants() {
     });
   }
 
-  // 2. 최종집계 시트 동기화
+  // 2. 최종집계 시트 동기화 (C열에 교실명 배치, 총 13개 열)
   if (fSheet.getLastRow() >= 2) {
-    fSheet.getRange(2, 1, fSheet.getLastRow() - 1, 12).clearContent();
+    fSheet.getRange(2, 1, fSheet.getLastRow() - 1, 13).clearContent();
   }
 
   const participants = pSheet.getRange(2, 1, lastRow - 1, 7).getValues();
   const summaryRows = participants.map((p, index) => {
     const rowNum = index + 2;
+    const hb = String(p[1]).trim();
+    const team = Number(p[3]);
+    const roomName = teamRoomMap[hb + '_' + team] || '';
+    // 컬럼: ID, 핸드북, 교실, 학년, 조, 번호, 교회, 이름, 필기(I), 객관오전(J), 객관오후(K), 스피드(L), 최종총점(M)
     return [
-      p[0], p[1], p[2], p[3], p[4], p[5], p[6],
+      p[0], p[1], roomName, p[2], p[3], p[4], p[5], p[6],
       '', '', '', '',
-      '=SUM(H' + rowNum + ':K' + rowNum + ')'
+      '=SUM(I' + rowNum + ':L' + rowNum + ')'
     ];
   });
 
   const chunkSize = 500;
   for (let i = 0; i < summaryRows.length; i += chunkSize) {
     const slice = summaryRows.slice(i, i + chunkSize);
-    fSheet.getRange(i + 2, 1, slice.length, 12).setValues(slice);
+    fSheet.getRange(i + 2, 1, slice.length, 13).setValues(slice);
   }
 
-  fSheet.getRange(2, 1, summaryRows.length, 5).setHorizontalAlignment('center');
-  fSheet.getRange(2, 8, summaryRows.length, 5).setHorizontalAlignment('right');
+  fSheet.getRange(2, 1, summaryRows.length, 6).setHorizontalAlignment('center');
+  fSheet.getRange(2, 9, summaryRows.length, 5).setHorizontalAlignment('right');
 
   // 3. 11개 공식 핸드북별 시상 시트 동기화
   OFFICIAL_11_HANDBOOKS.forEach(hb => {
@@ -214,5 +219,128 @@ function syncFinalSummaryFromParticipants() {
   });
 
   SpreadsheetApp.flush();
+  formatAllSheetsNicely(); // 18개 시트 전체 열너비/정렬 전수 표준화 적용
   Logger.log('✅ [동기화 완료] 1376명 단원이 최종집계 및 11개 공식 핸드북 시상 시트에 정상 반영되었습니다.');
+}
+
+/**
+ * =========================================================================
+ * 18개 전체 시트 탭의 모든 열 너비(px) 및 수평 정렬 전수 표준화 함수
+ * =========================================================================
+ */
+function formatAllSheetsNicely() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+
+  // 1. '설정' (A: 160px, B: 90px, C: 320px)
+  const sSheet = ss.getSheetByName('설정') || ss.getSheetByName('대회설정');
+  if (sSheet) {
+    sSheet.setColumnWidth(1, 160);
+    sSheet.setColumnWidth(2, 90);
+    sSheet.setColumnWidth(3, 320);
+    if (sSheet.getLastRow() >= 1) {
+      sSheet.getRange(1, 1, sSheet.getLastRow(), 2).setHorizontalAlignment('center');
+      sSheet.getRange(1, 3, sSheet.getLastRow(), 1).setHorizontalAlignment('left');
+      sSheet.getRange(1, 1, 1, 3).setFontWeight('bold').setBackground('#F1F5F9');
+    }
+  }
+
+  // 2. '참가자명단' (ID:95, 핸드북:140, 학년:65, 조:60, 번호:60, 교회명:160, 이름:90)
+  const pSheet = ss.getSheetByName('참가자명단');
+  if (pSheet) {
+    const widths = [95, 140, 65, 60, 60, 160, 90];
+    widths.forEach((w, i) => pSheet.setColumnWidth(i + 1, w));
+    if (pSheet.getLastRow() >= 1) {
+      pSheet.getRange(1, 1, pSheet.getLastRow(), 7).setHorizontalAlignment('center');
+      pSheet.getRange(1, 1, 1, 7).setFontWeight('bold').setBackground('#F1F5F9');
+    }
+  }
+
+  // 3. '시간표' (교실:95, 교시:65, 핸드북:140, 조:60)
+  const tSheet = ss.getSheetByName('시간표') || ss.getSheetByName('교실순환시간표');
+  if (tSheet) {
+    const widths = [95, 65, 140, 60];
+    widths.forEach((w, i) => tSheet.setColumnWidth(i + 1, w));
+    if (tSheet.getLastRow() >= 1) {
+      tSheet.getRange(1, 1, tSheet.getLastRow(), 4).setHorizontalAlignment('center');
+      tSheet.getRange(1, 1, 1, 4).setFontWeight('bold').setBackground('#F1F5F9');
+    }
+  }
+
+  // 4. '객관식_로그' (입력시간:165, 세션:75, 교실:85, 교시:60, 핸드북:140, 조:55, ID:90, 이름:85, 1~8번:48, 총점:80, 기록관:95)
+  const mLog = ss.getSheetByName('객관식_로그');
+  if (mLog) {
+    const widths = [165, 75, 85, 60, 140, 55, 90, 85, 48, 48, 48, 48, 48, 48, 48, 48, 80, 95];
+    widths.forEach((w, i) => mLog.setColumnWidth(i + 1, w));
+    if (mLog.getLastRow() >= 1) {
+      mLog.getRange(1, 1, mLog.getLastRow(), 16).setHorizontalAlignment('center');
+      mLog.getRange(1, 17, mLog.getLastRow(), 1).setHorizontalAlignment('right'); // 총점
+      mLog.getRange(1, 18, mLog.getLastRow(), 1).setHorizontalAlignment('center'); // 기록관
+      mLog.getRange(1, 1, 1, 18).setFontWeight('bold').setBackground('#F1F5F9');
+    }
+  }
+
+  // 5. '스피드_로그' (입력시간:165, 교실:85, 교시:60, 핸드북:140, 조:55, ID:90, 이름:85, 1~10번:45, 총점:80, 기록관:95)
+  const sLog = ss.getSheetByName('스피드_로그');
+  if (sLog) {
+    const widths = [165, 85, 60, 140, 55, 90, 85, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 80, 95];
+    widths.forEach((w, i) => sLog.setColumnWidth(i + 1, w));
+    if (sLog.getLastRow() >= 1) {
+      sLog.getRange(1, 1, sLog.getLastRow(), 17).setHorizontalAlignment('center');
+      sLog.getRange(1, 18, sLog.getLastRow(), 1).setHorizontalAlignment('right'); // 총점
+      sLog.getRange(1, 19, sLog.getLastRow(), 1).setHorizontalAlignment('center'); // 기록관
+      sLog.getRange(1, 1, 1, 19).setFontWeight('bold').setBackground('#F1F5F9');
+    }
+  }
+
+  // 6. '필기_로그' (입력시간:165, ID:90, 핸드북:140, 조:55, 이름:85, 점수:85, 입력자:100)
+  const wLog = ss.getSheetByName('필기_로그');
+  if (wLog) {
+    const widths = [165, 90, 140, 55, 85, 85, 100];
+    widths.forEach((w, i) => wLog.setColumnWidth(i + 1, w));
+    if (wLog.getLastRow() >= 1) {
+      wLog.getRange(1, 1, wLog.getLastRow(), 5).setHorizontalAlignment('center');
+      wLog.getRange(1, 6, wLog.getLastRow(), 1).setHorizontalAlignment('right'); // 점수
+      wLog.getRange(1, 7, wLog.getLastRow(), 1).setHorizontalAlignment('center'); // 입력자
+      wLog.getRange(1, 1, 1, 7).setFontWeight('bold').setBackground('#F1F5F9');
+    }
+  }
+
+  // 7. '최종집계' (ID:90, 핸드북:140, 교실:85, 학년:60, 조:55, 번호:55, 교회명:160, 이름:90, 필기:80, 오전:95, 오후:95, 스피드:95, 총점:100)
+  const fSheet = ss.getSheetByName('최종집계');
+  if (fSheet) {
+    const widths = [90, 140, 85, 60, 55, 55, 160, 90, 80, 95, 95, 95, 100];
+    widths.forEach((w, i) => fSheet.setColumnWidth(i + 1, w));
+    if (fSheet.getLastRow() >= 1) {
+      fSheet.getRange(1, 1, fSheet.getLastRow(), 8).setHorizontalAlignment('center');
+      fSheet.getRange(1, 9, fSheet.getLastRow(), 5).setHorizontalAlignment('right'); // 점수 컬럼들
+      fSheet.getRange(1, 1, 1, 13).setFontWeight('bold').setBackground('#F1F5F9');
+      if (fSheet.getLastRow() >= 2) {
+        fSheet.getRange(2, 13, fSheet.getLastRow() - 1, 1).setFontWeight('bold'); // 최종총점 강조
+      }
+    }
+  }
+
+  // 8. 11개 공식 핸드북별 시상 시트 (A~P: 16개 열 전수 표준화)
+  OFFICIAL_11_HANDBOOKS.forEach(hb => {
+    const hbSheet = ss.getSheetByName(hb);
+    if (!hbSheet) return;
+
+    // ID:90, 핸드북:135, 교실:85, 학년:55, 조:55, 번호:55, 교회명:150, 이름:85, 필기:75, 오전:90, 오후:90, 스피드:90, 총점:95, 석차:65, 메달:100, 최고득점:120
+    const widths = [90, 135, 85, 55, 55, 55, 150, 85, 75, 90, 90, 90, 95, 65, 100, 120];
+    widths.forEach((w, i) => hbSheet.setColumnWidth(i + 1, w));
+
+    if (hbSheet.getLastRow() >= 1) {
+      hbSheet.getRange(1, 1, hbSheet.getLastRow(), 8).setHorizontalAlignment('center');
+      hbSheet.getRange(1, 9, hbSheet.getLastRow(), 5).setHorizontalAlignment('right'); // 점수 컬럼
+      hbSheet.getRange(1, 14, hbSheet.getLastRow(), 3).setHorizontalAlignment('center'); // 석차, 메달, 최고득점
+      hbSheet.getRange(1, 1, 1, 16).setFontWeight('bold').setBackground('#F1F5F9');
+      if (hbSheet.getLastRow() >= 2) {
+        hbSheet.getRange(2, 13, hbSheet.getLastRow() - 1, 1).setFontWeight('bold'); // 총점 굵게
+        hbSheet.getRange(2, 14, hbSheet.getLastRow() - 1, 1).setFontWeight('bold'); // 석차 굵게
+      }
+    }
+  });
+
+  SpreadsheetApp.flush();
+  Logger.log('🎉 [서식 표준화 완료] 18개 모든 시트의 열 너비 및 정렬이 완벽하게 정리되었습니다.');
 }

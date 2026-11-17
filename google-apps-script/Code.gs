@@ -64,20 +64,20 @@ function doGet(e) {
     }
 
     // 4. 최종집계 시트 점수 현황 읽기
-    // 컬럼: 참가자ID(0) | 핸드북(1) | 학년(2) | 조(3) | 번호(4) | 교회명(5) | 이름(6) | 필기점수(7) | 객관식(오전)(8) | 객관식(오후)(9) | 스피드(오후)(10) | 최종총점(11)
+    // 컬럼: 참가자ID(0) | 핸드북(1) | 교실(2) | 학년(3) | 조(4) | 번호(5) | 교회명(6) | 이름(7) | 필기점수(8) | 객관식(오전)(9) | 객관식(오후)(10) | 스피드(오후)(11) | 최종총점(12)
     const fSheet = ss.getSheetByName('최종집계');
     const scores = {};
     if (fSheet && fSheet.getLastRow() >= 2) {
-      const fData = fSheet.getRange(2, 1, fSheet.getLastRow() - 1, 12).getValues();
+      const fData = fSheet.getRange(2, 1, fSheet.getLastRow() - 1, 13).getValues();
       fData.forEach(row => {
         const pid = String(row[0]).trim();
         if (pid) {
           scores[pid] = {
-            written: row[7] === '' ? null : Number(row[7]),
-            multipleMorning: row[8] === '' ? null : Number(row[8]),
-            multipleAfternoon: row[9] === '' ? null : Number(row[9]),
-            speedAfternoon: row[10] === '' ? null : Number(row[10]),
-            total: row[11] === '' ? null : Number(row[11])
+            written: row[8] === '' ? null : Number(row[8]),
+            multipleMorning: row[9] === '' ? null : Number(row[9]),
+            multipleAfternoon: row[10] === '' ? null : Number(row[10]),
+            speedAfternoon: row[11] === '' ? null : Number(row[11]),
+            total: row[12] === '' ? null : Number(row[12])
           };
         }
       });
@@ -150,7 +150,7 @@ function doPost(e) {
       if (!logSheet) throw new Error("'객관식_로그' 시트를 찾을 수 없습니다.");
 
       const logRows = [];
-      const scoreColIndex = payload.session === '오전' ? 9 : 10; // 9열: '객관식(오전)', 10열: '객관식(오후)'
+      const scoreColIndex = payload.session === '오전' ? 10 : 11; // 교실 열 추가로 10열: '객관식(오전)', 11열: '객관식(오후)'
 
       // [배치 최적화] 최종집계 점수 컬럼 전체를 메모리로 1회 읽기
       const totalRowsCount = finalLastRow - 1;
@@ -203,7 +203,7 @@ function doPost(e) {
       if (!logSheet) throw new Error("'스피드_로그' 시트를 찾을 수 없습니다.");
 
       const logRows = [];
-      const scoreColIndex = 11; // 11열: '스피드(오후)'
+      const scoreColIndex = 12; // 교실 열 추가로 12열: '스피드(오후)'
 
       // [배치 최적화] 최종집계 점수 컬럼 전체를 메모리로 1회 읽기
       const totalRowsCount = finalLastRow - 1;
@@ -255,7 +255,7 @@ function doPost(e) {
       if (!logSheet) throw new Error("'필기_로그' 시트를 찾을 수 없습니다.");
 
       const logRows = [];
-      const scoreColIndex = 8; // 8열: '필기점수'
+      const scoreColIndex = 9; // 교실 열 추가로 9열: '필기점수'
 
       // [배치 최적화] 최종집계 점수 컬럼 전체를 메모리로 1회 읽기
       const totalRowsCount = finalLastRow - 1;
@@ -364,18 +364,18 @@ function updateHandBookAwards(ss) {
   }
 
   // 최종집계 전체 데이터 1회 읽기
-  // 컬럼: ID(0), 핸드북(1), 학년(2), 조(3), 번호(4), 교회(5), 이름(6), 필기(7), 오전(8), 오후(9), 스피드(10), 총점(11)
-  const finalRows = finalSheet.getRange(2, 1, finalSheet.getLastRow() - 1, 12).getValues();
+  // 컬럼: ID(0), 핸드북(1), 교실(2), 학년(3), 조(4), 번호(5), 교회(6), 이름(7), 필기(8), 오전(9), 오후(10), 스피드(11), 총점(12)
+  const finalRows = finalSheet.getRange(2, 1, finalSheet.getLastRow() - 1, 13).getValues();
   const scoreMap = {}; // ID -> { written, morning, afternoon, speed, total }
   finalRows.forEach(r => {
     const pid = String(r[0] || '').trim();
     if (pid) {
       scoreMap[pid] = {
-        written: r[7] === '' ? '' : Number(r[7]),
-        morning: r[8] === '' ? '' : Number(r[8]),
-        afternoon: r[9] === '' ? '' : Number(r[9]),
-        speed: r[10] === '' ? '' : Number(r[10]),
-        total: r[11] === '' ? 0 : Number(r[11])
+        written: r[8] === '' ? '' : Number(r[8]),
+        morning: r[9] === '' ? '' : Number(r[9]),
+        afternoon: r[10] === '' ? '' : Number(r[10]),
+        speed: r[11] === '' ? '' : Number(r[11]),
+        total: r[12] === '' ? 0 : Number(r[12])
       };
     }
   });
