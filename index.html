@@ -575,6 +575,150 @@
       background-color: #cbd5e1;
     }
 
+    /* 교실 고정 배지 및 교실 변경 버튼 그룹 */
+    .room-lock-badge-group {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .badge-locked-room {
+      background: #eff6ff;
+      color: #1d4ed8;
+      border: 1px solid #bfdbfe;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.88rem;
+      font-weight: 800;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .btn-change-room {
+      background: #f1f5f9;
+      color: #64748b;
+      border: 1px solid #cbd5e1;
+      padding: 3px 8px;
+      border-radius: 5px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .btn-change-room:hover {
+      background: #e2e8f0;
+      color: #1e293b;
+      border-color: #94a3b8;
+    }
+
+    /* 중앙 게이트웨이 인증 모달 */
+    .gateway-modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.7);
+      backdrop-filter: blur(4px);
+      z-index: 20000;
+      justify-content: center;
+      align-items: center;
+      animation: modalBackdropFadeIn 0.2s ease-out;
+    }
+
+    .gateway-card {
+      background: #ffffff;
+      border-radius: 14px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+      width: 90%;
+      max-width: 440px;
+      padding: 30px 24px;
+      text-align: center;
+      animation: modalScaleUp 0.2s ease-out;
+      border: 1px solid #e2e8f0;
+    }
+
+    .gateway-icon {
+      font-size: 2.2rem;
+      margin-bottom: 8px;
+      display: inline-block;
+    }
+
+    .gateway-title {
+      font-size: 1.25rem;
+      font-weight: 900;
+      color: #0f172a;
+      margin-bottom: 6px;
+    }
+
+    .gateway-subtitle {
+      font-size: 0.88rem;
+      color: #64748b;
+      margin-bottom: 24px;
+      line-height: 1.4;
+    }
+
+    .gateway-form-group {
+      text-align: left;
+      margin-bottom: 16px;
+    }
+
+    .gateway-form-group label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 800;
+      color: #334155;
+      margin-bottom: 6px;
+    }
+
+    .gateway-select,
+    .gateway-input {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1.5px solid #cbd5e1;
+      font-size: 1rem;
+      font-weight: 700;
+      color: #0f172a;
+      background-color: #f8fafc;
+      outline: none;
+      transition: all 0.15s;
+    }
+
+    .gateway-select:focus,
+    .gateway-input:focus {
+      background-color: #ffffff;
+      border-color: #2563eb;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    }
+
+    .gateway-error {
+      color: #dc2626;
+      font-size: 0.8rem;
+      font-weight: 700;
+      margin-top: 6px;
+      display: none;
+      text-align: left;
+    }
+
+    .btn-gateway-enter {
+      width: 100%;
+      padding: 12px;
+      background: #2563eb;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 900;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: background-color 0.15s;
+    }
+
+    .btn-gateway-enter:hover {
+      background: #1d4ed8;
+    }
+
     @keyframes modalBackdropFadeIn {
       from {
         opacity: 0;
@@ -638,6 +782,48 @@
     <div id="loadingText">처리 중입니다...</div>
   </div>
 
+  <!-- 최초 중앙 게이트웨이 인증 모달 (입장 전) -->
+  <div class="gateway-modal-overlay" id="gatewayModalOverlay">
+    <div class="gateway-card">
+      <div class="gateway-icon">🏆</div>
+      <div class="gateway-title">AWANA 성경퀴즈대회</div>
+      <div class="gateway-subtitle">기록관 시험장(교실) 입장 인증</div>
+
+      <div class="gateway-form-group">
+        <label for="gatewayRoomSelect">담당 시험장(교실) 선택</label>
+        <select id="gatewayRoomSelect" class="gateway-select">
+          <option value="">교실을 선택하세요</option>
+          <optgroup label="SPARKS 시험장">
+            <option value="스팍스1">스팍스1</option>
+            <option value="스팍스2">스팍스2</option>
+            <option value="스팍스3">스팍스3</option>
+            <option value="스팍스4">스팍스4</option>
+            <option value="스팍스5">스팍스5</option>
+          </optgroup>
+          <optgroup label="T&T 시험장">
+            <option value="티앤티1">티앤티1</option>
+            <option value="티앤티2">티앤티2</option>
+            <option value="티앤티3">티앤티3</option>
+            <option value="티앤티4">티앤티4</option>
+            <option value="티앤티5">티앤티5</option>
+            <option value="티앤티6">티앤티6</option>
+            <option value="티앤티7">티앤티7</option>
+          </optgroup>
+        </select>
+      </div>
+
+      <div class="gateway-form-group">
+        <label for="gatewayRoomCode">교실 접속 코드</label>
+        <input type="text" id="gatewayRoomCode" class="gateway-input" placeholder="본부 발급 접속 코드 (예: SP01)" autocomplete="off" />
+        <div id="gatewayErrorMsg" class="gateway-error">접속 코드가 일치하지 않습니다. 다시 확인해 주세요.</div>
+      </div>
+
+      <button type="button" class="btn-gateway-enter" id="btnGatewayEnter" onclick="processGatewayLogin()">
+        🔓 교실 입장하기
+      </button>
+    </div>
+  </div>
+
   <!-- 모던 커스텀 모달 팝업 -->
   <div class="custom-modal-overlay" id="customModalOverlay">
     <div class="custom-modal-card">
@@ -673,9 +859,18 @@
           <input type="text" id="recorderName" placeholder="성함 입력" style="width: 100px;" />
         </div>
 
-        <div class="control-item">
-          <label for="roomSelect">교실:</label>
-          <select id="roomSelect">
+        <div class="control-item" id="roomControlWrapper">
+          <label>교실:</label>
+          <div class="room-lock-badge-group" id="roomLockBadgeGroup">
+            <span class="badge-locked-room" id="badgeLockedRoom">
+              📍 <span id="currentRoomText">-</span> 🔒
+            </span>
+            <button type="button" class="btn-change-room" id="btnChangeRoom" onclick="requestRoomChange()">
+              교실 변경
+            </button>
+          </div>
+          <!-- 하위 호환 및 내부 값 참조용 hidden select -->
+          <select id="roomSelect" style="display: none;">
             <option value="">교실 선택</option>
             <optgroup label="SPARKS 시험장">
               <option value="스팍스1">스팍스1</option>
@@ -816,12 +1011,127 @@
     let SUBMIT_LIFECYCLE_STATE = 'empty';
 
     // 교실 보안 잠금 상태
-    let LOCKED_ROOM = ''; // URL 단일 접속 코드(?code=...) 또는 모달 입력으로 인증된 교실명
-    let URL_PARAM_CODE = ''; // 초기 접속 URL 파라미터 코드 기억
+    let LOCKED_ROOM = ''; // 인증 완료되어 고정된 교실명 (localStorage: awana_locked_room)
 
     /**
      * =========================================================================
-     * 2. 커스텀 모달 팝업 시스템
+     * 2. 게이트웨이 로그인 & 교실 잠금 관리 시스템
+     * =========================================================================
+     */
+    function checkGatewayAuth() {
+      const savedRoom = localStorage.getItem('awana_locked_room') || '';
+      if (savedRoom) {
+        applyLockedRoom(savedRoom);
+      } else {
+        openGatewayModal();
+      }
+    }
+
+    function openGatewayModal() {
+      const overlay = document.getElementById('gatewayModalOverlay');
+      const roomSelect = document.getElementById('gatewayRoomSelect');
+      const roomCode = document.getElementById('gatewayRoomCode');
+      const errMsg = document.getElementById('gatewayErrorMsg');
+
+      roomSelect.value = '';
+      roomCode.value = '';
+      errMsg.style.display = 'none';
+      overlay.style.display = 'flex';
+      roomSelect.focus();
+    }
+
+    function closeGatewayModal() {
+      const overlay = document.getElementById('gatewayModalOverlay');
+      overlay.style.display = 'none';
+    }
+
+    function processGatewayLogin() {
+      const roomSelect = document.getElementById('gatewayRoomSelect');
+      const roomCodeInput = document.getElementById('gatewayRoomCode');
+      const errMsg = document.getElementById('gatewayErrorMsg');
+
+      const selectedRoom = roomSelect.value.trim();
+      const enteredCode = roomCodeInput.value.trim();
+
+      if (!selectedRoom) {
+        errMsg.innerText = '담당 시험장(교실)을 먼저 선택해 주세요.';
+        errMsg.style.display = 'block';
+        roomSelect.focus();
+        return;
+      }
+
+      if (!enteredCode) {
+        errMsg.innerText = '교실 접속 코드를 입력해 주세요.';
+        errMsg.style.display = 'block';
+        roomCodeInput.focus();
+        return;
+      }
+
+      // 설정 시트의 CODE_교실명 (또는 PIN_교실명)과 비교 검증
+      const expectedCode = (MASTER_DATA.settings && (MASTER_DATA.settings['CODE_' + selectedRoom] || MASTER_DATA.settings['PIN_' + selectedRoom])) || '';
+
+      if (expectedCode && String(enteredCode).toUpperCase() === String(expectedCode).toUpperCase()) {
+        errMsg.style.display = 'none';
+        closeGatewayModal();
+        applyLockedRoom(selectedRoom);
+        showCustomAlert('교실 인증 완료', `📍 [${selectedRoom}] 기록관으로 정상 인증되었습니다.\n기록관 성함을 확인하고 교시를 선택해 주세요.`, 'success');
+      } else {
+        errMsg.innerText = `[${selectedRoom}]의 접속 코드가 일치하지 않습니다. 다시 확인해 주세요.`;
+        errMsg.style.display = 'block';
+        roomCodeInput.select();
+      }
+    }
+
+    function applyLockedRoom(roomName) {
+      LOCKED_ROOM = roomName;
+      localStorage.setItem('awana_locked_room', roomName);
+
+      // 상단 배지 텍스트 갱신
+      document.getElementById('currentRoomText').innerText = roomName;
+      document.getElementById('roomSelect').value = roomName;
+
+      LAST_SELECTED_ROOM = roomName;
+      onSelectionChange();
+    }
+
+    function requestRoomChange() {
+      if (SUBMIT_LIFECYCLE_STATE === 'in_progress' || SUBMIT_LIFECYCLE_STATE === 'ready') {
+        showCustomConfirm(
+          '⚠️ 미제출 변경사항 안내',
+          `현재 [${CURRENT_PERIOD || '진행 중'}교시] 채점 결과가 아직 서버로 제출되지 않았습니다.\n교실을 변경하시면 작성 중인 채점 내용이 초기화됩니다. 정말 이동하시겠습니까?`,
+          () => {
+            executeRoomReset();
+          },
+          null,
+          'warn'
+        );
+      } else {
+        showCustomConfirm(
+          '🔄 교실 변경',
+          `현재 [${LOCKED_ROOM}]에서 다른 교실로 변경하시겠습니까?`,
+          () => {
+            executeRoomReset();
+          },
+          null,
+          'info'
+        );
+      }
+    }
+
+    function executeRoomReset() {
+      localStorage.removeItem('awana_locked_room');
+      LOCKED_ROOM = '';
+      SUBMIT_LIFECYCLE_STATE = 'empty';
+      document.getElementById('currentRoomText').innerText = '-';
+      document.getElementById('roomSelect').value = '';
+      LAST_SELECTED_ROOM = '';
+      onSelectionChange();
+      openGatewayModal();
+    }
+
+    /**
+     * =========================================================================
+     * 3. 커스텀 모달 팝업 시스템
      * =========================================================================
      */
     function showCustomAlert(title, message, type = 'info', onOk = null) {
@@ -895,48 +1205,8 @@
     }
 
     /**
-     * 교실 접속 코드 인증용 커스텀 모달
-     */
-    function showPinPrompt(roomName, onValidPin, onCancel = null) {
-      const overlay = document.getElementById('customModalOverlay');
-      const badge = document.getElementById('modalIconBadge');
-      const titleEl = document.getElementById('modalTitle');
-      const msgEl = document.getElementById('modalMessage');
-      const btnCancel = document.getElementById('modalBtnCancel');
-      const btnConfirm = document.getElementById('modalBtnConfirm');
-      const inputContainer = document.getElementById('modalInputContainer');
-      const inputBox = document.getElementById('modalInputBox');
-
-      badge.className = 'modal-icon-badge badge-type-info';
-      badge.innerText = '🔒';
-      titleEl.innerText = `[${roomName}] 교실 접속 인증`;
-      msgEl.innerText = `본부에서 발급한 [${roomName}]의\n기록관 전용 접속 코드를 입력해 주세요.`;
-
-      inputContainer.style.display = 'block';
-      inputBox.value = '';
-      inputBox.placeholder = '접속 코드 입력';
-      btnCancel.style.display = 'inline-block';
-
-      btnConfirm.onclick = () => {
-        const pin = inputBox.value.trim();
-        overlay.style.display = 'none';
-        inputContainer.style.display = 'none';
-        if (onValidPin) onValidPin(pin);
-      };
-
-      btnCancel.onclick = () => {
-        overlay.style.display = 'none';
-        inputContainer.style.display = 'none';
-        if (onCancel) onCancel();
-      };
-
-      overlay.style.display = 'flex';
-      inputBox.focus();
-    }
-
-    /**
      * =========================================================================
-     * 3. 초기화 및 이벤트 리스너
+     * 4. 초기화 및 이벤트 리스너
      * =========================================================================
      */
     window.addEventListener('DOMContentLoaded', () => {
@@ -948,55 +1218,25 @@
         localStorage.setItem('awana_recorder_name', e.target.value.trim());
       });
 
-      // URL 파라미터 기반 접속 코드(?code=... 또는 ?pin=...) 확인
-      const urlParams = new URLSearchParams(window.location.search);
-      URL_PARAM_CODE = urlParams.get('code') || urlParams.get('pin') || urlParams.get('key') || '';
-
-      document.getElementById('roomSelect').addEventListener('change', (e) => {
-        const targetRoom = e.target.value;
-        if (!targetRoom) {
-          handleRoomOrPeriodChange('room', '');
-          return;
-        }
-
-        // 이미 인증된 교실이면 바로 진행
-        if (LOCKED_ROOM === targetRoom) {
-          handleRoomOrPeriodChange('room', targetRoom);
-          return;
-        }
-
-        // 설정 시트의 CODE_교실명 (또는 PIN_교실명) 확인
-        const expectedCode = (MASTER_DATA.settings && (MASTER_DATA.settings['CODE_' + targetRoom] || MASTER_DATA.settings['PIN_' + targetRoom])) || '';
-        showPinPrompt(
-          targetRoom,
-          (enteredCode) => {
-            if (expectedCode && String(enteredCode).toUpperCase() === String(expectedCode).toUpperCase()) {
-              LOCKED_ROOM = targetRoom;
-              const rSel = document.getElementById('roomSelect');
-              rSel.disabled = true; // 해당 교실로 완전 잠금
-              rSel.style.backgroundColor = '#f1f5f9';
-              rSel.style.fontWeight = 'bold';
-              showCustomAlert('교실 인증 완료', `📍 [${targetRoom}] 기록관으로 정상 인증되었습니다.\n이제 채점을 시작하실 수 있습니다.`, 'success');
-              handleRoomOrPeriodChange('room', targetRoom);
-            } else {
-              showCustomAlert('인증 실패', `입력하신 접속 코드가 일치하지 않습니다.\n본부에서 전달받은 [${targetRoom}] 전용 코드를 확인해 주세요.`, 'warn');
-              document.getElementById('roomSelect').value = LAST_SELECTED_ROOM;
-            }
-          },
-          () => {
-            document.getElementById('roomSelect').value = LAST_SELECTED_ROOM;
+      // 게이트웨이 엔터키 이벤트 바인딩
+      const roomCodeInput = document.getElementById('gatewayRoomCode');
+      if (roomCodeInput) {
+        roomCodeInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            processGatewayLogin();
           }
-        );
-      });
+        });
+      }
 
       document.getElementById('periodSelect').addEventListener('change', (e) => {
-        handleRoomOrPeriodChange('period', e.target.value);
+        handlePeriodChange(e.target.value);
       });
 
       document.getElementById('scoringTable').addEventListener('contextmenu', (e) => {
         e.preventDefault();
       });
 
+      const urlParams = new URLSearchParams(window.location.search);
       const isTestMode = urlParams.get('test') === '1';
 
       if (isTestMode) {
@@ -1007,34 +1247,30 @@
       }
     });
 
-    function handleRoomOrPeriodChange(sourceType, targetValue) {
-      // 미제출 상태일 때만 이탈 경고 인터셉트
+    function handlePeriodChange(targetValue) {
       if (SUBMIT_LIFECYCLE_STATE === 'in_progress' || SUBMIT_LIFECYCLE_STATE === 'ready') {
         showCustomConfirm(
           '⚠️ 미제출 변경사항 안내',
-          `현재 [${CURRENT_PERIOD}교시] 채점 결과에 아직 제출하지 않은 변경사항이 있습니다.\n제출하지 않고 다른 교실/교시로 이동하시겠습니까?`,
+          `현재 [${CURRENT_PERIOD}교시] 채점 결과에 아직 제출하지 않은 변경사항이 있습니다.\n제출하지 않고 ${targetValue}교시로 이동하시겠습니까?`,
           () => {
             SUBMIT_LIFECYCLE_STATE = 'empty';
-            if (sourceType === 'room') LAST_SELECTED_ROOM = targetValue;
-            else LAST_SELECTED_PERIOD = targetValue;
+            LAST_SELECTED_PERIOD = targetValue;
             onSelectionChange();
           },
           () => {
-            if (sourceType === 'room') document.getElementById('roomSelect').value = LAST_SELECTED_ROOM;
-            else document.getElementById('periodSelect').value = LAST_SELECTED_PERIOD;
+            document.getElementById('periodSelect').value = LAST_SELECTED_PERIOD;
           },
           'warn'
         );
       } else {
-        if (sourceType === 'room') LAST_SELECTED_ROOM = targetValue;
-        else LAST_SELECTED_PERIOD = targetValue;
+        LAST_SELECTED_PERIOD = targetValue;
         onSelectionChange();
       }
     }
 
     /**
      * =========================================================================
-     * 4. 마스터 데이터 통신
+     * 5. 마스터 데이터 통신
      * =========================================================================
      */
     async function fetchMasterData(isManual = false) {
@@ -1046,32 +1282,8 @@
           MASTER_DATA = result.data;
           document.getElementById('gasEndpointInfo').innerText = '연결 상태: 정상 (실시간 스프레드시트 연결됨)';
 
-          // URL 파라미터(?code=...)를 통해 접속한 경우 자동 인증 및 잠금
-          if (URL_PARAM_CODE && MASTER_DATA.settings) {
-            let matchedRoom = '';
-            for (const key in MASTER_DATA.settings) {
-              if (key.startsWith('CODE_') || key.startsWith('PIN_')) {
-                const settingVal = String(MASTER_DATA.settings[key]).trim().toUpperCase();
-                if (settingVal === URL_PARAM_CODE.trim().toUpperCase()) {
-                  matchedRoom = key.replace(/^(CODE_|PIN_)/, '');
-                  break;
-                }
-              }
-            }
-
-            if (matchedRoom) {
-              LOCKED_ROOM = matchedRoom;
-              const rSel = document.getElementById('roomSelect');
-              rSel.value = matchedRoom;
-              rSel.disabled = true; // 해당 교실로 완전 잠금
-              rSel.style.backgroundColor = '#f1f5f9';
-              rSel.style.fontWeight = 'bold';
-              LAST_SELECTED_ROOM = matchedRoom;
-              showCustomAlert('교실 인증 완료', `📍 [${matchedRoom}] 전용 링크로 정상 접속되었습니다.\n기록관 성함을 입력하고 교시를 선택해 주세요.`, 'success');
-            } else {
-              showCustomAlert('잘못된 링크', '유효하지 않은 교실 접속 코드입니다.\n본부에서 전달받은 링크를 다시 확인해 주세요.', 'warn');
-            }
-          }
+          // 마스터 로드 완료 후 게이트웨이 인증 상태 점검
+          checkGatewayAuth();
         } else {
           throw new Error(result.message);
         }
