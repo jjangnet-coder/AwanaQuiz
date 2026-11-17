@@ -328,19 +328,21 @@ function doPost(e) {
 /**
  * 11개 공식 핸드북별 시상 시트 실시간 점수, 공동 석차, 메달 및 최고득점상 산출 엔진
  */
-const OFFICIAL_11_HANDBOOKS = [
-  '행글라이더 1학년',
-  '행글라이더 2학년',
-  '윙러너 1학년',
-  '윙러너 2학년',
-  '스카이스토머 2학년',
-  '어드밴처1권 3학년',
-  '어드밴처1권 4학년',
-  '어드밴처2권 4학년',
-  '챌린지1권 5학년',
-  '챌린지1권 6학년',
-  '챌린지2권 6학년'
-];
+function getOfficial11Handbooks() {
+  return [
+    '행글라이더 1학년',
+    '행글라이더 2학년',
+    '윙러너 1학년',
+    '윙러너 2학년',
+    '스카이스토머 2학년',
+    '어드밴처1권 3학년',
+    '어드밴처1권 4학년',
+    '어드밴처2권 4학년',
+    '챌린지1권 5학년',
+    '챌린지1권 6학년',
+    '챌린지2권 6학년'
+  ];
+}
 
 function updateHandBookAwards(ss) {
   const finalSheet = ss.getSheetByName('최종집계');
@@ -381,7 +383,8 @@ function updateHandBookAwards(ss) {
   });
 
   // 11개 핸드북 시트 각각 순회 갱신
-  OFFICIAL_11_HANDBOOKS.forEach(hb => {
+  const officialHandbooks = getOfficial11Handbooks();
+  officialHandbooks.forEach(hb => {
     const hbSheet = ss.getSheetByName(hb);
     if (!hbSheet || hbSheet.getLastRow() < 2) return;
 

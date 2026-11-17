@@ -8,19 +8,21 @@
  * - 구글 시트 테이블 변환 및 1행 헤더 고정 호환 보장
  */
 
-const OFFICIAL_11_HANDBOOKS = [
-  '행글라이더 1학년',
-  '행글라이더 2학년',
-  '윙러너 1학년',
-  '윙러너 2학년',
-  '스카이스토머 2학년',
-  '어드밴처1권 3학년',
-  '어드밴처1권 4학년',
-  '어드밴처2권 4학년',
-  '챌린지1권 5학년',
-  '챌린지1권 6학년',
-  '챌린지2권 6학년'
-];
+function getOfficial11HandbooksList() {
+  return [
+    '행글라이더 1학년',
+    '행글라이더 2학년',
+    '윙러너 1학년',
+    '윙러너 2학년',
+    '스카이스토머 2학년',
+    '어드밴처1권 3학년',
+    '어드밴처1권 4학년',
+    '어드밴처2권 4학년',
+    '챌린지1권 5학년',
+    '챌린지1권 6학년',
+    '챌린지2권 6학년'
+  ];
+}
 
 function setupAwanaSheets() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -87,7 +89,7 @@ function setupAwanaSheets() {
     '필기점수', '객관식(오전)', '객관식(오후)', '스피드(오후)', '최종총점', '석차', '메달', '최고득점상'
   ];
 
-  OFFICIAL_11_HANDBOOKS.forEach(hb => {
+  getOfficial11HandbooksList().forEach(hb => {
     sheetDefinitions.push({
       name: hb,
       headers: awardHeaders,
@@ -190,7 +192,7 @@ function syncFinalSummaryFromParticipants() {
   fSheet.getRange(2, 9, summaryRows.length, 5).setHorizontalAlignment('right');
 
   // 3. 11개 공식 핸드북별 시상 시트 동기화
-  OFFICIAL_11_HANDBOOKS.forEach(hb => {
+  getOfficial11HandbooksList().forEach(hb => {
     const hbSheet = ss.getSheetByName(hb);
     if (!hbSheet) return;
 
@@ -321,7 +323,7 @@ function formatAllSheetsNicely() {
   }
 
   // 8. 11개 공식 핸드북별 시상 시트 (A~P: 16개 열 전수 표준화)
-  OFFICIAL_11_HANDBOOKS.forEach(hb => {
+  getOfficial11HandbooksList().forEach(hb => {
     const hbSheet = ss.getSheetByName(hb);
     if (!hbSheet) return;
 
