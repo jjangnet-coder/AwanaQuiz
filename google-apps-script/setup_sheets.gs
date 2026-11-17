@@ -126,8 +126,51 @@ function setupAwanaSheets() {
   });
 
   SpreadsheetApp.flush();
+  reorderAwanaSheets(ss);   // 18개 시트 공식 순서 자동 재배치
   formatAllSheetsNicely(); // 18개 시트 전체 열너비/정렬 전수 표준화 적용
   Logger.log('✅ [운영용 초기화 완료] 기본 7개 시트 및 11개 공식 핸드북 시상 시트가 준비되었습니다.');
+}
+
+/**
+ * 기존 데이터를 건드리지 않고 시트 탭 순서만 즉시 공식 규격대로 정렬하는 단독 실행 함수
+ */
+function reorderSheetsOnly() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  reorderAwanaSheets(ss);
+  SpreadsheetApp.flush();
+  Logger.log('🎉 [탭 순서 정렬 완료] 18개 시트 탭이 공식 순서대로 재배치되었습니다.');
+}
+
+/**
+ * 18개 전체 시트 탭을 사용자가 지정한 공식 순서대로 물리적 위치 재배치
+ * 순서: 설정 -> 참가자명단 -> 시간표 -> 객관식_로그 -> 스피드_로그 -> 필기_로그 -> 최종집계 -> 11개 핸드북
+ */
+function reorderAwanaSheets(ss) {
+  const desiredOrder = [
+    '설정',
+    '참가자명단',
+    '시간표',
+    '객관식_로그',
+    '스피드_로그',
+    '필기_로그',
+    '최종집계'
+  ].concat(getOfficial11HandbooksList());
+
+  let currentPosition = 1;
+  desiredOrder.forEach(name => {
+    const sheet = ss.getSheetByName(name);
+    if (sheet) {
+      ss.setActiveSheet(sheet);
+      ss.moveActiveSheet(currentPosition);
+      currentPosition++;
+    }
+  });
+
+  // 정렬 후 첫 번째 '설정' 시트를 활성화
+  const firstSheet = ss.getSheetByName('설정');
+  if (firstSheet) {
+    ss.setActiveSheet(firstSheet);
+  }
 }
 
 /**
