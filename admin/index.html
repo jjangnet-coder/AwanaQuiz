@@ -182,22 +182,25 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-    /* 상단 요약 위젯 카드 4종 */
+    /* 상단 요약 위젯 가로 슬림형 인라인 바 (Zero-Scroll 최적화) */
     .metrics-summary-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 14px;
-      margin-bottom: 20px;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 12px;
     }
 
     .metric-card {
       background: #ffffff;
       border: 1px solid #e2e8f0;
-      border-radius: 12px;
-      padding: 14px 18px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+      border-radius: 10px;
+      padding: 8px 14px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.02);
       position: relative;
       overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
     }
 
     .metric-card::before {
@@ -218,43 +221,44 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 6px;
+      margin-bottom: 2px;
     }
 
     .metric-label {
-      font-size: 0.82rem;
+      font-size: 0.78rem;
       font-weight: 700;
       color: #64748b;
     }
 
     .metric-icon {
-      font-size: 1.15rem;
+      font-size: 0.95rem;
     }
 
     .metric-value-row {
       display: flex;
       align-items: baseline;
-      gap: 8px;
+      gap: 6px;
     }
 
     .metric-value {
-      font-size: 1.45rem;
+      font-size: 1.22rem;
       font-weight: 900;
       color: #0f172a;
-      letter-spacing: -0.5px;
+      letter-spacing: -0.4px;
+      line-height: 1.2;
     }
 
     .metric-subtext {
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       font-weight: 600;
       color: #64748b;
     }
 
     .metric-progress-track {
-      height: 6px;
+      height: 4px;
       background: #f1f5f9;
       border-radius: 10px;
-      margin-top: 10px;
+      margin-top: 6px;
       overflow: hidden;
     }
 
@@ -367,65 +371,66 @@
     .badge-silver { background: #f1f5f9; color: #475569; font-weight: 800; border: 1px solid #cbd5e1; }
     .badge-bronze { background: #ffedd5; color: #9a3412; font-weight: 800; border: 1px solid #fed7aa; }
 
-    /* 대시보드 관제 매트릭스 그리드 */
+    /* 대시보드 관제 매트릭스 그리드 (동적 4열 3행 완벽 대칭 레이아웃) */
     .monitor-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-      gap: 16px;
-      margin-top: 14px;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 10px;
+      margin-top: 10px;
     }
 
     .room-monitor-card {
       background: #ffffff;
       border: 1px solid #e2e8f0;
-      border-radius: 14px;
-      padding: 16px;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.03);
+      border-radius: 10px;
+      padding: 9px 12px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
       transition: transform 0.15s ease, box-shadow 0.15s ease;
     }
 
     .room-monitor-card:hover {
-      box-shadow: 0 8px 12px -2px rgba(0, 0, 0, 0.06);
+      box-shadow: 0 4px 8px -1px rgba(0, 0, 0, 0.05);
     }
 
     .room-monitor-card.theme-sparks {
-      border-top: 4px solid var(--sparks-theme);
+      border-top: 3px solid var(--sparks-theme);
     }
 
     .room-monitor-card.theme-tnt {
-      border-top: 4px solid var(--tnt-theme);
+      border-top: 3px solid var(--tnt-theme);
     }
 
     .room-monitor-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 12px;
-      padding-bottom: 8px;
+      margin-bottom: 6px;
+      padding-bottom: 5px;
       border-bottom: 1px solid var(--border-light);
     }
 
     .room-badge-title {
-      font-size: 1.05rem;
+      font-size: 0.95rem;
       font-weight: 800;
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 5px;
     }
 
     .room-badge-title.sparks { color: #c2410c; }
     .room-badge-title.tnt { color: #1d4ed8; }
 
+    /* 1~7교시 버튼을 1줄에 7개 나란히 배치하여 세로 높이를 50% 단축 */
     .room-period-cards {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 6px;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
     }
 
     .period-card-item {
-      padding: 8px 4px;
+      padding: 4px 2px;
       text-align: center;
-      border-radius: 8px;
+      border-radius: 6px;
       border: 1px solid #e2e8f0;
       background: #f8fafc;
       transition: all 0.15s ease;
@@ -433,30 +438,32 @@
     }
 
     .period-card-item .period-num {
-      font-size: 0.8rem;
+      font-size: 0.72rem;
       font-weight: 700;
       color: #475569;
-      margin-bottom: 3px;
+      margin-bottom: 1px;
+      white-space: nowrap;
     }
 
     .period-card-item .status-badge-chip {
-      font-size: 0.72rem;
+      font-size: 0.65rem;
       font-weight: 800;
-      padding: 2px 4px;
-      border-radius: 4px;
+      padding: 1px 2px;
+      border-radius: 3px;
       display: inline-block;
+      white-space: nowrap;
     }
 
     .period-card-item .session-indicator-dots {
       display: flex;
       justify-content: center;
-      gap: 3px;
-      margin-top: 4px;
+      gap: 2px;
+      margin-top: 2px;
     }
 
     .indicator-dot {
-      width: 5px;
-      height: 5px;
+      width: 4px;
+      height: 4px;
       border-radius: 50%;
       background: #cbd5e1;
     }
@@ -800,34 +807,23 @@
         color: #222222 !important;
       }
 
-      /* 초압축 인쇄 테이블: 60명까지 A4 단 1장에 완벽 수록 */
+      /* 단일 1열 표준 인쇄 테이블 (첫 번째 이미지 원형 100% 복원) */
       .print-table {
         width: 100% !important;
         border-collapse: collapse !important;
-        font-size: 8.5pt !important;
-        line-height: 1.15 !important;
+        font-size: 10pt !important;
+        line-height: 1.35 !important;
       }
 
       .print-table th, .print-table td {
         border: 1px solid #444444 !important;
-        padding: 3.5px 4px !important;
+        padding: 5px 6px !important;
         text-align: center !important;
       }
 
       .print-table th {
         background-color: #f1f5f9 !important;
         font-weight: 800 !important;
-      }
-
-      /* 2열 병렬 테이블 레이아웃 (30명 초과 시) */
-      .multi-col-print-grid {
-        display: flex !important;
-        gap: 12px !important;
-        width: 100% !important;
-      }
-
-      .multi-col-print-grid > table {
-        flex: 1 !important;
       }
     }
   </style>
@@ -2172,62 +2168,23 @@
           const pageDiv = document.createElement('div');
           pageDiv.className = 'print-award-page';
 
-          // 30명 초과 시 좌/우 2열 분할 레이아웃 적용으로 A4 단 1장 수록 보장
-          const useMultiCol = awardees.length > 30;
-
-          const renderTableHtml = (list, startIndex = 0) => {
-            let trs = '';
-            list.forEach((a, idx) => {
-              const badgeClass = a.medal === '금메달' ? 'badge-gold' : (a.medal === '은메달' ? 'badge-silver' : 'badge-bronze');
-              trs += `
-                <tr>
-                  <td style="font-weight: 800;">${startIndex + idx + 1}</td>
-                  <td><span class="badge-status ${badgeClass}" style="padding: 2px 6px;">${a.medal}</span></td>
-                  <td><b>${a.rank}위</b></td>
-                  <td>${a.team}조</td>
-                  <td><b>${a.num}번</b></td>
-                  <td style="text-align: left; padding-left: 8px;"><b>${a.name}</b></td>
-                  <td style="text-align: left; padding-left: 8px;">${a.church}</td>
-                  <td style="font-weight: 800; color: #1e3a8a;">${a.total}점</td>
-                </tr>
-              `;
-            });
-
-            return `
-              <table class="print-table">
-                <thead>
-                  <tr>
-                    <th style="width: 38px;">순번</th>
-                    <th style="width: 75px;">메달</th>
-                    <th style="width: 55px;">전체석차</th>
-                    <th style="width: 45px;">조</th>
-                    <th style="width: 45px;">번호</th>
-                    <th style="width: 85px;">단원 성명</th>
-                    <th>소속 교회명</th>
-                    <th style="width: 65px;">최종총점</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  ${trs}
-                </tbody>
-              </table>
+          // 오직 시원하고 큼직한 1열(단일 테이블) 구조로 렌더링
+          let trsHtml = '';
+          awardees.forEach((a, idx) => {
+            const badgeClass = a.medal === '금메달' ? 'badge-gold' : (a.medal === '은메달' ? 'badge-silver' : 'badge-bronze');
+            trsHtml += `
+              <tr>
+                <td style="font-weight: 800;">${idx + 1}</td>
+                <td><span class="badge-status ${badgeClass}" style="padding: 3px 8px; font-size: 0.88rem;">${a.medal}</span></td>
+                <td><b>${a.rank}위</b></td>
+                <td>${a.team}조</td>
+                <td><b>${a.num}번</b></td>
+                <td style="text-align: left; padding-left: 14px;"><b>${a.name}</b></td>
+                <td style="text-align: left; padding-left: 14px;">${a.church}</td>
+                <td style="font-weight: 800; color: #1e3a8a;">${a.total}점</td>
+              </tr>
             `;
-          };
-
-          let tableContentHtml = '';
-          if (useMultiCol) {
-            const mid = Math.ceil(awardees.length / 2);
-            const col1 = awardees.slice(0, mid);
-            const col2 = awardees.slice(mid);
-            tableContentHtml = `
-              <div class="multi-col-print-grid">
-                ${renderTableHtml(col1, 0)}
-                ${renderTableHtml(col2, mid)}
-              </div>
-            `;
-          } else {
-            tableContentHtml = renderTableHtml(awardees, 0);
-          }
+          });
 
           pageDiv.innerHTML = `
             <div class="print-page-header">
@@ -2237,9 +2194,25 @@
               </div>
             </div>
 
-            ${tableContentHtml}
+            <table class="print-table">
+              <thead>
+                <tr>
+                  <th style="width: 45px;">순번</th>
+                  <th style="width: 90px;">메달</th>
+                  <th style="width: 65px;">전체석차</th>
+                  <th style="width: 50px;">조</th>
+                  <th style="width: 50px;">번호</th>
+                  <th style="width: 100px;">단원 성명</th>
+                  <th>소속 교회명</th>
+                  <th style="width: 75px;">최종총점</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${trsHtml}
+              </tbody>
+            </table>
 
-            <div style="margin-top: 15px; text-align: right; font-size: 8pt; color: #64748b;">
+            <div style="margin-top: 15px; text-align: right; font-size: 8.5pt; color: #64748b;">
               * 본 시상표는 교실별 시상 진행을 위한 공식 출력물입니다. (최고득점상은 본부 전체 집계에서 별도 수여됩니다)
             </div>
           `;
