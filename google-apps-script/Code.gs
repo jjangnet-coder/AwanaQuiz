@@ -315,7 +315,12 @@ function doPost(e) {
       }
 
       if (logRows.length > 0) {
-        logSheet.getRange(logSheet.getLastRow() + 1, 1, logRows.length, 18).setValues(logRows);
+        const startRow = logSheet.getLastRow() + 1;
+        logSheet.getRange(startRow, 1, logRows.length, 18).setValues(logRows);
+        // [정렬 서식 일원화] 1~16열 가운데 정렬, 17열(총점) 우측 정렬, 18열(기록관명) 가운데 정렬
+        logSheet.getRange(startRow, 1, logRows.length, 16).setHorizontalAlignment('center');
+        logSheet.getRange(startRow, 17, logRows.length, 1).setHorizontalAlignment('right');
+        logSheet.getRange(startRow, 18, logRows.length, 1).setHorizontalAlignment('center');
       }
 
     // 2. 스피드 퀴즈 점수 저장 처리 (T&T 오후 전용)
@@ -367,7 +372,12 @@ function doPost(e) {
       }
 
       if (logRows.length > 0) {
-        logSheet.getRange(logSheet.getLastRow() + 1, 1, logRows.length, 19).setValues(logRows);
+        const startRow = logSheet.getLastRow() + 1;
+        logSheet.getRange(startRow, 1, logRows.length, 19).setValues(logRows);
+        // [정렬 서식 일원화] 1~17열 가운데 정렬, 18열(총점) 우측 정렬, 19열(기록관명) 가운데 정렬
+        logSheet.getRange(startRow, 1, logRows.length, 17).setHorizontalAlignment('center');
+        logSheet.getRange(startRow, 18, logRows.length, 1).setHorizontalAlignment('right');
+        logSheet.getRange(startRow, 19, logRows.length, 1).setHorizontalAlignment('center');
       }
 
     // 3. 필기 점수 저장 처리 (본부 입력)
@@ -410,7 +420,12 @@ function doPost(e) {
       }
 
       if (logRows.length > 0) {
-        logSheet.getRange(logSheet.getLastRow() + 1, 1, logRows.length, 7).setValues(logRows);
+        const startRow = logSheet.getLastRow() + 1;
+        logSheet.getRange(startRow, 1, logRows.length, 7).setValues(logRows);
+        // [정렬 서식 일원화] 1~5열 가운데 정렬, 6열(필기점수) 우측 정렬, 7열(본부입력자) 가운데 정렬
+        logSheet.getRange(startRow, 1, logRows.length, 5).setHorizontalAlignment('center');
+        logSheet.getRange(startRow, 6, logRows.length, 1).setHorizontalAlignment('right');
+        logSheet.getRange(startRow, 7, logRows.length, 1).setHorizontalAlignment('center');
       }
 
     } else {
@@ -737,97 +752,6 @@ function updateHandBookAwards(ss) {
   });
 }
 
-/**
- * =========================================================================
- * [소급 복구 함수] 기존 로그 시트(객관식/스피드/필기)의 점수를 최종집계 및 핸드북 시트로 즉시 소급 반영
- * =========================================================================
- * 관리자가 혹시 최종집계가 비어있던 시절에 입력했던 로그 데이터를 한 번에 복구할 때 사용합니다.
- */
-function replayScoresFromLogs() {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const finalSheet = ss.getSheetByName('최종집계');
-  if (!finalSheet) throw new Error("'최종집계' 시트를 찾을 수 없습니다.");
 
-  // 1. 최종집계가 비어있다면 먼저 동기화
-  if (finalSheet.getLastRow() < 2) {
-    if (typeof syncFinalSummaryFromParticipants === 'function') {
-      syncFinalSummaryFromParticipants(ss);
-    }
-  }
-
-  const finalLastRow = finalSheet.getLastRow();
-  if (finalLastRow < 2) {
-    Logger.log("참가자 데이터가 없어 복구할 수 없습니다.");
-    return;
-  }
-
-  // ID -> Row 맵 생성
-  const idToRowMap = {};
-  const idColumnValues = finalSheet.getRange(2, 1, finalLastRow - 1, 1).getValues();
-  for (let i = 0; i < idColumnValues.length; i++) {
-    const id = String(idColumnValues[i][0]).trim();
-    if (id) idToRowMap[id] = i + 2;
-  }
-
-  // 필기(9), 객관오전(10), 객관오후(11), 스피드(12) 컬럼 메모리 로드
-  const scoreMatrix = finalSheet.getRange(2, 9, finalLastRow - 1, 4).getValues();
-
-  // 2. 객관식_로그 순회 (오전: 10열, 오후: 11열)
-  const mLog = ss.getSheetByName('객관식_로그');
-  if (mLog && mLog.getLastRow() >= 2) {
-    // 컬럼: [0]시간, [1]세션, [2]교실, [3]교시, [4]핸드북, [5]조, [6]ID, [7]이름 ... [16]총점
-    const mData = mLog.getRange(2, 1, mLog.getLastRow() - 1, 17).getValues();
-    mData.forEach(r => {
-      const session = String(r[1] || '').trim();
-      const id = String(r[6] || '').trim();
-      const score = Number(r[16]);
-      const rowNum = idToRowMap[id];
-      if (rowNum && (rowNum - 2) < scoreMatrix.length) {
-        const colOffset = session === '오전' ? 1 : 2; // 1: 오전(10열), 2: 오후(11열)
-        scoreMatrix[rowNum - 2][colOffset] = score;
-      }
-    });
-  }
-
-  // 3. 스피드_로그 순회 (스피드: 12열)
-  const sLog = ss.getSheetByName('스피드_로그');
-  if (sLog && sLog.getLastRow() >= 2) {
-    // 컬럼: [0]시간, [1]교실, [2]교시, [3]핸드북, [4]조, [5]ID, [6]이름 ... [17]총점
-    const sData = sLog.getRange(2, 1, sLog.getLastRow() - 1, 18).getValues();
-    sData.forEach(r => {
-      const id = String(r[5] || '').trim();
-      const score = Number(r[17]);
-      const rowNum = idToRowMap[id];
-      if (rowNum && (rowNum - 2) < scoreMatrix.length) {
-        scoreMatrix[rowNum - 2][3] = score; // 3: 스피드(12열)
-      }
-    });
-  }
-
-  // 4. 필기_로그 순회 (필기: 9열)
-  const wLog = ss.getSheetByName('필기_로그');
-  if (wLog && wLog.getLastRow() >= 2) {
-    // 컬럼: [0]시간, [1]ID, [2]핸드북, [3]조, [4]이름, [5]점수
-    const wData = wLog.getRange(2, 1, wLog.getLastRow() - 1, 6).getValues();
-    wData.forEach(r => {
-      const id = String(r[1] || '').trim();
-      const score = Number(r[5]);
-      const rowNum = idToRowMap[id];
-      if (rowNum && (rowNum - 2) < scoreMatrix.length) {
-        scoreMatrix[rowNum - 2][0] = score; // 0: 필기(9열)
-      }
-    });
-  }
-
-  // 5. 최종집계에 일괄 쓰기
-  finalSheet.getRange(2, 9, scoreMatrix.length, 4).setValues(scoreMatrix);
-  SpreadsheetApp.flush();
-
-  // 6. 11개 핸드북 시상 시트 갱신
-  updateHandBookAwards(ss);
-  SpreadsheetApp.flush();
-
-  Logger.log('🎉 [로그 소급 복구 완료] 기존 로그 시트의 점수가 최종집계 및 11개 핸드북 시트에 성공적으로 반영되었습니다.');
-}
 
 

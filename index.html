@@ -1025,6 +1025,17 @@
     // 저장 상태 머신: 'empty'(미입력 대기) | 'in_progress'(작성중) | 'ready'(전원입력완료) | 'saved'(제출완료)
     let SUBMIT_LIFECYCLE_STATE = 'empty';
 
+    /**
+     * 채점 미제출 또는 수정 후 미저장 상태 여부 확인
+     */
+    function hasUnsavedChanges() {
+      return (
+        SUBMIT_LIFECYCLE_STATE === 'in_progress' ||
+        SUBMIT_LIFECYCLE_STATE === 'ready' ||
+        SUBMIT_LIFECYCLE_STATE === 'ready_modified'
+      );
+    }
+
     // 교실 보안 잠금 상태
     let LOCKED_ROOM = ''; // 인증 완료되어 고정된 교실명 (localStorage: awana_locked_room)
 
@@ -1114,10 +1125,16 @@
     }
 
     function requestRoomChange() {
-      if (SUBMIT_LIFECYCLE_STATE === 'in_progress' || SUBMIT_LIFECYCLE_STATE === 'ready') {
+      if (hasUnsavedChanges()) {
+        const isModified = SUBMIT_LIFECYCLE_STATE === 'ready_modified';
+        const warningTitle = isModified ? '🚨 점수 수정 미제출 로그아웃 경고' : '🚨 채점 미제출 로그아웃 경고';
+        const warningMsg = isModified
+          ? `현재 [${CURRENT_ROOM} / ${CURRENT_PERIOD || '진행 중'}교시] 조의 수정된 점수가 아직 재제출되지 않았습니다!\n\n지금 로그아웃하시면 수정한 채점 데이터가 반영되지 않습니다.\n\n정말로 수정을 취소하고 로그아웃하시겠습니까?`
+          : `현재 [${CURRENT_ROOM} / ${CURRENT_PERIOD || '진행 중'}교시] 조의 채점이 아직 제출되지 않았습니다!\n\n지금 로그아웃하시면 작성 중이던 O/X 채점 데이터가 모두 사라집니다.\n\n정말로 작성을 취소하고 로그아웃하시겠습니까?`;
+
         showCustomConfirm(
-          '🚨 채점 미제출 로그아웃 경고',
-          `현재 [${CURRENT_ROOM} / ${CURRENT_PERIOD || '진행 중'}교시] 조의 채점이 아직 제출되지 않았습니다!\n\n지금 로그아웃하시면 작성 중이던 O/X 채점 데이터가 모두 사라집니다.\n\n정말로 작성을 취소하고 로그아웃하시겠습니까?`,
+          warningTitle,
+          warningMsg,
           () => {
             executeRoomReset();
           },
@@ -1288,7 +1305,7 @@
 
       // 브라우저 닫기/새로고침(F5) 시 채점 미제출 이탈 방지
       window.addEventListener('beforeunload', (e) => {
-        if (SUBMIT_LIFECYCLE_STATE === 'in_progress' || SUBMIT_LIFECYCLE_STATE === 'ready') {
+        if (hasUnsavedChanges()) {
           e.preventDefault();
           e.returnValue = '';
         }
@@ -1310,10 +1327,16 @@
     });
 
     function handlePeriodChange(targetValue) {
-      if (SUBMIT_LIFECYCLE_STATE === 'in_progress' || SUBMIT_LIFECYCLE_STATE === 'ready') {
+      if (hasUnsavedChanges()) {
+        const isModified = SUBMIT_LIFECYCLE_STATE === 'ready_modified';
+        const warningTitle = isModified ? '🚨 점수 수정 미제출 이탈 경고' : '🚨 채점 미제출 이탈 경고';
+        const warningMsg = isModified
+          ? `현재 [${CURRENT_ROOM} / ${CURRENT_PERIOD}교시] 조의 수정된 점수가 아직 재제출되지 않았습니다!\n\n지금 다른 교시로 이동하시면 수정한 내용이 반영되지 않고 원래대로 되돌아갑니다.\n\n정말로 수정을 취소하고 이동하시겠습니까?`
+          : `현재 [${CURRENT_ROOM} / ${CURRENT_PERIOD}교시] 조의 채점이 아직 제출되지 않았습니다!\n\n지금 다른 교시로 이동하시면 작성 중이던 O/X 채점 데이터가 모두 사라집니다.\n\n정말로 작성을 취소하고 이동하시겠습니까?`;
+
         showCustomConfirm(
-          '🚨 채점 미제출 이탈 경고',
-          `현재 [${CURRENT_ROOM} / ${CURRENT_PERIOD}교시] 조의 채점이 아직 제출되지 않았습니다!\n\n지금 다른 교시로 이동하시면 작성 중이던 O/X 채점 데이터가 모두 사라집니다.\n\n정말로 작성을 취소하고 이동하시겠습니까?`,
+          warningTitle,
+          warningMsg,
           () => {
             SUBMIT_LIFECYCLE_STATE = 'empty';
             LAST_SELECTED_PERIOD = targetValue;
@@ -1324,7 +1347,7 @@
           },
           'danger',
           {
-            confirmText: '작성 취소하고 이동',
+            confirmText: '수정 취소하고 이동',
             cancelText: '계속 채점하기',
             confirmClass: 'modal-btn-danger',
             cancelClass: 'modal-btn-confirm',
@@ -1338,10 +1361,16 @@
     }
 
     function handleManualRefresh() {
-      if (SUBMIT_LIFECYCLE_STATE === 'in_progress' || SUBMIT_LIFECYCLE_STATE === 'ready') {
+      if (hasUnsavedChanges()) {
+        const isModified = SUBMIT_LIFECYCLE_STATE === 'ready_modified';
+        const warningTitle = isModified ? '🚨 점수 수정 미제출 새로고침 경고' : '🚨 채점 미제출 새로고침 경고';
+        const warningMsg = isModified
+          ? `현재 [${CURRENT_ROOM} / ${CURRENT_PERIOD}교시] 조의 수정된 점수가 아직 재제출되지 않았습니다!\n\n지금 새로고침하시면 수정한 내용이 반영되지 않고 원래대로 되돌아갑니다.\n\n정말로 새로고침하시겠습니까?`
+          : `현재 [${CURRENT_ROOM} / ${CURRENT_PERIOD}교시] 조의 채점이 아직 제출되지 않았습니다!\n\n지금 새로고침하시면 작성 중이던 O/X 채점 데이터가 모두 사라집니다.\n\n정말로 새로고침하시겠습니까?`;
+
         showCustomConfirm(
-          '🚨 채점 미제출 새로고침 경고',
-          `현재 [${CURRENT_ROOM} / ${CURRENT_PERIOD}교시] 조의 채점이 아직 제출되지 않았습니다!\n\n지금 새로고침하시면 작성 중이던 O/X 채점 데이터가 모두 사라집니다.\n\n정말로 새로고침하시겠습니까?`,
+          warningTitle,
+          warningMsg,
           () => {
             fetchMasterData(true);
           },
