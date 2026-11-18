@@ -9,6 +9,8 @@
 function doGet(e) {
   try {
     const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const params = e && e.parameter ? e.parameter : {};
+    const action = String(params.action || '').trim();
 
     // 1. 설정 시트 읽기 (설정 또는 대회설정 호환, 설명 컬럼 호환)
     const settingsSheet = ss.getSheetByName('설정') || ss.getSheetByName('대회설정');
@@ -22,29 +24,7 @@ function doGet(e) {
       });
     }
 
-    // 2. 참가자명단 시트 읽기 (테이블 변환 방어: 빈 행 자동 필터)
-    // 컬럼: 참가자ID(0) | 핸드북(1) | 학년(2) | 조(3) | 번호(4) | 교회명(5) | 이름(6)
-    const pSheet = ss.getSheetByName('참가자명단');
-    const participants = [];
-    if (pSheet && pSheet.getLastRow() >= 2) {
-      const pData = pSheet.getRange(2, 1, pSheet.getLastRow() - 1, 7).getValues();
-      pData.forEach(row => {
-        const pid = String(row[0] || '').trim();
-        if (pid) {
-          participants.push({
-            id: pid,
-            handbook: String(row[1] || '').trim(),
-            grade: Number(row[2]),
-            team: Number(row[3]),
-            num: Number(row[4]),
-            church: String(row[5] || '').trim(),
-            name: String(row[6] || '').trim()
-          });
-        }
-      });
-    }
-
-    // 3. 시간표 시트 읽기 (시간표 또는 교실순환시간표 호환, 테이블 변환 방어)
+    // 2. 시간표 시트 읽기 (시간표 또는 교실순환시간표 호환, 테이블 변환 방어)
     // 컬럼: 교실명(0) | 교시(1) | 핸드북(2) | 조(3)
     const tSheet = ss.getSheetByName('시간표') || ss.getSheetByName('교실순환시간표');
     const timetable = [];
@@ -63,7 +43,82 @@ function doGet(e) {
       });
     }
 
-    // 4. 최종집계 시트 점수 현황 읽기
+    // [경량 온디맨드(On-Demand) 분기 처리]
+    // A. 초기 진입 (action === 'init'): 설정과 시간표만 0.1초 만에 초경량 반환 (1,376명 전원 다운로드 차단)
+    if (action === 'init') {
+      return ContentService.createTextOutput(JSON.stringify({
+        status: 'success',
+        mode: 'init',
+        data: {
+          settings: settings,
+          timetable: timetable
+        }
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
+
+    // B. 특정 교실/교시 온디맨드 단원 및 점수 조회 (action === 'getStudents' 또는 room & period 전달 시)
+    const reqRoom = decodeURIComponent(params.room || '').trim();
+    const reqPeriod = params.period !== undefined ? Number(params.period) : null;
+    const isFiltered = (action === 'getStudents' || (reqRoom && reqPeriod !== null));
+
+    // 특정 교실/교시 매칭 핸드북 및 조(team) 추출
+    let targetHandbook = '';
+    let targetTeam = null;
+    if (isFiltered) {
+      const matchSchedule = timetable.find(t => t.room === reqRoom && Number(t.period) === Number(reqPeriod));
+      if (matchSchedule) {
+        targetHandbook = matchSchedule.handbook;
+        targetTeam = Number(matchSchedule.team);
+      }
+    }
+
+    // 3. 참가자명단 시트 읽기 (필터링 적용)
+    // 컬럼: 참가자ID(0) | 핸드북(1) | 학년(2) | 조(3) | 번호(4) | 교회명(5) | 이름(6)
+    const pSheet = ss.getSheetByName('참가자명단');
+    const participants = [];
+    const targetStudentIdSet = {};
+
+    if (pSheet && pSheet.getLastRow() >= 2) {
+      const pData = pSheet.getRange(2, 1, pSheet.getLastRow() - 1, 7).getValues();
+      pData.forEach(row => {
+        const pid = String(row[0] || '').trim();
+        if (!pid) return;
+
+        const hb = String(row[1] || '').trim();
+        const team = Number(row[3]);
+
+        // 온디맨드 모드일 때는 해당 조 학생만 선별 수집
+        if (isFiltered) {
+          if (targetHandbook && targetTeam !== null) {
+            if (hb === targetHandbook && team === targetTeam) {
+              participants.push({
+                id: pid,
+                handbook: hb,
+                grade: Number(row[2]),
+                team: team,
+                num: Number(row[4]),
+                church: String(row[5] || '').trim(),
+                name: String(row[6] || '').trim()
+              });
+              targetStudentIdSet[pid] = true;
+            }
+          }
+        } else {
+          // all=1 또는 레거시 전원 로드 모드 (본부 hq.html 등)
+          participants.push({
+            id: pid,
+            handbook: hb,
+            grade: Number(row[2]),
+            team: team,
+            num: Number(row[4]),
+            church: String(row[5] || '').trim(),
+            name: String(row[6] || '').trim()
+          });
+        }
+      });
+    }
+
+    // 4. 최종집계 시트 점수 현황 읽기 (온디맨드 대상자만 핀포인트 선별)
     // 컬럼: 참가자ID(0) | 핸드북(1) | 교실(2) | 학년(3) | 조(4) | 번호(5) | 교회명(6) | 이름(7) | 필기점수(8) | 객관식(오전)(9) | 객관식(오후)(10) | 스피드(오후)(11) | 최종총점(12)
     const fSheet = ss.getSheetByName('최종집계');
     const scores = {};
@@ -71,20 +126,24 @@ function doGet(e) {
       const fData = fSheet.getRange(2, 1, fSheet.getLastRow() - 1, 13).getValues();
       fData.forEach(row => {
         const pid = String(row[0]).trim();
-        if (pid) {
-          scores[pid] = {
-            written: row[8] === '' ? null : Number(row[8]),
-            multipleMorning: row[9] === '' ? null : Number(row[9]),
-            multipleAfternoon: row[10] === '' ? null : Number(row[10]),
-            speedAfternoon: row[11] === '' ? null : Number(row[11]),
-            total: row[12] === '' ? null : Number(row[12])
-          };
-        }
+        if (!pid) return;
+
+        // 온디맨드 모드일 때는 선별된 학생들의 점수만 핀포인트 수집
+        if (isFiltered && !targetStudentIdSet[pid]) return;
+
+        scores[pid] = {
+          written: row[8] === '' ? null : Number(row[8]),
+          multipleMorning: row[9] === '' ? null : Number(row[9]),
+          multipleAfternoon: row[10] === '' ? null : Number(row[10]),
+          speedAfternoon: row[11] === '' ? null : Number(row[11]),
+          total: row[12] === '' ? null : Number(row[12])
+        };
       });
     }
 
     const response = {
       status: 'success',
+      mode: isFiltered ? 'filtered' : 'full',
       data: {
         settings: settings,
         participants: participants,

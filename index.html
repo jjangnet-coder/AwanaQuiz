@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AWANA 성경퀴즈대회 점수 입력 시스템</title>
+  <title>2026-2027 AWANA 성경퀴즈대회 점수 입력 시스템</title>
   <style>
     :root {
       --primary: #1d4ed8;
@@ -801,8 +801,8 @@
   <div class="gateway-modal-overlay" id="gatewayModalOverlay">
     <div class="gateway-card">
       <div class="gateway-icon">🏆</div>
-      <div class="gateway-title">AWANA 성경퀴즈대회</div>
-      <div class="gateway-subtitle">기록관 시험장(교실) 입장 인증</div>
+      <div class="gateway-title">2026-2027 AWANA 성경퀴즈대회</div>
+      <div class="gateway-subtitle">점수기록관 시험장(교실) 입장 인증</div>
 
       <div class="gateway-form-group">
         <label for="gatewayRoomSelect">담당 시험장(교실) 선택</label>
@@ -864,13 +864,13 @@
     <!-- 상단 컨트롤 헤더 바 -->
     <header class="header-bar">
       <div class="header-title-group">
-        <div class="header-title">AWANA 성경퀴즈대회 점수 입력 시스템</div>
+        <div class="header-title">2026-2027 AWANA 성경퀴즈대회 점수 입력 시스템</div>
         <span class="badge-club" id="clubBadge">SPARKS</span>
       </div>
 
       <div class="controls-row">
         <div class="control-item">
-          <label for="recorderName">기록관:</label>
+          <label for="recorderName">점수기록관:</label>
           <input type="text" id="recorderName" placeholder="성함 입력" style="width: 100px;" />
         </div>
 
@@ -966,7 +966,7 @@
         <tbody id="tableBody">
           <tr>
             <td colspan="18" style="padding: 40px; color: var(--text-muted); font-size: 0.95rem;">
-              상단에서 <b>교실명</b>과 <b>교시</b>를 선택하면 해당 반 채점 명단이 나타납니다.
+              상단에서 <b>교시</b>를 선택하면 해당 교시의 선수 명단이 나타납니다.
             </td>
           </tr>
         </tbody>
@@ -976,10 +976,10 @@
     <!-- 하단 상태 바 -->
     <footer class="footer-bar">
       <div>
-        <span id="storageStatus">⚡ 실시간 중앙 집계 모드 (로컬 캐시 없음)</span>
+        <span id="storageStatus">2026-2027 AWANA Bible Quiz</span>
       </div>
       <div>
-        <span id="gasEndpointInfo">연결 상태: 대기 중</span>
+        <span id="gasEndpointInfo">구글 스프레드시트 연결 대기 중</span>
       </div>
     </footer>
   </div>
@@ -1089,7 +1089,7 @@
         errMsg.style.display = 'none';
         closeGatewayModal();
         applyLockedRoom(selectedRoom);
-        showCustomAlert('교실 인증 완료', `📍 [${selectedRoom}] 기록관으로 정상 인증되었습니다.\n기록관 성함을 확인하고 교시를 선택해 주세요.`, 'success');
+        showCustomAlert('교실 인증 완료', `📍 [${selectedRoom}] 점수기록관으로 정상 인증되었습니다.\n점수기록관 성함을 확인하고 교시를 선택해 주세요.`, 'success');
       } else {
         errMsg.innerText = `[${selectedRoom}]의 접속 코드가 일치하지 않습니다. 다시 확인해 주세요.`;
         errMsg.style.display = 'block';
@@ -1355,17 +1355,18 @@
 
     /**
      * =========================================================================
-     * 5. 마스터 데이터 통신
+     * 5. 마스터 데이터 통신 (초기 진입 경량화)
      * =========================================================================
      */
     async function fetchMasterData(isManual = false) {
-      showLoading('스프레드시트에서 최신 시간표와 명단을 불러오는 중...');
+      showLoading('시스템 환경 및 시간표를 불러오는 중...');
       try {
-        const resp = await fetch(GAS_URL, { method: 'GET' });
+        const resp = await fetch(`${GAS_URL}?action=init`, { method: 'GET' });
         const result = await resp.json();
         if (result.status === 'success') {
-          MASTER_DATA = result.data;
-          document.getElementById('gasEndpointInfo').innerText = '연결 상태: 정상 (실시간 스프레드시트 연결됨)';
+          MASTER_DATA.settings = result.data.settings || {};
+          MASTER_DATA.timetable = result.data.timetable || [];
+          document.getElementById('gasEndpointInfo').innerText = '구글 스프레드시트 연결 정상';
 
           // 마스터 로드 완료 후 게이트웨이 인증 상태 점검
           checkGatewayAuth();
@@ -1374,12 +1375,12 @@
         }
 
         if (isManual) {
-          showCustomAlert('새로고침 완료', '스프레드시트 마스터 데이터를 최신 상태로 동기화했습니다.', 'success');
+          showCustomAlert('새로고침 완료', '시스템 시간표 및 설정을 최신 상태로 동기화했습니다.', 'success');
         }
         onSelectionChange();
       } catch (err) {
         console.error('마스터 로드 오류:', err);
-        document.getElementById('gasEndpointInfo').innerText = '연결 상태: 통신 오류 (' + err.message + ')';
+        document.getElementById('gasEndpointInfo').innerText = '통신 오류: ' + err.message;
         if (isManual) {
           showCustomAlert('통신 오류', '데이터 조회 중 오류가 발생했습니다: ' + err.message, 'warn');
         }
@@ -1390,8 +1391,36 @@
     }
 
     /**
+     * 특정 교실/교시 선수 명단 및 점수 온디맨드(On-Demand) 실시간 조회
+     */
+    async function fetchStudentsOnDemand(room, period) {
+      if (!room || !period) return;
+      showLoading(`[${room} / ${period}교시] 선수 명단을 불러오는 중...`);
+
+      try {
+        const queryUrl = `${GAS_URL}?action=getStudents&room=${encodeURIComponent(room)}&period=${period}`;
+        const resp = await fetch(queryUrl, { method: 'GET' });
+        const result = await resp.json();
+
+        if (result.status === 'success') {
+          MASTER_DATA.participants = result.data.participants || [];
+          MASTER_DATA.scores = result.data.scores || {};
+          document.getElementById('gasEndpointInfo').innerText = '구글 스프레드시트 연결 정상';
+          renderSelectedPeriodSchedule();
+        } else {
+          throw new Error(result.message);
+        }
+      } catch (err) {
+        console.error('온디맨드 학생 조회 실패:', err);
+        showCustomAlert('조회 실패', `선수 명단을 불러오는 데 실패했습니다: ${err.message}`, 'warn');
+      } finally {
+        hideLoading();
+      }
+    }
+
+    /**
      * =========================================================================
-     * 5. 교실/교시 선택 및 연속 번호(공석 처리) 슬롯 빌드
+     * 6. 교실/교시 선택 및 연속 번호(공석 처리) 슬롯 빌드
      * =========================================================================
      */
     function onSelectionChange() {
@@ -1411,11 +1440,20 @@
         document.getElementById('tableBody').innerHTML = `
       <tr>
         <td colspan="18" style="padding: 40px; color: var(--text-muted); font-size: 0.95rem;">
-          상단에서 <b>교실명</b>과 <b>교시</b>를 선택하면 해당 반 채점 명단이 나타납니다.
+          상단에서 <b>교시</b>를 선택하면 해당 교시의 선수 명단이 나타납니다.
         </td>
       </tr>`;
         return;
       }
+
+      // 교실과 교시가 모두 유효하면 온디맨드로 해당 조 학생만 핀포인트 다운로드
+      fetchStudentsOnDemand(CURRENT_ROOM, CURRENT_PERIOD);
+    }
+
+    function renderSelectedPeriodSchedule() {
+      const subBarArea = document.getElementById('subBarArea');
+      const clubBadge = document.getElementById('clubBadge');
+      const btnSubmit = document.getElementById('btnSubmit');
 
       const matchSchedule = (MASTER_DATA.timetable || []).find(
         t => t.room === CURRENT_ROOM && Number(t.period) === Number(CURRENT_PERIOD)
@@ -1441,7 +1479,7 @@
       CURRENT_HANDBOOK = matchSchedule.handbook;
       CURRENT_TEAM = Number(matchSchedule.team);
 
-      // 실제 출석 학생 명단 필터링 (공석 제외)
+      // 온디맨드로 이미 필터링된 선수 명단 정렬
       CURRENT_STUDENTS = (MASTER_DATA.participants || []).filter(
         p => p.handbook === CURRENT_HANDBOOK && Number(p.team) === CURRENT_TEAM
       ).sort((a, b) => Number(a.num) - Number(b.num));
@@ -1878,7 +1916,7 @@
     async function saveCurrentSheet() {
       const recorderName = document.getElementById('recorderName').value.trim();
       if (!recorderName) {
-        showCustomAlert('성함 미입력', '기록관 성함을 먼저 입력해 주세요.', 'warn', () => {
+        showCustomAlert('성함 미입력', '점수기록관 성함을 먼저 입력해 주세요.', 'warn', () => {
           document.getElementById('recorderName').focus();
         });
         return;
