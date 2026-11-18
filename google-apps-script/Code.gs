@@ -428,6 +428,157 @@ function doPost(e) {
         logSheet.getRange(startRow, 7, logRows.length, 1).setHorizontalAlignment('center');
       }
 
+    // 4. [선수 정보 수정 및 결석 상태 토글 처리 (HQ Admin)]
+    } else if (type === 'updateParticipant') {
+      const pSheet = ss.getSheetByName('참가자명단');
+      if (!pSheet) throw new Error("'참가자명단' 시트를 찾을 수 없습니다.");
+
+      const targetId = String(payload.id || '').trim();
+      if (!targetId) throw new Error('수정할 참가자ID가 지정되지 않았습니다.');
+
+      const pLastRow = pSheet.getLastRow();
+      let pRowFound = -1;
+      if (pLastRow >= 2) {
+        const idCol = pSheet.getRange(2, 1, pLastRow - 1, 1).getValues();
+        for (let i = 0; i < idCol.length; i++) {
+          if (String(idCol[i][0]).trim() === targetId) {
+            pRowFound = i + 2;
+            break;
+          }
+        }
+      }
+
+      if (pRowFound === -1) {
+        throw new Error(`참가자ID [${targetId}]를 찾을 수 없습니다.`);
+      }
+
+      // 수정 필드 반영 (이름, 교회명, 결석여부 등)
+      if (payload.name !== undefined) {
+        pSheet.getRange(pRowFound, 7).setValue(String(payload.name).trim()); // 7열: 이름
+      }
+      if (payload.church !== undefined) {
+        pSheet.getRange(pRowFound, 6).setValue(String(payload.church).trim()); // 6열: 교회명
+      }
+      if (payload.isAbsent !== undefined) {
+        // 비고/결석 열(8열)에 기록
+        pSheet.getRange(pRowFound, 8).setValue(payload.isAbsent ? '결석' : '');
+      }
+
+      // 최종집계 시트에도 동시 반영
+      const fRow = idToRowMap[targetId];
+      if (fRow) {
+        if (payload.name !== undefined) finalSheet.getRange(fRow, 8).setValue(String(payload.name).trim());
+        if (payload.church !== undefined) finalSheet.getRange(fRow, 7).setValue(String(payload.church).trim());
+      }
+
+      SpreadsheetApp.flush();
+
+      // 해당 핸드북 시상 시트에도 반영
+      if (payload.handbook) {
+        try { updateSingleHandbookAward(ss, payload.handbook); } catch (e) {}
+      }
+
+      return ContentService.createTextOutput(JSON.stringify({
+        status: 'success',
+        type: type,
+        id: targetId,
+        message: '선수 정보가 성공적으로 수정되었습니다.'
+      })).setMimeType(ContentService.MimeType.JSON);
+
+    // 5. [선수 긴급 이동 (Room & Seat Transfer: 기존 자리 공석 유지 + 타겟 조 마지막번호+1 자동채번)]
+    } else if (type === 'transferStudent') {
+      const pSheet = ss.getSheetByName('참가자명단');
+      if (!pSheet) throw new Error("'참가자명단' 시트를 찾을 수 없습니다.");
+
+      const targetId = String(payload.id || '').trim();
+      const targetHandbook = String(payload.targetHandbook || '').trim();
+      const targetTeam = Number(payload.targetTeam);
+
+      if (!targetId || !targetHandbook || isNaN(targetTeam)) {
+        throw new Error('이동할 학생ID, 대상 핸드북, 대상 조 정보가 누락되었습니다.');
+      }
+
+      const pLastRow = pSheet.getLastRow();
+      let pRowFound = -1;
+      let maxNumInTargetGroup = 0;
+
+      if (pLastRow >= 2) {
+        const pData = pSheet.getRange(2, 1, pLastRow - 1, 7).getValues();
+        // 1) 대상 학생 행 찾기 & 2) 대상 조의 현재 최대 번호 구하기
+        for (let i = 0; i < pData.length; i++) {
+          const rowId = String(pData[i][0]).trim();
+          const rowHb = String(pData[i][1]).trim();
+          const rowTeam = Number(pData[i][3]);
+          const rowNum = Number(pData[i][4]);
+
+          if (rowId === targetId) {
+            pRowFound = i + 2;
+          }
+          if (rowHb === targetHandbook && rowTeam === targetTeam) {
+            if (!isNaN(rowNum) && rowNum > maxNumInTargetGroup) {
+              maxNumInTargetGroup = rowNum;
+            }
+          }
+        }
+      }
+
+      if (pRowFound === -1) {
+        throw new Error(`참가자ID [${targetId}]를 찾을 수 없습니다.`);
+      }
+
+      // 신규 번호 자동 채번: 대상 조의 마지막 번호 + 1
+      const newAssignedNum = maxNumInTargetGroup + 1;
+
+      // 시간표 시트에서 대상 조의 교실명 조회
+      const tSheet = ss.getSheetByName('시간표') || ss.getSheetByName('교실순환시간표');
+      let targetRoom = '';
+      if (tSheet && tSheet.getLastRow() >= 2) {
+        const tRows = tSheet.getRange(2, 1, tSheet.getLastRow() - 1, 4).getValues();
+        for (let t = 0; t < tRows.length; t++) {
+          if (String(tRows[t][2]).trim() === targetHandbook && Number(tRows[t][3]) === targetTeam) {
+            targetRoom = String(tRows[t][0]).trim();
+            break;
+          }
+        }
+      }
+
+      // 1. 참가자명단 시트 갱신 (핸드북(2열), 조(4열), 번호(5열))
+      pSheet.getRange(pRowFound, 2).setValue(targetHandbook);
+      pSheet.getRange(pRowFound, 4).setValue(targetTeam);
+      pSheet.getRange(pRowFound, 5).setValue(newAssignedNum);
+
+      // 2. 최종집계 시트 갱신 (핸드북(2열), 교실(3열), 조(5열), 번호(6열))
+      const fRow = idToRowMap[targetId];
+      if (fRow) {
+        finalSheet.getRange(fRow, 2).setValue(targetHandbook);
+        if (targetRoom) finalSheet.getRange(fRow, 3).setValue(targetRoom);
+        finalSheet.getRange(fRow, 5).setValue(targetTeam);
+        finalSheet.getRange(fRow, 6).setValue(newAssignedNum);
+      }
+
+      SpreadsheetApp.flush();
+
+      // 3. 이전 핸드북 및 이동된 신규 핸드북 시상표 동시 갱신
+      try {
+        if (payload.prevHandbook && payload.prevHandbook !== targetHandbook) {
+          updateSingleHandbookAward(ss, payload.prevHandbook);
+        }
+        updateSingleHandbookAward(ss, targetHandbook);
+      } catch (awardErr) {
+        Logger.log('이동 후 시상 갱신 에러: ' + awardErr.toString());
+      }
+
+      return ContentService.createTextOutput(JSON.stringify({
+        status: 'success',
+        type: type,
+        id: targetId,
+        newHandbook: targetHandbook,
+        newTeam: targetTeam,
+        newNum: newAssignedNum,
+        newRoom: targetRoom,
+        message: `[${targetHandbook} ${targetTeam}조 ${newAssignedNum}번]으로 성공적으로 재배치되었습니다. (이전 자리는 공석 유지)`
+      })).setMimeType(ContentService.MimeType.JSON);
+
     } else {
       throw new Error(`지원하지 않는 저장 타입입니다: ${type}`);
     }
