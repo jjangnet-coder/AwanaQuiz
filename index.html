@@ -519,9 +519,24 @@
       color: #ea580c;
     }
 
+    .badge-type-danger {
+      background: #fee2e2;
+      color: #dc2626;
+      border: 1px solid #fca5a5;
+    }
+
     .badge-type-success {
       background: #dcfce7;
       color: #16a34a;
+    }
+
+    .modal-btn-danger {
+      background-color: #ef4444;
+      color: white;
+    }
+
+    .modal-btn-danger:hover {
+      background-color: #dc2626;
     }
 
     .modal-title {
@@ -910,7 +925,7 @@
           📤 점수 제출
         </button>
 
-        <button class="btn btn-secondary" onclick="fetchMasterData(true)">
+        <button class="btn btn-secondary" onclick="handleManualRefresh()">
           🔄 새로고침
         </button>
       </div>
@@ -961,7 +976,7 @@
     <!-- 하단 상태 바 -->
     <footer class="footer-bar">
       <div>
-        <span id="storageStatus">📦 자동 임시저장: 대기 중</span>
+        <span id="storageStatus">⚡ 실시간 중앙 집계 모드 (로컬 캐시 없음)</span>
       </div>
       <div>
         <span id="gasEndpointInfo">연결 상태: 대기 중</span>
@@ -1097,13 +1112,20 @@
     function requestRoomChange() {
       if (SUBMIT_LIFECYCLE_STATE === 'in_progress' || SUBMIT_LIFECYCLE_STATE === 'ready') {
         showCustomConfirm(
-          '⚠️ 미제출 변경사항 안내',
-          `현재 [${CURRENT_PERIOD || '진행 중'}교시] 채점 결과가 아직 서버로 제출되지 않았습니다.\n교실을 변경하시면 작성 중인 채점 내용이 초기화됩니다. 정말 이동하시겠습니까?`,
+          '🚨 채점 미제출 이탈 경고',
+          `현재 [${CURRENT_ROOM} / ${CURRENT_PERIOD || '진행 중'}교시] 조의 채점이 아직 제출되지 않았습니다!\n\n지금 교실을 변경하시면 작성 중이던 O/X 채점 데이터가 모두 사라집니다.\n\n정말로 작성을 취소하고 이동하시겠습니까?`,
           () => {
             executeRoomReset();
           },
           null,
-          'warn'
+          'danger',
+          {
+            confirmText: '작성 취소하고 이동',
+            cancelText: '계속 채점하기',
+            confirmClass: 'modal-btn-danger',
+            cancelClass: 'modal-btn-confirm',
+            focusCancel: true
+          }
         );
       } else {
         showCustomConfirm(
@@ -1168,7 +1190,7 @@
       btnConfirm.focus();
     }
 
-    function showCustomConfirm(title, message, onConfirm, onCancel = null, type = 'warn') {
+    function showCustomConfirm(title, message, onConfirm, onCancel = null, type = 'warn', options = {}) {
       const overlay = document.getElementById('customModalOverlay');
       const badge = document.getElementById('modalIconBadge');
       const titleEl = document.getElementById('modalTitle');
@@ -1177,7 +1199,10 @@
       const btnConfirm = document.getElementById('modalBtnConfirm');
 
       badge.className = 'modal-icon-badge';
-      if (type === 'warn') {
+      if (type === 'danger') {
+        badge.innerText = '🚨';
+        badge.classList.add('badge-type-danger');
+      } else if (type === 'warn') {
         badge.innerText = '⚠️';
         badge.classList.add('badge-type-warn');
       } else {
@@ -1190,18 +1215,40 @@
       btnCancel.style.display = 'inline-block';
       document.getElementById('modalInputContainer').style.display = 'none';
 
+      btnConfirm.innerText = options.confirmText || '확인';
+      btnCancel.innerText = options.cancelText || '취소';
+
+      btnConfirm.className = 'modal-btn ' + (options.confirmClass || (type === 'danger' ? 'modal-btn-danger' : 'modal-btn-confirm'));
+      btnCancel.className = 'modal-btn ' + (options.cancelClass || 'modal-btn-cancel');
+
       btnConfirm.onclick = () => {
         overlay.style.display = 'none';
+        resetModalButtons();
         if (onConfirm) onConfirm();
       };
 
       btnCancel.onclick = () => {
         overlay.style.display = 'none';
+        resetModalButtons();
         if (onCancel) onCancel();
       };
 
       overlay.style.display = 'flex';
-      btnConfirm.focus();
+      // 중요한 경고 시 취소(안전한 버튼)에 포커스
+      if (options.focusCancel) {
+        btnCancel.focus();
+      } else {
+        btnConfirm.focus();
+      }
+    }
+
+    function resetModalButtons() {
+      const btnCancel = document.getElementById('modalBtnCancel');
+      const btnConfirm = document.getElementById('modalBtnConfirm');
+      btnConfirm.innerText = '확인';
+      btnCancel.innerText = '취소';
+      btnConfirm.className = 'modal-btn modal-btn-confirm';
+      btnCancel.className = 'modal-btn modal-btn-cancel';
     }
 
     /**
@@ -1232,6 +1279,14 @@
         handlePeriodChange(e.target.value);
       });
 
+      // 브라우저 닫기/새로고침(F5) 시 채점 미제출 이탈 방지
+      window.addEventListener('beforeunload', (e) => {
+        if (SUBMIT_LIFECYCLE_STATE === 'in_progress' || SUBMIT_LIFECYCLE_STATE === 'ready') {
+          e.preventDefault();
+          e.returnValue = '';
+        }
+      });
+
       document.getElementById('scoringTable').addEventListener('contextmenu', (e) => {
         e.preventDefault();
       });
@@ -1250,8 +1305,8 @@
     function handlePeriodChange(targetValue) {
       if (SUBMIT_LIFECYCLE_STATE === 'in_progress' || SUBMIT_LIFECYCLE_STATE === 'ready') {
         showCustomConfirm(
-          '⚠️ 미제출 변경사항 안내',
-          `현재 [${CURRENT_PERIOD}교시] 채점 결과에 아직 제출하지 않은 변경사항이 있습니다.\n제출하지 않고 ${targetValue}교시로 이동하시겠습니까?`,
+          '🚨 채점 미제출 이탈 경고',
+          `현재 [${CURRENT_ROOM} / ${CURRENT_PERIOD}교시] 조의 채점이 아직 제출되지 않았습니다!\n\n지금 다른 교시로 이동하시면 작성 중이던 O/X 채점 데이터가 모두 사라집니다.\n\n정말로 작성을 취소하고 이동하시겠습니까?`,
           () => {
             SUBMIT_LIFECYCLE_STATE = 'empty';
             LAST_SELECTED_PERIOD = targetValue;
@@ -1260,11 +1315,41 @@
           () => {
             document.getElementById('periodSelect').value = LAST_SELECTED_PERIOD;
           },
-          'warn'
+          'danger',
+          {
+            confirmText: '작성 취소하고 이동',
+            cancelText: '계속 채점하기',
+            confirmClass: 'modal-btn-danger',
+            cancelClass: 'modal-btn-confirm',
+            focusCancel: true
+          }
         );
       } else {
         LAST_SELECTED_PERIOD = targetValue;
         onSelectionChange();
+      }
+    }
+
+    function handleManualRefresh() {
+      if (SUBMIT_LIFECYCLE_STATE === 'in_progress' || SUBMIT_LIFECYCLE_STATE === 'ready') {
+        showCustomConfirm(
+          '🚨 채점 미제출 새로고침 경고',
+          `현재 [${CURRENT_ROOM} / ${CURRENT_PERIOD}교시] 조의 채점이 아직 제출되지 않았습니다!\n\n지금 새로고침하시면 작성 중이던 O/X 채점 데이터가 모두 사라집니다.\n\n정말로 새로고침하시겠습니까?`,
+          () => {
+            fetchMasterData(true);
+          },
+          null,
+          'danger',
+          {
+            confirmText: '새로고침 진행',
+            cancelText: '계속 채점하기',
+            confirmClass: 'modal-btn-danger',
+            cancelClass: 'modal-btn-confirm',
+            focusCancel: true
+          }
+        );
+      } else {
+        fetchMasterData(true);
       }
     }
 
@@ -1488,13 +1573,8 @@
      * 6. 테이블 렌더링 및 공석 고정 표시
      * =========================================================================
      */
-    function getStorageKey() {
-      return `awana_${CURRENT_ROOM}_${CURRENT_PERIOD}_${CURRENT_HANDBOOK}_${CURRENT_TEAM}_${CURRENT_SESSION_NAME}_${CURRENT_SESSION_TYPE}`;
-    }
-
     function initGridAndRender() {
       const qCount = CURRENT_SESSION_TYPE === 'multiple' ? 8 : 10;
-      const storageKey = getStorageKey();
 
       GRID_STATE = {};
 
@@ -1502,43 +1582,9 @@
         GRID_STATE[s.id] = new Array(qCount).fill('');
       });
 
-      const cached = localStorage.getItem(storageKey);
-      let hasFilledAny = false;
-
-      if (cached) {
-        try {
-          const parsed = JSON.parse(cached);
-          Object.keys(parsed).forEach(sid => {
-            if (GRID_STATE[sid]) {
-              GRID_STATE[sid] = parsed[sid];
-              if (parsed[sid].some(v => v !== '')) {
-                hasFilledAny = true;
-              }
-            }
-          });
-          document.getElementById('storageStatus').innerText =
-            `📦 자동 임시저장: 직전 입력 복구됨 (${new Date().toLocaleTimeString()})`;
-        } catch (e) {
-          console.warn('로컬 복구 실패:', e);
-        }
-      }
-
       renderTableStructure(qCount);
       updateTableAll();
-
-      // 버튼 초기 상태: 복구된 점수가 있으면 작성중, 없으면 미입력 대기
-      if (hasFilledAny) {
-        evaluateCompletionStatus();
-      } else {
-        updateSubmitButtonState('empty');
-      }
-    }
-
-    function saveToLocalStorage() {
-      const key = getStorageKey();
-      localStorage.setItem(key, JSON.stringify(GRID_STATE));
-      document.getElementById('storageStatus').innerText =
-        `📦 자동 임시저장: 저장 완료 (${new Date().toLocaleTimeString()})`;
+      updateSubmitButtonState('empty');
     }
 
     function renderTableStructure(qCount) {
@@ -1668,7 +1714,6 @@
         GRID_STATE[s.id][qIndex] = targetVal;
       });
 
-      saveToLocalStorage();
       updateTableAll();
       evaluateCompletionStatus();
     }
@@ -1710,7 +1755,6 @@
 
       GRID_STATE[studentId][qIndex] = nextVal;
 
-      saveToLocalStorage();
       updateTableAll();
       evaluateCompletionStatus();
     }
