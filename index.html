@@ -479,115 +479,218 @@
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(15, 23, 42, 0.55);
-      backdrop-filter: blur(2px);
+      background: rgba(15, 23, 42, 0.65);
+      backdrop-filter: blur(4px);
       z-index: 10000;
       justify-content: center;
       align-items: center;
       animation: modalBackdropFadeIn 0.15s ease-out;
+      padding: 16px;
     }
 
     .custom-modal-card {
       background: #ffffff;
-      border-radius: 12px;
-      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-      width: 90%;
-      max-width: 420px;
-      padding: 22px;
+      border-radius: 16px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.05);
+      width: 100%;
+      max-width: 480px;
+      padding: 26px 28px 24px;
       text-align: center;
       animation: modalScaleUp 0.15s ease-out;
+      word-break: keep-all;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* 모달 상단 컬러 액센트 바 */
+    .custom-modal-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 5px;
+      background: #3b82f6;
+    }
+
+    .custom-modal-card.theme-danger::before {
+      background: linear-gradient(90deg, #ef4444, #dc2626);
+    }
+
+    .custom-modal-card.theme-warn::before {
+      background: linear-gradient(90deg, #f59e0b, #d97706);
+    }
+
+    .custom-modal-card.theme-submit::before {
+      background: linear-gradient(90deg, #2563eb, #4f46e5);
+    }
+
+    .custom-modal-card.theme-success::before {
+      background: linear-gradient(90deg, #10b981, #059669);
     }
 
     .modal-icon-badge {
-      width: 48px;
-      height: 48px;
+      width: 56px;
+      height: 56px;
       border-radius: 50%;
       display: inline-flex;
       justify-content: center;
       align-items: center;
-      font-size: 1.5rem;
-      margin-bottom: 12px;
+      font-size: 1.8rem;
+      margin-bottom: 14px;
+      transition: all 0.2s ease;
     }
 
     .badge-type-info {
-      background: #dbeafe;
+      background: #eff6ff;
       color: #1d4ed8;
+      box-shadow: 0 0 0 6px rgba(59, 130, 246, 0.12);
+    }
+
+    .badge-type-submit {
+      background: #eef2ff;
+      color: #3730a3;
+      box-shadow: 0 0 0 6px rgba(79, 70, 229, 0.14);
     }
 
     .badge-type-warn {
-      background: #ffedd5;
-      color: #ea580c;
+      background: #fffbeb;
+      color: #b45309;
+      box-shadow: 0 0 0 6px rgba(245, 158, 11, 0.14);
     }
 
     .badge-type-danger {
-      background: #fee2e2;
-      color: #dc2626;
-      border: 1px solid #fca5a5;
+      background: #fef2f2;
+      color: #b91c1c;
+      box-shadow: 0 0 0 6px rgba(239, 68, 68, 0.15);
+      animation: pulseDanger 1.8s infinite;
+    }
+
+    @keyframes pulseDanger {
+      0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.35); }
+      70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
     }
 
     .badge-type-success {
-      background: #dcfce7;
-      color: #16a34a;
-    }
-
-    .modal-btn-danger {
-      background-color: #ef4444;
-      color: white;
-    }
-
-    .modal-btn-danger:hover {
-      background-color: #dc2626;
+      background: #ecfdf5;
+      color: #047857;
+      box-shadow: 0 0 0 6px rgba(16, 185, 129, 0.14);
     }
 
     .modal-title {
-      font-size: 1.15rem;
+      font-size: 1.25rem;
       font-weight: 800;
       color: #0f172a;
-      margin-bottom: 8px;
+      margin-bottom: 12px;
+      letter-spacing: -0.02em;
+    }
+
+    .modal-title.title-danger {
+      color: #991b1b;
+    }
+
+    .modal-title.title-submit {
+      color: #1e3a8a;
     }
 
     .modal-message {
-      font-size: 0.92rem;
+      font-size: 0.94rem;
       font-weight: 500;
-      color: #475569;
-      line-height: 1.5;
-      margin-bottom: 20px;
+      color: #334155;
+      line-height: 1.6;
+      margin-bottom: 22px;
       white-space: pre-line;
+      text-align: center;
+    }
+
+    /* 경고/제출 정보 강조 콜아웃 박스 */
+    .modal-callout-box {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin: 10px 0 14px;
+      font-size: 0.9rem;
+      line-height: 1.55;
+      text-align: left;
+    }
+
+    .callout-danger {
+      background: #fff5f5;
+      border-color: #fecaca;
+      color: #991b1b;
+    }
+
+    .callout-submit {
+      background: #f0f7ff;
+      border-color: #bfdbfe;
+      color: #1e40af;
     }
 
     .modal-actions {
       display: flex;
       justify-content: center;
-      gap: 10px;
+      gap: 12px;
     }
 
     .modal-btn {
-      padding: 8px 18px;
-      border-radius: 6px;
-      font-size: 0.9rem;
+      padding: 10px 22px;
+      border-radius: 8px;
+      font-size: 0.94rem;
       font-weight: 700;
       cursor: pointer;
       border: none;
-      min-width: 90px;
-      transition: background-color 0.1s;
+      min-width: 105px;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
     }
 
     .modal-btn-confirm {
       background-color: #2563eb;
       color: white;
+      box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
     }
 
     .modal-btn-confirm:hover {
       background-color: #1d4ed8;
+      box-shadow: 0 6px 8px -1px rgba(37, 99, 235, 0.3);
+    }
+
+    .modal-btn-submit {
+      background-color: #1d4ed8;
+      color: white;
+      font-weight: 800;
+      box-shadow: 0 4px 8px -1px rgba(29, 78, 216, 0.3);
+    }
+
+    .modal-btn-submit:hover {
+      background-color: #1e40af;
+      box-shadow: 0 6px 12px -1px rgba(29, 78, 216, 0.4);
+    }
+
+    .modal-btn-danger {
+      background-color: #ef4444;
+      color: white;
+      box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.25);
+    }
+
+    .modal-btn-danger:hover {
+      background-color: #dc2626;
+      box-shadow: 0 6px 8px -1px rgba(239, 68, 68, 0.35);
     }
 
     .modal-btn-cancel {
-      background-color: #e2e8f0;
-      color: #334155;
+      background-color: #f1f5f9;
+      color: #475569;
+      border: 1px solid #cbd5e1;
     }
 
     .modal-btn-cancel:hover {
-      background-color: #cbd5e1;
+      background-color: #e2e8f0;
+      color: #0f172a;
     }
 
     /* 교실 고정 배지 및 교실 변경 버튼 그룹 */
@@ -841,7 +944,7 @@
 
   <!-- 모던 커스텀 모달 팝업 -->
   <div class="custom-modal-overlay" id="customModalOverlay">
-    <div class="custom-modal-card">
+    <div class="custom-modal-card" id="customModalCard">
       <div class="modal-icon-badge badge-type-info" id="modalIconBadge">ℹ️</div>
       <div class="modal-title" id="modalTitle">알림</div>
       <div class="modal-message" id="modalMessage">내용</div>
@@ -1127,14 +1230,22 @@
     function requestRoomChange() {
       if (hasUnsavedChanges()) {
         const isModified = SUBMIT_LIFECYCLE_STATE === 'ready_modified';
-        const warningTitle = isModified ? '🚨 점수 수정 미제출 로그아웃 경고' : '🚨 채점 미제출 로그아웃 경고';
-        const warningMsg = isModified
-          ? `현재 [${CURRENT_ROOM} / ${CURRENT_PERIOD || '진행 중'}교시] 조의 수정된 점수가 아직 재제출되지 않았습니다!\n\n지금 로그아웃하시면 수정한 채점 데이터가 반영되지 않습니다.\n\n정말로 수정을 취소하고 로그아웃하시겠습니까?`
-          : `현재 [${CURRENT_ROOM} / ${CURRENT_PERIOD || '진행 중'}교시] 조의 채점이 아직 제출되지 않았습니다!\n\n지금 로그아웃하시면 작성 중이던 O/X 채점 데이터가 모두 사라집니다.\n\n정말로 작성을 취소하고 로그아웃하시겠습니까?`;
+        const warningTitle = isModified ? '점수 수정 미제출 로그아웃 경고' : '채점 미제출 로그아웃 경고';
+        const warningBox = isModified
+          ? `<div class="modal-callout-box callout-danger">
+               <b>⚠️ 주의:</b> 수정한 O/X 채점 데이터가 아직 중앙 서버로 재제출되지 않았습니다.<br>
+               지금 로그아웃하시면 수정한 점수가 저장되지 않고 이전 상태로 유지됩니다.
+             </div>
+             정말로 수정을 취소하고 로그아웃하시겠습니까?`
+          : `<div class="modal-callout-box callout-danger">
+               <b>⚠️ 주의:</b> 작성 중이던 [${CURRENT_ROOM} / ${CURRENT_PERIOD || '진행 중'}교시] 조의 채점 데이터가 아직 제출되지 않았습니다.<br>
+               지금 로그아웃하시면 모든 입력 내용이 즉시 사라집니다.
+             </div>
+             정말로 작성을 취소하고 로그아웃하시겠습니까?`;
 
         showCustomConfirm(
           warningTitle,
-          warningMsg,
+          warningBox,
           () => {
             executeRoomReset();
           },
@@ -1150,11 +1261,23 @@
         );
       } else {
         showCustomConfirm(
-          '🔓 교실 로그아웃',
-          `현재 [${LOCKED_ROOM}] 교실에서 로그아웃하고 첫 화면으로 돌아가시겠습니까?`,
+          '교실 로그아웃',
+          `<div class="modal-callout-box callout-submit">
+             📍 현재 교실: <b>${LOCKED_ROOM}</b>
+           </div>
+           현재 교실에서 안전하게 로그아웃하고 시험장 선택 화면으로 이동하시겠습니까?`,
           () => {
             executeRoomReset();
           },
+          null,
+          'submit',
+          {
+            confirmText: '로그아웃',
+            cancelText: '취소'
+          }
+        );
+      }
+    }
           null,
           'info'
         );
@@ -1182,27 +1305,43 @@
      */
     function showCustomAlert(title, message, type = 'info', onOk = null) {
       const overlay = document.getElementById('customModalOverlay');
+      const card = document.getElementById('customModalCard');
       const badge = document.getElementById('modalIconBadge');
       const titleEl = document.getElementById('modalTitle');
       const msgEl = document.getElementById('modalMessage');
       const btnCancel = document.getElementById('modalBtnCancel');
       const btnConfirm = document.getElementById('modalBtnConfirm');
 
+      // 이전 테마 초기화
+      card.className = 'custom-modal-card';
+      titleEl.className = 'modal-title';
       badge.className = 'modal-icon-badge';
+
       if (type === 'warn') {
+        card.classList.add('theme-warn');
         badge.innerText = '⚠️';
         badge.classList.add('badge-type-warn');
+      } else if (type === 'danger') {
+        card.classList.add('theme-danger');
+        titleEl.classList.add('title-danger');
+        badge.innerText = '🚨';
+        badge.classList.add('badge-type-danger');
       } else if (type === 'success') {
+        card.classList.add('theme-success');
         badge.innerText = '✅';
         badge.classList.add('badge-type-success');
       } else {
+        card.classList.add('theme-submit');
         badge.innerText = 'ℹ️';
         badge.classList.add('badge-type-info');
       }
 
       titleEl.innerText = title;
-      msgEl.innerText = message;
+      msgEl.innerHTML = typeof message === 'string' ? message.replace(/\n/g, '<br>') : message;
       btnCancel.style.display = 'none';
+
+      btnConfirm.innerText = '확인';
+      btnConfirm.className = 'modal-btn modal-btn-confirm';
 
       document.getElementById('modalInputContainer').style.display = 'none';
       btnConfirm.onclick = () => {
@@ -1216,33 +1355,53 @@
 
     function showCustomConfirm(title, message, onConfirm, onCancel = null, type = 'warn', options = {}) {
       const overlay = document.getElementById('customModalOverlay');
+      const card = document.getElementById('customModalCard');
       const badge = document.getElementById('modalIconBadge');
       const titleEl = document.getElementById('modalTitle');
       const msgEl = document.getElementById('modalMessage');
       const btnCancel = document.getElementById('modalBtnCancel');
       const btnConfirm = document.getElementById('modalBtnConfirm');
 
+      // 이전 테마 초기화
+      card.className = 'custom-modal-card';
+      titleEl.className = 'modal-title';
       badge.className = 'modal-icon-badge';
+
       if (type === 'danger') {
+        card.classList.add('theme-danger');
+        titleEl.classList.add('title-danger');
         badge.innerText = '🚨';
         badge.classList.add('badge-type-danger');
+      } else if (type === 'submit') {
+        card.classList.add('theme-submit');
+        titleEl.classList.add('title-submit');
+        badge.innerText = '📤';
+        badge.classList.add('badge-type-submit');
       } else if (type === 'warn') {
+        card.classList.add('theme-warn');
         badge.innerText = '⚠️';
         badge.classList.add('badge-type-warn');
       } else {
+        card.classList.add('theme-submit');
         badge.innerText = '❓';
         badge.classList.add('badge-type-info');
       }
 
       titleEl.innerText = title;
-      msgEl.innerText = message;
+      // HTML 렌더링 지원 (콜아웃 박스 등 서식 보존)
+      if (typeof message === 'string' && message.includes('<div')) {
+        msgEl.innerHTML = message;
+      } else {
+        msgEl.innerHTML = typeof message === 'string' ? message.replace(/\n/g, '<br>') : message;
+      }
+
       btnCancel.style.display = 'inline-block';
       document.getElementById('modalInputContainer').style.display = 'none';
 
       btnConfirm.innerText = options.confirmText || '확인';
       btnCancel.innerText = options.cancelText || '취소';
 
-      btnConfirm.className = 'modal-btn ' + (options.confirmClass || (type === 'danger' ? 'modal-btn-danger' : 'modal-btn-confirm'));
+      btnConfirm.className = 'modal-btn ' + (options.confirmClass || (type === 'danger' ? 'modal-btn-danger' : (type === 'submit' ? 'modal-btn-submit' : 'modal-btn-confirm')));
       btnCancel.className = 'modal-btn ' + (options.cancelClass || 'modal-btn-cancel');
 
       btnConfirm.onclick = () => {
@@ -1329,14 +1488,22 @@
     function handlePeriodChange(targetValue) {
       if (hasUnsavedChanges()) {
         const isModified = SUBMIT_LIFECYCLE_STATE === 'ready_modified';
-        const warningTitle = isModified ? '🚨 점수 수정 미제출 이탈 경고' : '🚨 채점 미제출 이탈 경고';
-        const warningMsg = isModified
-          ? `현재 [${CURRENT_ROOM} / ${CURRENT_PERIOD}교시] 조의 수정된 점수가 아직 재제출되지 않았습니다!\n\n지금 다른 교시로 이동하시면 수정한 내용이 반영되지 않고 원래대로 되돌아갑니다.\n\n정말로 수정을 취소하고 이동하시겠습니까?`
-          : `현재 [${CURRENT_ROOM} / ${CURRENT_PERIOD}교시] 조의 채점이 아직 제출되지 않았습니다!\n\n지금 다른 교시로 이동하시면 작성 중이던 O/X 채점 데이터가 모두 사라집니다.\n\n정말로 작성을 취소하고 이동하시겠습니까?`;
+        const warningTitle = isModified ? '점수 수정 미제출 이탈 경고' : '채점 미제출 이탈 경고';
+        const warningBox = isModified
+          ? `<div class="modal-callout-box callout-danger">
+               <b>⚠️ 주의:</b> 수정한 O/X 채점 데이터가 아직 재제출되지 않았습니다.<br>
+               지금 다른 교시로 이동하시면 수정한 내용이 사라지고 이전 제출 상태로 복원됩니다.
+             </div>
+             정말로 수정을 취소하고 다른 교시로 이동하시겠습니까?`
+          : `<div class="modal-callout-box callout-danger">
+               <b>⚠️ 주의:</b> 작성 중이던 [${CURRENT_ROOM} / ${CURRENT_PERIOD}교시] 조의 채점이 아직 제출되지 않았습니다.<br>
+               지금 다른 교시로 이동하시면 입력 중이던 O/X 채점 데이터가 모두 사라집니다.
+             </div>
+             정말로 작성을 취소하고 이동하시겠습니까?`;
 
         showCustomConfirm(
           warningTitle,
-          warningMsg,
+          warningBox,
           () => {
             SUBMIT_LIFECYCLE_STATE = 'empty';
             LAST_SELECTED_PERIOD = targetValue;
@@ -1363,14 +1530,22 @@
     function handleManualRefresh() {
       if (hasUnsavedChanges()) {
         const isModified = SUBMIT_LIFECYCLE_STATE === 'ready_modified';
-        const warningTitle = isModified ? '🚨 점수 수정 미제출 새로고침 경고' : '🚨 채점 미제출 새로고침 경고';
-        const warningMsg = isModified
-          ? `현재 [${CURRENT_ROOM} / ${CURRENT_PERIOD}교시] 조의 수정된 점수가 아직 재제출되지 않았습니다!\n\n지금 새로고침하시면 수정한 내용이 반영되지 않고 원래대로 되돌아갑니다.\n\n정말로 새로고침하시겠습니까?`
-          : `현재 [${CURRENT_ROOM} / ${CURRENT_PERIOD}교시] 조의 채점이 아직 제출되지 않았습니다!\n\n지금 새로고침하시면 작성 중이던 O/X 채점 데이터가 모두 사라집니다.\n\n정말로 새로고침하시겠습니까?`;
+        const warningTitle = isModified ? '점수 수정 미제출 새로고침 경고' : '채점 미제출 새로고침 경고';
+        const warningBox = isModified
+          ? `<div class="modal-callout-box callout-danger">
+               <b>⚠️ 주의:</b> 수정한 O/X 채점 데이터가 아직 재제출되지 않았습니다.<br>
+               지금 새로고침하시면 수정한 내용이 사라지고 이전 제출 상태로 되돌아갑니다.
+             </div>
+             정말로 새로고침을 진행하시겠습니까?`
+          : `<div class="modal-callout-box callout-danger">
+               <b>⚠️ 주의:</b> 작성 중이던 [${CURRENT_ROOM} / ${CURRENT_PERIOD}교시] 조의 채점이 아직 제출되지 않았습니다.<br>
+               지금 새로고침하시면 작성 중이던 O/X 채점 데이터가 모두 사라집니다.
+             </div>
+             정말로 새로고침을 진행하시겠습니까?`;
 
         showCustomConfirm(
           warningTitle,
-          warningMsg,
+          warningBox,
           () => {
             fetchMasterData(true);
           },
@@ -2111,9 +2286,26 @@
         records: records
       };
 
+      const confirmContent = `
+        <div class="modal-callout-box callout-submit">
+          <div style="font-size: 0.95rem; font-weight: 800; color: #1e3a8a; margin-bottom: 6px;">
+            📍 ${CURRENT_ROOM} / ${CURRENT_PERIOD}교시 (${CURRENT_SESSION_NAME} 세션)
+          </div>
+          <div style="color: #334155; font-size: 0.88rem; line-height: 1.5;">
+            • <b>핸드북 / 조:</b> ${CURRENT_HANDBOOK} · ${CURRENT_TEAM}조<br>
+            • <b>채점 단원:</b> 총 <b>${records.length}명</b> 전원 채점 완료<br>
+            • <b>점수기록관:</b> ${recorderName} 선생님
+          </div>
+        </div>
+        <div style="font-size: 0.88rem; color: #64748b; margin-top: 4px;">
+          채점 결과를 중앙 서버로 안전하게 제출하시겠습니까?<br>
+          <span style="font-size: 0.82rem; color: #2563eb;">* 제출 완료 후에도 언제든 점수를 수정하여 재제출할 수 있습니다.</span>
+        </div>
+      `;
+
       showCustomConfirm(
-        '📤 점수 최종 제출 확인',
-        `[${CURRENT_ROOM} / ${CURRENT_PERIOD}교시 / ${CURRENT_SESSION_NAME} 세션]\n출석 단원 총 ${records.length}명의 채점 결과를 중앙 서버로 제출하시겠습니까?`,
+        '점수 최종 제출 확인',
+        confirmContent,
         async () => {
           showLoading('중앙 시스템에 점수를 안전하게 저장하고 있습니다...');
           try {
@@ -2147,7 +2339,14 @@
               });
 
               updateSubmitButtonState('saved'); // ✅ 3단계: 제출 완료 녹색 버튼
-              showCustomAlert('제출 성공', '✅ 성공적으로 제출되었습니다!\n(최종집계 시트에 실시간 반영 완료)', 'success');
+              showCustomAlert(
+                '제출 완료',
+                `<div class="modal-callout-box" style="background:#ecfdf5; border-color:#a7f3d0; color:#065f46; text-align:center;">
+                   🎉 <b>[${CURRENT_ROOM} / ${CURRENT_PERIOD}교시] 채점이 성공적으로 제출되었습니다!</b><br>
+                   구글 시트(최종집계 및 공식 시상표)에 실시간으로 반영되었습니다.
+                 </div>`,
+                'success'
+              );
             } else {
               throw new Error(result.message);
             }
@@ -2159,7 +2358,11 @@
           }
         },
         null,
-        'info'
+        'submit',
+        {
+          confirmText: '📤 지금 최종 제출하기',
+          cancelText: '계속 검토하기'
+        }
       );
     }
 
