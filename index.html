@@ -1417,10 +1417,12 @@
           ROOM_PREFETCH_CACHE = {
             room: roomName,
             participants: result.data.participants || [],
-            scores: result.data.scores || {}
+            scores: result.data.scores || {},
+            submittedAnswers: result.data.submittedAnswers || {}
           };
           MASTER_DATA.participants = ROOM_PREFETCH_CACHE.participants;
           MASTER_DATA.scores = ROOM_PREFETCH_CACHE.scores;
+          MASTER_DATA.submittedAnswers = ROOM_PREFETCH_CACHE.submittedAnswers;
           document.getElementById('gasEndpointInfo').innerText = '구글 스프레드시트 연결 정상';
           if (onComplete) onComplete();
         } else {
@@ -1664,17 +1666,32 @@
         });
         isAlreadySaved = true;
       } else {
-        // 2. 캐시는 없으나 구글 시트(MASTER_DATA.scores)에 이미 점수가 있는 경우 확인
-        const scoreKey = CURRENT_SESSION_TYPE === 'speed' ? 'speedAfternoon' : (CURRENT_SESSION_NAME === '오전' ? 'multipleMorning' : 'multipleAfternoon');
-        let hasAnySheetScore = false;
+        // 2. [서버 직결 복원] 구글 시트 로그에 이미 제출된 최신 O/X 문항 답안이 있는 경우 완벽 복원
+        let hasAnyServerAnswers = false;
         CURRENT_STUDENTS.forEach(s => {
-          const sc = MASTER_DATA.scores && MASTER_DATA.scores[s.id];
-          if (sc && sc[scoreKey] !== null && sc[scoreKey] !== undefined) {
-            hasAnySheetScore = true;
+          const logKey = `${s.id}_${CURRENT_PERIOD}_${CURRENT_SESSION_NAME}`;
+          const serverAns = MASTER_DATA.submittedAnswers && MASTER_DATA.submittedAnswers[logKey];
+          if (serverAns && Array.isArray(serverAns) && serverAns.length > 0) {
+            GRID_STATE[s.id] = [...serverAns];
+            hasAnyServerAnswers = true;
           }
         });
-        if (hasAnySheetScore) {
+
+        if (hasAnyServerAnswers) {
           isAlreadySaved = true;
+        } else {
+          // 3. 문항 답안은 없으나 최종집계에 총점이 있는 경우 확인
+          const scoreKey = CURRENT_SESSION_TYPE === 'speed' ? 'speedAfternoon' : (CURRENT_SESSION_NAME === '오전' ? 'multipleMorning' : 'multipleAfternoon');
+          let hasAnySheetScore = false;
+          CURRENT_STUDENTS.forEach(s => {
+            const sc = MASTER_DATA.scores && MASTER_DATA.scores[s.id];
+            if (sc && sc[scoreKey] !== null && sc[scoreKey] !== undefined) {
+              hasAnySheetScore = true;
+            }
+          });
+          if (hasAnySheetScore) {
+            isAlreadySaved = true;
+          }
         }
       }
 
@@ -2092,9 +2109,12 @@
 
               // MASTER_DATA.scores 로컬 갱신
               const scoreKey = CURRENT_SESSION_TYPE === 'speed' ? 'speedAfternoon' : (CURRENT_SESSION_NAME === '오전' ? 'multipleMorning' : 'multipleAfternoon');
+              if (!MASTER_DATA.submittedAnswers) MASTER_DATA.submittedAnswers = {};
               records.forEach(r => {
                 if (!MASTER_DATA.scores[r.id]) MASTER_DATA.scores[r.id] = {};
                 MASTER_DATA.scores[r.id][scoreKey] = r.score;
+                const logKey = `${r.id}_${CURRENT_PERIOD}_${CURRENT_SESSION_NAME}`;
+                MASTER_DATA.submittedAnswers[logKey] = [...(r.answers || [])];
               });
 
               updateSubmitButtonState('saved'); // ✅ 3단계: 제출 완료 녹색 버튼

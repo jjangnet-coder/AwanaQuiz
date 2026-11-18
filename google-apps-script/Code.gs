@@ -142,6 +142,56 @@ function doGet(e) {
       });
     }
 
+    // 5. [서버 직결 답안 복원 엔진] 로그 시트(객관식_로그, 스피드_로그)에서 최신 O/X 문항 답안 수집
+    // Key: studentId + '_' + period + '_' + session (예: 'P1186_1_오전')
+    const submittedAnswers = {};
+
+    // 5-1. 객관식_로그 순회 (단일 1회 일괄 메모리 읽기: 0.05초 소요)
+    const mLogSheet = ss.getSheetByName('객관식_로그');
+    if (mLogSheet && mLogSheet.getLastRow() >= 2) {
+      const mRows = mLogSheet.getRange(2, 1, mLogSheet.getLastRow() - 1, 17).getValues();
+      mRows.forEach(r => {
+        const session = String(r[1] || '').trim(); // '오전' | '오후'
+        const room = String(r[2] || '').trim();
+        const period = Number(r[3]);
+        const pid = String(r[6] || '').trim();
+
+        // 현재 요청된 교실 데이터만 선별 (또는 전체)
+        if (!isFiltered || room === reqRoom) {
+          if (pid) {
+            const key = pid + '_' + period + '_' + session;
+            // 8문항 답안: r[8] ~ r[15]
+            submittedAnswers[key] = [
+              String(r[8] || ''), String(r[9] || ''), String(r[10] || ''), String(r[11] || ''),
+              String(r[12] || ''), String(r[13] || ''), String(r[14] || ''), String(r[15] || '')
+            ];
+          }
+        }
+      });
+    }
+
+    // 5-2. 스피드_로그 순회 (단일 1회 일괄 메모리 읽기)
+    const sLogSheet = ss.getSheetByName('스피드_로그');
+    if (sLogSheet && sLogSheet.getLastRow() >= 2) {
+      const sRows = sLogSheet.getRange(2, 1, sLogSheet.getLastRow() - 1, 18).getValues();
+      sRows.forEach(r => {
+        const room = String(r[1] || '').trim();
+        const period = Number(r[2]);
+        const pid = String(r[5] || '').trim();
+
+        if (!isFiltered || room === reqRoom) {
+          if (pid) {
+            const key = pid + '_' + period + '_오후';
+            // 10문항 답안: r[7] ~ r[16]
+            submittedAnswers[key] = [
+              String(r[7] || ''), String(r[8] || ''), String(r[9] || ''), String(r[10] || ''), String(r[11] || ''),
+              String(r[12] || ''), String(r[13] || ''), String(r[14] || ''), String(r[15] || ''), String(r[16] || '')
+            ];
+          }
+        }
+      });
+    }
+
     const response = {
       status: 'success',
       mode: isFiltered ? 'filtered' : 'full',
@@ -149,7 +199,8 @@ function doGet(e) {
         settings: settings,
         participants: participants,
         timetable: timetable,
-        scores: scores
+        scores: scores,
+        submittedAnswers: submittedAnswers
       }
     };
 
