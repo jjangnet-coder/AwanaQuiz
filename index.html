@@ -1363,6 +1363,9 @@
     // 교실별 사전 로드된 선수 명단 캐시 (Key: roomName -> { participants, scores })
     let ROOM_PREFETCH_CACHE = null;
 
+    // 제출 완료된 세션 메모리 캐시 (Key: room_period_sessionName -> { answersMap, isSubmitted })
+    const SUBMITTED_SESSIONS_CACHE = {};
+
     /**
      * =========================================================================
      * 5. 마스터 데이터 통신 (교실 단위 1회 프리패치 & 교시 0.001초 전환 구조)
@@ -1590,6 +1593,10 @@
         // 2단계 (B): 전원 채점 완료 / 미제출 (진한 주황색 + 주의 펄스)
         btnSubmit.className = 'btn btn-submit state-unsaved-ready';
         btnSubmit.innerHTML = `📤 ${CURRENT_PERIOD}교시 점수 최종 제출 (완료)`;
+      } else if (state === 'ready_modified') {
+        // 2단계 (C): 제출 완료 후 점수 수정됨 (주황색 강조)
+        btnSubmit.className = 'btn btn-submit state-unsaved-ready';
+        btnSubmit.innerHTML = `📤 ${CURRENT_PERIOD}교시 점수 최종 제출 (수정됨)`;
       } else if (state === 'saved') {
         // 3단계: 제출 완료 (녹색)
         btnSubmit.className = 'btn btn-submit state-saved';
@@ -1628,11 +1635,16 @@
 
     /**
      * =========================================================================
-     * 6. 테이블 렌더링 및 공석 고정 표시
+     * 6. 테이블 렌더링 및 공석 고정 표시 (복원 및 수정 지원)
      * =========================================================================
      */
+    function getSessionKey() {
+      return `${CURRENT_ROOM}_${CURRENT_PERIOD}_${CURRENT_SESSION_NAME}`;
+    }
+
     function initGridAndRender() {
       const qCount = CURRENT_SESSION_TYPE === 'multiple' ? 8 : 10;
+      const sessionKey = getSessionKey();
 
       GRID_STATE = {};
 
@@ -1640,9 +1652,40 @@
         GRID_STATE[s.id] = new Array(qCount).fill('');
       });
 
+      // 1. 방금 메모리에 제출 완료된 세션 캐시가 있는 경우 그대로 복원
+      const cachedSession = SUBMITTED_SESSIONS_CACHE[sessionKey];
+      let isAlreadySaved = false;
+
+      if (cachedSession && cachedSession.answersMap) {
+        Object.keys(cachedSession.answersMap).forEach(sid => {
+          if (GRID_STATE[sid]) {
+            GRID_STATE[sid] = [...cachedSession.answersMap[sid]];
+          }
+        });
+        isAlreadySaved = true;
+      } else {
+        // 2. 캐시는 없으나 구글 시트(MASTER_DATA.scores)에 이미 점수가 있는 경우 확인
+        const scoreKey = CURRENT_SESSION_TYPE === 'speed' ? 'speedAfternoon' : (CURRENT_SESSION_NAME === '오전' ? 'multipleMorning' : 'multipleAfternoon');
+        let hasAnySheetScore = false;
+        CURRENT_STUDENTS.forEach(s => {
+          const sc = MASTER_DATA.scores && MASTER_DATA.scores[s.id];
+          if (sc && sc[scoreKey] !== null && sc[scoreKey] !== undefined) {
+            hasAnySheetScore = true;
+          }
+        });
+        if (hasAnySheetScore) {
+          isAlreadySaved = true;
+        }
+      }
+
       renderTableStructure(qCount);
       updateTableAll();
-      updateSubmitButtonState('empty');
+
+      if (isAlreadySaved) {
+        updateSubmitButtonState('saved');
+      } else {
+        updateSubmitButtonState('empty');
+      }
     }
 
     function renderTableStructure(qCount) {
@@ -1837,7 +1880,27 @@
         updateSubmitButtonState('empty');
       } else if (filledCount === totalRequired) {
         // 전원 모든 문항 채점 완료
-        updateSubmitButtonState('ready');
+        const sessionKey = getSessionKey();
+        const wasSubmitted = SUBMITTED_SESSIONS_CACHE[sessionKey] && SUBMITTED_SESSIONS_CACHE[sessionKey].isSubmitted;
+        if (wasSubmitted) {
+          // 수정 여부 비교
+          const original = SUBMITTED_SESSIONS_CACHE[sessionKey].answersMap;
+          let isModified = false;
+          CURRENT_STUDENTS.forEach(s => {
+            if (original && original[s.id]) {
+              for (let q = 0; q < qCount; q++) {
+                if (GRID_STATE[s.id][q] !== original[s.id][q]) isModified = true;
+              }
+            }
+          });
+          if (isModified) {
+            updateSubmitButtonState('ready_modified');
+          } else {
+            updateSubmitButtonState('saved');
+          }
+        } else {
+          updateSubmitButtonState('ready');
+        }
       } else {
         // 채점 진행 중 (일부 빈칸 존재)
         updateSubmitButtonState('in_progress');
@@ -2016,6 +2079,24 @@
             const result = await resp.json();
 
             if (result.status === 'success') {
+              // 세션 메모리 캐시에 방금 제출한 O/X 답안과 완료 상태 영구 보존
+              const sessionKey = getSessionKey();
+              const answersCopy = {};
+              CURRENT_STUDENTS.forEach(s => {
+                answersCopy[s.id] = [...(GRID_STATE[s.id] || [])];
+              });
+              SUBMITTED_SESSIONS_CACHE[sessionKey] = {
+                answersMap: answersCopy,
+                isSubmitted: true
+              };
+
+              // MASTER_DATA.scores 로컬 갱신
+              const scoreKey = CURRENT_SESSION_TYPE === 'speed' ? 'speedAfternoon' : (CURRENT_SESSION_NAME === '오전' ? 'multipleMorning' : 'multipleAfternoon');
+              records.forEach(r => {
+                if (!MASTER_DATA.scores[r.id]) MASTER_DATA.scores[r.id] = {};
+                MASTER_DATA.scores[r.id][scoreKey] = r.score;
+              });
+
               updateSubmitButtonState('saved'); // ✅ 3단계: 제출 완료 녹색 버튼
               showCustomAlert('제출 성공', '✅ 성공적으로 제출되었습니다!\n(최종집계 시트에 실시간 반영 완료)', 'success');
             } else {
