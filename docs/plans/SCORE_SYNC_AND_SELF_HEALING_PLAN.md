@@ -41,3 +41,4 @@
 2. `google-apps-script/setup_test_data.gs`
 3. `google-apps-script/Code.gs`
 4. `docs/plans/SCORE_SYNC_AND_SELF_HEALING_PLAN.md` (문서화 및 형상 관리)
+
