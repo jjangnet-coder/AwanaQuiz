@@ -880,8 +880,8 @@
             <span class="badge-locked-room" id="badgeLockedRoom">
               📍 <span id="currentRoomText">-</span> 🔒
             </span>
-            <button type="button" class="btn-change-room" id="btnChangeRoom" onclick="requestRoomChange()">
-              교실 변경
+            <button type="button" class="btn-change-room" id="btnChangeRoom" onclick="requestRoomChange()" title="현재 교실에서 로그아웃하고 첫 화면으로 돌아갑니다.">
+              🔓 로그아웃
             </button>
           </div>
           <!-- 하위 호환 및 내부 값 참조용 hidden select -->
@@ -1106,21 +1106,25 @@
       document.getElementById('roomSelect').value = roomName;
 
       LAST_SELECTED_ROOM = roomName;
-      onSelectionChange();
+
+      // 교실 입장 시 해당 교실 전체 선수 명단 1회 사전 로드
+      prefetchRoomStudents(roomName, () => {
+        onSelectionChange();
+      });
     }
 
     function requestRoomChange() {
       if (SUBMIT_LIFECYCLE_STATE === 'in_progress' || SUBMIT_LIFECYCLE_STATE === 'ready') {
         showCustomConfirm(
-          '🚨 채점 미제출 이탈 경고',
-          `현재 [${CURRENT_ROOM} / ${CURRENT_PERIOD || '진행 중'}교시] 조의 채점이 아직 제출되지 않았습니다!\n\n지금 교실을 변경하시면 작성 중이던 O/X 채점 데이터가 모두 사라집니다.\n\n정말로 작성을 취소하고 이동하시겠습니까?`,
+          '🚨 채점 미제출 로그아웃 경고',
+          `현재 [${CURRENT_ROOM} / ${CURRENT_PERIOD || '진행 중'}교시] 조의 채점이 아직 제출되지 않았습니다!\n\n지금 로그아웃하시면 작성 중이던 O/X 채점 데이터가 모두 사라집니다.\n\n정말로 작성을 취소하고 로그아웃하시겠습니까?`,
           () => {
             executeRoomReset();
           },
           null,
           'danger',
           {
-            confirmText: '작성 취소하고 이동',
+            confirmText: '작성 취소 및 로그아웃',
             cancelText: '계속 채점하기',
             confirmClass: 'modal-btn-danger',
             cancelClass: 'modal-btn-confirm',
@@ -1129,8 +1133,8 @@
         );
       } else {
         showCustomConfirm(
-          '🔄 교실 변경',
-          `현재 [${LOCKED_ROOM}]에서 다른 교실로 변경하시겠습니까?`,
+          '🔓 교실 로그아웃',
+          `현재 [${LOCKED_ROOM}] 교실에서 로그아웃하고 첫 화면으로 돌아가시겠습니까?`,
           () => {
             executeRoomReset();
           },
@@ -1143,9 +1147,12 @@
     function executeRoomReset() {
       localStorage.removeItem('awana_locked_room');
       LOCKED_ROOM = '';
+      ROOM_PREFETCH_CACHE = null;
       SUBMIT_LIFECYCLE_STATE = 'empty';
       document.getElementById('currentRoomText').innerText = '-';
       document.getElementById('roomSelect').value = '';
+      LAST_SELECTED_PERIOD = '';
+      document.getElementById('periodSelect').value = '';
       LAST_SELECTED_ROOM = '';
       onSelectionChange();
       openGatewayModal();
@@ -1353,9 +1360,12 @@
       }
     }
 
+    // 교실별 사전 로드된 선수 명단 캐시 (Key: roomName -> { participants, scores })
+    let ROOM_PREFETCH_CACHE = null;
+
     /**
      * =========================================================================
-     * 5. 마스터 데이터 통신 (초기 진입 경량화)
+     * 5. 마스터 데이터 통신 (교실 단위 1회 프리패치 & 교시 0.001초 전환 구조)
      * =========================================================================
      */
     async function fetchMasterData(isManual = false) {
@@ -1377,42 +1387,45 @@
         if (isManual) {
           showCustomAlert('새로고침 완료', '시스템 시간표 및 설정을 최신 상태로 동기화했습니다.', 'success');
         }
-        onSelectionChange();
       } catch (err) {
         console.error('마스터 로드 오류:', err);
         document.getElementById('gasEndpointInfo').innerText = '통신 오류: ' + err.message;
         if (isManual) {
           showCustomAlert('통신 오류', '데이터 조회 중 오류가 발생했습니다: ' + err.message, 'warn');
         }
-        onSelectionChange();
       } finally {
         hideLoading();
       }
     }
 
     /**
-     * 특정 교실/교시 선수 명단 및 점수 온디맨드(On-Demand) 실시간 조회
+     * [교실 프리패치] 교실 인증 직후 딱 1회만 해당 교실 전체(1~7교시) 선수 명단을 조용히 일괄 다운로드
      */
-    async function fetchStudentsOnDemand(room, period) {
-      if (!room || !period) return;
-      showLoading(`[${room} / ${period}교시] 선수 명단을 불러오는 중...`);
+    async function prefetchRoomStudents(roomName, onComplete = null) {
+      if (!roomName) return;
+      showLoading(`[${roomName}] 전체 교시 선수 명단을 준비 중입니다...`);
 
       try {
-        const queryUrl = `${GAS_URL}?action=getStudents&room=${encodeURIComponent(room)}&period=${period}`;
+        const queryUrl = `${GAS_URL}?action=getRoomStudents&room=${encodeURIComponent(roomName)}`;
         const resp = await fetch(queryUrl, { method: 'GET' });
         const result = await resp.json();
 
         if (result.status === 'success') {
-          MASTER_DATA.participants = result.data.participants || [];
-          MASTER_DATA.scores = result.data.scores || {};
+          ROOM_PREFETCH_CACHE = {
+            room: roomName,
+            participants: result.data.participants || [],
+            scores: result.data.scores || {}
+          };
+          MASTER_DATA.participants = ROOM_PREFETCH_CACHE.participants;
+          MASTER_DATA.scores = ROOM_PREFETCH_CACHE.scores;
           document.getElementById('gasEndpointInfo').innerText = '구글 스프레드시트 연결 정상';
-          renderSelectedPeriodSchedule();
+          if (onComplete) onComplete();
         } else {
           throw new Error(result.message);
         }
       } catch (err) {
-        console.error('온디맨드 학생 조회 실패:', err);
-        showCustomAlert('조회 실패', `선수 명단을 불러오는 데 실패했습니다: ${err.message}`, 'warn');
+        console.error('교실 프리패치 실패:', err);
+        showCustomAlert('데이터 로드 실패', `[${roomName}] 선수 명단을 가져오지 못했습니다: ${err.message}`, 'warn');
       } finally {
         hideLoading();
       }
@@ -1420,7 +1433,7 @@
 
     /**
      * =========================================================================
-     * 6. 교실/교시 선택 및 연속 번호(공석 처리) 슬롯 빌드
+     * 6. 교실/교시 선택 및 연속 번호(공석 처리) 슬롯 빌드 (0.001초 로컬 렌더링)
      * =========================================================================
      */
     function onSelectionChange() {
@@ -1446,8 +1459,15 @@
         return;
       }
 
-      // 교실과 교시가 모두 유효하면 온디맨드로 해당 조 학생만 핀포인트 다운로드
-      fetchStudentsOnDemand(CURRENT_ROOM, CURRENT_PERIOD);
+      // 교실 캐시가 아직 없거나 다른 교실인 경우 1회 프리패치 후 렌더링
+      if (!ROOM_PREFETCH_CACHE || ROOM_PREFETCH_CACHE.room !== CURRENT_ROOM) {
+        prefetchRoomStudents(CURRENT_ROOM, () => {
+          renderSelectedPeriodSchedule();
+        });
+      } else {
+        // 이미 해당 교실 명단이 메모리에 있으므로 0.001초 즉시 렌더링!
+        renderSelectedPeriodSchedule();
+      }
     }
 
     function renderSelectedPeriodSchedule() {

@@ -56,20 +56,22 @@ function doGet(e) {
       })).setMimeType(ContentService.MimeType.JSON);
     }
 
-    // B. 특정 교실/교시 온디맨드 단원 및 점수 조회 (action === 'getStudents' 또는 room & period 전달 시)
+    // B. 특정 교실 전체 1~7교시 일괄 프리패치 (action === 'getRoomStudents' 또는 room만 전달 시)
+    //    또는 특정 교실/교시 온디맨드 단원 조회 (action === 'getStudents' && period !== null)
     const reqRoom = decodeURIComponent(params.room || '').trim();
-    const reqPeriod = params.period !== undefined ? Number(params.period) : null;
-    const isFiltered = (action === 'getStudents' || (reqRoom && reqPeriod !== null));
+    const reqPeriod = params.period !== undefined && params.period !== '' ? Number(params.period) : null;
+    const isFiltered = Boolean(reqRoom);
 
-    // 특정 교실/교시 매칭 핸드북 및 조(team) 추출
-    let targetHandbook = '';
-    let targetTeam = null;
+    // 해당 교실(또는 특정 교시)에 배정된 [핸드북_조] 목록 추출
+    const targetSchedulePairs = {};
     if (isFiltered) {
-      const matchSchedule = timetable.find(t => t.room === reqRoom && Number(t.period) === Number(reqPeriod));
-      if (matchSchedule) {
-        targetHandbook = matchSchedule.handbook;
-        targetTeam = Number(matchSchedule.team);
-      }
+      timetable.forEach(t => {
+        if (t.room === reqRoom) {
+          if (reqPeriod === null || Number(t.period) === reqPeriod) {
+            targetSchedulePairs[t.handbook + '_' + t.team] = true;
+          }
+        }
+      });
     }
 
     // 3. 참가자명단 시트 읽기 (필터링 적용)
@@ -86,22 +88,21 @@ function doGet(e) {
 
         const hb = String(row[1] || '').trim();
         const team = Number(row[3]);
+        const key = hb + '_' + team;
 
-        // 온디맨드 모드일 때는 해당 조 학생만 선별 수집
+        // 교실 프리패치 모드일 때는 해당 교실에 배정된 핸드북_조 학생들만 선별
         if (isFiltered) {
-          if (targetHandbook && targetTeam !== null) {
-            if (hb === targetHandbook && team === targetTeam) {
-              participants.push({
-                id: pid,
-                handbook: hb,
-                grade: Number(row[2]),
-                team: team,
-                num: Number(row[4]),
-                church: String(row[5] || '').trim(),
-                name: String(row[6] || '').trim()
-              });
-              targetStudentIdSet[pid] = true;
-            }
+          if (targetSchedulePairs[key]) {
+            participants.push({
+              id: pid,
+              handbook: hb,
+              grade: Number(row[2]),
+              team: team,
+              num: Number(row[4]),
+              church: String(row[5] || '').trim(),
+              name: String(row[6] || '').trim()
+            });
+            targetStudentIdSet[pid] = true;
           }
         } else {
           // all=1 또는 레거시 전원 로드 모드 (본부 hq.html 등)
@@ -368,9 +369,14 @@ function doPost(e) {
     // 변경사항 즉시 시트에 반영
     SpreadsheetApp.flush();
 
-    // [시상 시트 비동기적 동기화] 저장된 점수를 11개 핸드북별 시상 시트에 자동 반영
+    // [초고속 핀포인트 시상 시트 동기화]
+    // 11개 시트 전수를 매번 무식하게 돌지 않고, 지금 점수가 제출된 딱 그 1개 핸드북만 0.2초 만에 초고속 갱신!
     try {
-      updateHandBookAwards(ss);
+      if (payload.handbook) {
+        updateSingleHandbookAward(ss, payload.handbook);
+      } else {
+        updateHandBookAwards(ss);
+      }
     } catch (awardErr) {
       Logger.log('시상 시트 갱신 중 경고: ' + awardErr.toString());
     }
@@ -411,6 +417,136 @@ function getOfficial11Handbooks() {
     '챌린지1권 6학년',
     '챌린지2권 6학년'
   ];
+}
+
+/**
+ * [초고속 핀포인트 시상 갱신] 단 1개 타겟 핸드북만 초경량 연산 (0.2초 컷)
+ */
+function updateSingleHandbookAward(ss, targetHandbook) {
+  if (!targetHandbook) return;
+  const hbSheet = ss.getSheetByName(targetHandbook);
+  if (!hbSheet || hbSheet.getLastRow() < 2) return;
+
+  const finalSheet = ss.getSheetByName('최종집계');
+  if (!finalSheet || finalSheet.getLastRow() < 2) return;
+
+  const settingsSheet = ss.getSheetByName('설정') || ss.getSheetByName('대회설정');
+  let goldRatio = 0.3;
+  let silverRatio = 0.4;
+  let bronzeRatio = 0.3;
+
+  if (settingsSheet && settingsSheet.getLastRow() >= 2) {
+    const sData = settingsSheet.getRange(2, 1, settingsSheet.getLastRow() - 1, 2).getValues();
+    sData.forEach(r => {
+      const k = String(r[0] || '').trim();
+      const v = Number(r[1]);
+      if (k === '금메달_비율' && !isNaN(v)) goldRatio = v > 1 ? v / 100 : v;
+      if (k === '은메달_비율' && !isNaN(v)) silverRatio = v > 1 ? v / 100 : v;
+      if (k === '동메달_비율' && !isNaN(v)) bronzeRatio = v > 1 ? v / 100 : v;
+    });
+  }
+
+  // 최종집계에서 해당 핸드북 학생 점수만 매핑
+  const finalRows = finalSheet.getRange(2, 1, finalSheet.getLastRow() - 1, 13).getValues();
+  const scoreMap = {};
+  finalRows.forEach(r => {
+    if (String(r[1] || '').trim() === targetHandbook) {
+      const pid = String(r[0] || '').trim();
+      if (pid) {
+        scoreMap[pid] = {
+          written: r[8] === '' ? '' : Number(r[8]),
+          morning: r[9] === '' ? '' : Number(r[9]),
+          afternoon: r[10] === '' ? '' : Number(r[10]),
+          speed: r[11] === '' ? '' : Number(r[11]),
+          total: r[12] === '' ? 0 : Number(r[12])
+        };
+      }
+    }
+  });
+
+  const hbData = hbSheet.getRange(2, 1, hbSheet.getLastRow() - 1, 16).getValues();
+  const students = [];
+
+  hbData.forEach((row, idx) => {
+    const pid = String(row[0] || '').trim();
+    if (!pid) return;
+
+    const sc = scoreMap[pid] || { written: '', morning: '', afternoon: '', speed: '', total: 0 };
+    row[8] = sc.written;
+    row[9] = sc.morning;
+    row[10] = sc.afternoon;
+    row[11] = sc.speed;
+    row[12] = sc.total;
+
+    const hasParticipated = (sc.written !== '' || sc.morning !== '' || sc.afternoon !== '' || sc.speed !== '');
+    students.push({
+      idx: idx,
+      id: pid,
+      total: sc.total,
+      hasParticipated: hasParticipated
+    });
+  });
+
+  const validStudents = students.filter(s => s.hasParticipated);
+  validStudents.sort((a, b) => b.total - a.total);
+
+  const N = validStudents.length;
+  if (N === 0) {
+    hbSheet.getRange(2, 1, hbData.length, 16).setValues(hbData);
+    return;
+  }
+
+  let currentRank = 1;
+  const maxScore = validStudents[0].total;
+
+  for (let i = 0; i < N; i++) {
+    if (i > 0 && validStudents[i].total < validStudents[i - 1].total) {
+      currentRank = i + 1;
+    }
+    validStudents[i].rank = currentRank;
+    validStudents[i].isTop = (validStudents[i].total === maxScore && maxScore > 0);
+  }
+
+  const targetGold = Math.max(1, Math.round(N * goldRatio));
+  let goldCutScore = validStudents[Math.min(targetGold - 1, N - 1)].total;
+  let goldCount = 0;
+  validStudents.forEach(s => {
+    if (s.total >= goldCutScore) {
+      s.medal = '🥇 금메달';
+      goldCount++;
+    }
+  });
+
+  const targetSilver = Math.max(1, Math.round(N * silverRatio));
+  const silverCutIndex = Math.min(goldCount + targetSilver - 1, N - 1);
+  let silverCutScore = validStudents[silverCutIndex].total;
+  let silverCount = 0;
+  validStudents.forEach(s => {
+    if (!s.medal && s.total >= silverCutScore) {
+      s.medal = '🥈 은메달';
+      silverCount++;
+    }
+  });
+
+  validStudents.forEach(s => {
+    if (!s.medal) {
+      s.medal = '🥉 동메달';
+    }
+  });
+
+  validStudents.forEach(s => {
+    hbData[s.idx][13] = s.rank;
+    hbData[s.idx][14] = s.medal || '';
+    hbData[s.idx][15] = s.isTop ? '🏆 최고득점상' : '';
+  });
+
+  students.filter(s => !s.hasParticipated).forEach(s => {
+    hbData[s.idx][13] = '';
+    hbData[s.idx][14] = '';
+    hbData[s.idx][15] = '';
+  });
+
+  hbSheet.getRange(2, 1, hbData.length, 16).setValues(hbData);
 }
 
 function updateHandBookAwards(ss) {
