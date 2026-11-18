@@ -182,19 +182,19 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-    /* 상단 요약 위젯 가로 슬림형 인라인 바 (Zero-Scroll 최적화) */
+    /* 상단 요약 위젯 카드 (시원하고 안정적인 황금비율 레이아웃) */
     .metrics-summary-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 10px;
-      margin-bottom: 12px;
+      gap: 12px;
+      margin-bottom: 14px;
     }
 
     .metric-card {
       background: #ffffff;
       border: 1px solid #e2e8f0;
-      border-radius: 10px;
-      padding: 8px 14px;
+      border-radius: 12px;
+      padding: 12px 16px;
       box-shadow: 0 1px 3px rgba(0,0,0,0.02);
       position: relative;
       overflow: hidden;
@@ -221,17 +221,17 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 2px;
+      margin-bottom: 4px;
     }
 
     .metric-label {
-      font-size: 0.78rem;
+      font-size: 0.82rem;
       font-weight: 700;
       color: #64748b;
     }
 
     .metric-icon {
-      font-size: 0.95rem;
+      font-size: 1.05rem;
     }
 
     .metric-value-row {
@@ -241,7 +241,7 @@
     }
 
     .metric-value {
-      font-size: 1.22rem;
+      font-size: 1.35rem;
       font-weight: 900;
       color: #0f172a;
       letter-spacing: -0.4px;
@@ -371,19 +371,19 @@
     .badge-silver { background: #f1f5f9; color: #475569; font-weight: 800; border: 1px solid #cbd5e1; }
     .badge-bronze { background: #ffedd5; color: #9a3412; font-weight: 800; border: 1px solid #fed7aa; }
 
-    /* 대시보드 관제 매트릭스 그리드 (동적 4열 3행 완벽 대칭 레이아웃) */
+    /* 대시보드 관제 매트릭스 그리드 (동적 4열 대칭 레이아웃) */
     .monitor-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 10px;
+      gap: 12px;
       margin-top: 10px;
     }
 
     .room-monitor-card {
       background: #ffffff;
       border: 1px solid #e2e8f0;
-      border-radius: 10px;
-      padding: 9px 12px;
+      border-radius: 12px;
+      padding: 12px 14px;
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
       transition: transform 0.15s ease, box-shadow 0.15s ease;
     }
@@ -404,13 +404,13 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 6px;
-      padding-bottom: 5px;
+      margin-bottom: 8px;
+      padding-bottom: 6px;
       border-bottom: 1px solid var(--border-light);
     }
 
     .room-badge-title {
-      font-size: 0.95rem;
+      font-size: 0.98rem;
       font-weight: 800;
       display: flex;
       align-items: center;
@@ -420,15 +420,15 @@
     .room-badge-title.sparks { color: #c2410c; }
     .room-badge-title.tnt { color: #1d4ed8; }
 
-    /* 1~7교시 버튼을 1줄에 7개 나란히 배치하여 세로 높이를 50% 단축 */
+    /* 1~4교시 / 5~7교시 2줄 그리드로 복원하여 넉넉하고 시원한 시인성 확보 */
     .room-period-cards {
       display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 4px;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
     }
 
     .period-card-item {
-      padding: 4px 2px;
+      padding: 6px 4px;
       text-align: center;
       border-radius: 6px;
       border: 1px solid #e2e8f0;
@@ -438,18 +438,18 @@
     }
 
     .period-card-item .period-num {
-      font-size: 0.72rem;
+      font-size: 0.74rem;
       font-weight: 700;
       color: #475569;
-      margin-bottom: 1px;
+      margin-bottom: 2px;
       white-space: nowrap;
     }
 
     .period-card-item .status-badge-chip {
-      font-size: 0.65rem;
+      font-size: 0.68rem;
       font-weight: 800;
-      padding: 1px 2px;
-      border-radius: 3px;
+      padding: 1px 3px;
+      border-radius: 4px;
       display: inline-block;
       white-space: nowrap;
     }
@@ -726,8 +726,153 @@
     }
 
     /* =========================================================================
-       🖨️ A4 정밀 원클릭 인쇄 엔진 (빈페이지 100% 원천 차단 & 1핸드북 1페이지 완벽 수록)
+       🖨️ A4 정밀 원클릭 인쇄 엔진 (빈페이지 100% 원천 차단 & 메달별 그룹핑 & 1핸드북 1장 종결)
        ========================================================================= */
+    .print-award-page {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    }
+
+    .print-page-header {
+      text-align: center;
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #0f172a;
+    }
+
+    .print-page-title {
+      font-size: 1.35rem;
+      font-weight: 900;
+      letter-spacing: -0.5px;
+      color: #0f172a;
+      margin-bottom: 4px;
+    }
+
+    .print-page-subtitle {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #334155;
+    }
+
+    /* 시상식 전용 메달별 섹션 컨테이너 */
+    .medal-section {
+      border: 1.5px solid #cbd5e1;
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin-bottom: 12px;
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+
+    .medal-section-bronze {
+      border-color: #fdba74;
+      background: #fffaf5;
+    }
+
+    .medal-section-silver {
+      border-color: #cbd5e1;
+      background: #f8fafc;
+    }
+
+    .medal-section-gold {
+      border-color: #fde047;
+      background: #fefce8;
+    }
+
+    .medal-section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 8px;
+      margin-bottom: 10px;
+      border-bottom: 1.5px dashed #cbd5e1;
+    }
+
+    .medal-section-bronze .medal-section-header { border-color: #fed7aa; }
+    .medal-section-silver .medal-section-header { border-color: #e2e8f0; }
+    .medal-section-gold .medal-section-header { border-color: #fef08a; }
+
+    .medal-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .medal-badge-print {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      font-weight: 900;
+      letter-spacing: -0.3px;
+    }
+
+    .badge-bronze-print { background: #ea580c; color: #ffffff; }
+    .badge-silver-print { background: #475569; color: #ffffff; }
+    .badge-gold-print { background: #d97706; color: #ffffff; }
+
+    .medal-count-label {
+      font-size: 0.88rem;
+      font-weight: 800;
+      color: #475569;
+    }
+
+    /* 수상자 명단 그리드 (이름 가나다순 나열) */
+    .awardee-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px 12px;
+    }
+
+    .print-award-page.fit-dense .awardee-grid {
+      grid-template-columns: repeat(4, 1fr);
+      gap: 5px 8px;
+    }
+
+    .awardee-card-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 4px 8px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      font-size: 0.88rem;
+      line-height: 1.3;
+    }
+
+    .print-award-page.fit-dense .awardee-card-item {
+      padding: 3px 6px;
+      font-size: 0.82rem;
+    }
+
+    .awardee-name-part {
+      font-weight: 800;
+      color: #0f172a;
+      white-space: nowrap;
+    }
+
+    .awardee-church-part {
+      font-weight: 500;
+      color: #475569;
+      font-size: 0.82em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-left: 4px;
+    }
+
+    .empty-awardee-notice {
+      color: #94a3b8;
+      font-size: 0.85rem;
+      text-align: center;
+      padding: 10px;
+    }
+
     @media print {
       @page {
         size: A4 portrait;
@@ -778,8 +923,10 @@
         display: block !important;
         width: 100% !important;
         box-sizing: border-box !important;
-        padding-top: 5mm !important;
-        padding-bottom: 5mm !important;
+        padding: 4mm 0 !important;
+        margin: 0 !important;
+        border: none !important;
+        box-shadow: none !important;
       }
 
       .print-award-page:last-child {
@@ -789,41 +936,69 @@
 
       .print-page-header {
         text-align: center !important;
-        margin-bottom: 12px !important;
-        padding-bottom: 8px !important;
+        margin-bottom: 10px !important;
+        padding-bottom: 6px !important;
         border-bottom: 2px solid #000000 !important;
       }
 
       .print-page-title {
         font-size: 15pt !important;
         font-weight: 900 !important;
-        margin-bottom: 4px !important;
+        margin-bottom: 3px !important;
         color: #000000 !important;
       }
 
       .print-page-subtitle {
         font-size: 10.5pt !important;
         font-weight: 700 !important;
-        color: #222222 !important;
+        color: #111111 !important;
       }
 
-      /* 단일 1열 표준 인쇄 테이블 (첫 번째 이미지 원형 100% 복원) */
-      .print-table {
-        width: 100% !important;
-        border-collapse: collapse !important;
+      .medal-section {
+        border-width: 1.5pt !important;
+        padding: 8px 10px !important;
+        margin-bottom: 8px !important;
+      }
+
+      .medal-section-bronze {
+        background: #fff7ed !important;
+        border-color: #ea580c !important;
+      }
+
+      .medal-section-silver {
+        background: #f1f5f9 !important;
+        border-color: #64748b !important;
+      }
+
+      .medal-section-gold {
+        background: #fefce8 !important;
+        border-color: #ca8a04 !important;
+      }
+
+      .medal-badge-print {
         font-size: 10pt !important;
-        line-height: 1.35 !important;
+        padding: 2px 8px !important;
       }
 
-      .print-table th, .print-table td {
-        border: 1px solid #444444 !important;
-        padding: 5px 6px !important;
-        text-align: center !important;
+      .badge-bronze-print { background: #ea580c !important; color: #ffffff !important; }
+      .badge-silver-print { background: #475569 !important; color: #ffffff !important; }
+      .badge-gold-print { background: #b45309 !important; color: #ffffff !important; }
+
+      .awardee-card-item {
+        border: 1px solid #94a3b8 !important;
+        background: #ffffff !important;
+        padding: 3px 5px !important;
       }
 
-      .print-table th {
-        background-color: #f1f5f9 !important;
-        font-weight: 800 !important;
+      /* 적응형 폰트 축소 */
+      .print-award-page.fit-compact .awardee-card-item {
+        font-size: 8.5pt !important;
+        padding: 2px 4px !important;
+      }
+
+      .print-award-page.fit-dense .awardee-card-item {
+        font-size: 7.5pt !important;
+        padding: 1.5px 3px !important;
       }
     }
   </style>
@@ -2079,7 +2254,7 @@
 
     /**
      * =========================================================================
-     * TAB 4. [수상자 명단 & A4 페이지 분할 인쇄] - 빈페이지 100% 제거 & 1핸드북 1페이지 완벽 수록
+     * TAB 4. [수상자 명단 & A4 페이지 분할 인쇄] - 메달별 그룹핑 [동 ➔ 은 ➔ 금] & 가나다순 & 1핸드북 1장 종결
      * =========================================================================
      */
     function renderStandingsView() {
@@ -2140,9 +2315,7 @@
 
           if (matchingStudents.length === 0) return;
 
-          const medalOrder = { '금메달': 1, '은메달': 2, '동메달': 3 };
           const awardees = [];
-
           matchingStudents.forEach(p => {
             const award = studentAwardMap[p.id];
             if (award && award.medal) {
@@ -2157,63 +2330,75 @@
 
           if (awardees.length === 0) return;
 
-          awardees.sort((a, b) => {
-            const mDiff = medalOrder[a.medal] - medalOrder[b.medal];
-            if (mDiff !== 0) return mDiff;
-            return a.rank - b.rank;
-          });
-
           pageCount++;
 
-          const pageDiv = document.createElement('div');
-          pageDiv.className = 'print-award-page';
+          // 메달별 분리 및 단원 이름 가나다순(오름차순) 정렬
+          const bronzeList = awardees.filter(a => a.medal === '동메달').sort((a, b) => a.name.localeCompare(b.name, 'ko'));
+          const silverList = awardees.filter(a => a.medal === '은메달').sort((a, b) => a.name.localeCompare(b.name, 'ko'));
+          const goldList = awardees.filter(a => a.medal === '금메달').sort((a, b) => a.name.localeCompare(b.name, 'ko'));
 
-          // 오직 시원하고 큼직한 1열(단일 테이블) 구조로 렌더링
-          let trsHtml = '';
-          awardees.forEach((a, idx) => {
-            const badgeClass = a.medal === '금메달' ? 'badge-gold' : (a.medal === '은메달' ? 'badge-silver' : 'badge-bronze');
-            trsHtml += `
-              <tr>
-                <td style="font-weight: 800;">${idx + 1}</td>
-                <td><span class="badge-status ${badgeClass}" style="padding: 3px 8px; font-size: 0.88rem;">${a.medal}</span></td>
-                <td><b>${a.rank}위</b></td>
-                <td>${a.team}조</td>
-                <td><b>${a.num}번</b></td>
-                <td style="text-align: left; padding-left: 14px;"><b>${a.name}</b></td>
-                <td style="text-align: left; padding-left: 14px;">${a.church}</td>
-                <td style="font-weight: 800; color: #1e3a8a;">${a.total}점</td>
-              </tr>
+          const totalAwardees = awardees.length;
+
+          // 인원수에 따른 A4 1장 최적화 밀도 클래스 부여 (35명 이하 기본 / 36~50명 컴팩트 / 51명 이상 초밀착)
+          let fitClass = '';
+          if (totalAwardees > 50) {
+            fitClass = 'fit-dense';
+          } else if (totalAwardees > 34) {
+            fitClass = 'fit-compact';
+          }
+
+          const pageDiv = document.createElement('div');
+          pageDiv.className = `print-award-page ${fitClass}`;
+
+          // 메달 섹션 생성 헬퍼 함수 (호명 순서: 동메달 -> 은메달 -> 금메달)
+          const createMedalSectionHtml = (title, medalBadgeClass, sectionThemeClass, list) => {
+            let cardsHtml = '';
+            if (list.length === 0) {
+              cardsHtml = '<div class="empty-awardee-notice">해당 메달 수상자가 없습니다.</div>';
+            } else {
+              cardsHtml = list.map(item => `
+                <div class="awardee-card-item">
+                  <span class="awardee-name-part">${item.name}</span>
+                  <span class="awardee-church-part">(${item.church})</span>
+                </div>
+              `).join('');
+            }
+
+            return `
+              <div class="medal-section ${sectionThemeClass}">
+                <div class="medal-section-header">
+                  <div class="medal-title-wrap">
+                    <span class="medal-badge-print ${medalBadgeClass}">${title}</span>
+                  </div>
+                  <span class="medal-count-label">총 <b>${list.length}명</b></span>
+                </div>
+                <div class="awardee-grid">
+                  ${cardsHtml}
+                </div>
+              </div>
             `;
-          });
+          };
+
+          // 시상식 호명 순서: 🥉 동메달 ➔ 🥈 은메달 ➔ 🥇 금메달 순으로 렌더링
+          const bronzeHtml = createMedalSectionHtml('🥉 동메달 (Bronze Medal)', 'badge-bronze-print', 'medal-section-bronze', bronzeList);
+          const silverHtml = createMedalSectionHtml('🥈 은메달 (Silver Medal)', 'badge-silver-print', 'medal-section-silver', silverList);
+          const goldHtml = createMedalSectionHtml('🥇 금메달 (Gold Medal)', 'badge-gold-print', 'medal-section-gold', goldList);
 
           pageDiv.innerHTML = `
             <div class="print-page-header">
-              <div class="print-page-title">2026-2027 AWANA 성경퀴즈대회 공식 시상자 명단</div>
+              <div class="print-page-title">2026-2027 AWANA 성경퀴즈대회 공식 시상 명단</div>
               <div class="print-page-subtitle">
-                📍 <b>[${room}] 시험장</b> &nbsp;|&nbsp; 📘 <b>${hb}</b> &nbsp;|&nbsp; 수상자 총 <b>${awardees.length}명</b>
+                📍 <b>[${room}] 시험장</b> &nbsp;|&nbsp; 📘 <b>${hb}</b> &nbsp;|&nbsp; 수상자 총 <b>${totalAwardees}명</b> (동 ${bronzeList.length}명 / 은 ${silverList.length}명 / 금 ${goldList.length}명)
               </div>
             </div>
 
-            <table class="print-table">
-              <thead>
-                <tr>
-                  <th style="width: 45px;">순번</th>
-                  <th style="width: 90px;">메달</th>
-                  <th style="width: 65px;">전체석차</th>
-                  <th style="width: 50px;">조</th>
-                  <th style="width: 50px;">번호</th>
-                  <th style="width: 100px;">단원 성명</th>
-                  <th>소속 교회명</th>
-                  <th style="width: 75px;">최종총점</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${trsHtml}
-              </tbody>
-            </table>
+            <!-- 시상 발표 순서: 동 ➔ 은 ➔ 금 -->
+            ${bronzeHtml}
+            ${silverHtml}
+            ${goldHtml}
 
-            <div style="margin-top: 15px; text-align: right; font-size: 8.5pt; color: #64748b;">
-              * 본 시상표는 교실별 시상 진행을 위한 공식 출력물입니다. (최고득점상은 본부 전체 집계에서 별도 수여됩니다)
+            <div style="margin-top: 8px; text-align: right; font-size: 8pt; color: #64748b;">
+              * 본 시상표는 교실별 시상 진행(호명)을 위한 공식 출력물이며, 각 메달별 단원은 성명 가나다순으로 표기되어 있습니다. (최고득점상은 본부 전체 집계에서 별도 수여)
             </div>
           `;
 
