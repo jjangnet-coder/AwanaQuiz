@@ -8,7 +8,7 @@
     :root {
       --primary: #1e3a8a;
       --primary-light: #3b82f6;
-      --primary-dark: #1e293b;
+      --primary-dark: #172554;
       --bg-body: #f8fafc;
       --bg-card: #ffffff;
       --border-color: #cbd5e1;
@@ -16,11 +16,13 @@
       --text-main: #0f172a;
       --text-muted: #64748b;
       --danger: #dc2626;
-      --success: #16a34a;
-      --warning: #d97706;
+      --success: #10b981;
+      --warning: #f59e0b;
       --gold: #b45309;
       --silver: #475569;
       --bronze: #9a3412;
+      --sparks-theme: #ea580c;
+      --tnt-theme: #2563eb;
     }
 
     * {
@@ -38,7 +40,7 @@
     }
 
     .container {
-      max-width: 1400px;
+      max-width: 1440px;
       margin: 0 auto;
     }
 
@@ -166,7 +168,7 @@
       background: #ffffff;
       border-radius: 14px;
       border: 1px solid var(--border-color);
-      padding: 20px;
+      padding: 22px;
       box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
       animation: fadeIn 0.15s ease-out;
     }
@@ -179,6 +181,92 @@
       from { opacity: 0; transform: translateY(3px); }
       to { opacity: 1; transform: translateY(0); }
     }
+
+    /* 상단 요약 위젯 카드 4종 */
+    .metrics-summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+
+    .metric-card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 14px 18px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .metric-card::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+    }
+
+    .metric-card.theme-total::before { background: #64748b; }
+    .metric-card.theme-written::before { background: #6366f1; }
+    .metric-card.theme-morning::before { background: #f59e0b; }
+    .metric-card.theme-afternoon::before { background: #10b981; }
+
+    .metric-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .metric-label {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #64748b;
+    }
+
+    .metric-icon {
+      font-size: 1.15rem;
+    }
+
+    .metric-value-row {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+    }
+
+    .metric-value {
+      font-size: 1.45rem;
+      font-weight: 900;
+      color: #0f172a;
+      letter-spacing: -0.5px;
+    }
+
+    .metric-subtext {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #64748b;
+    }
+
+    .metric-progress-track {
+      height: 6px;
+      background: #f1f5f9;
+      border-radius: 10px;
+      margin-top: 10px;
+      overflow: hidden;
+    }
+
+    .metric-progress-bar {
+      height: 100%;
+      border-radius: 10px;
+      transition: width 0.4s ease;
+    }
+
+    .bar-written { background: linear-gradient(90deg, #6366f1, #818cf8); }
+    .bar-morning { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+    .bar-afternoon { background: linear-gradient(90deg, #10b981, #34d399); }
 
     /* 필터 컨트롤 바 */
     .filter-bar {
@@ -249,7 +337,7 @@
     }
 
     .hq-table tr.row-absent {
-      background-color: #f1f5f9;
+      background-color: #f8fafc;
       color: #94a3b8;
     }
 
@@ -264,13 +352,14 @@
     /* 배지 스타일 */
     .badge-status {
       display: inline-block;
-      padding: 2px 7px;
-      border-radius: 4px;
-      font-size: 0.76rem;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 0.78rem;
       font-weight: 700;
     }
 
     .badge-done { background: #dcfce7; color: #15803d; }
+    .badge-partial { background: #fef3c7; color: #b45309; }
     .badge-pending { background: #f1f5f9; color: #64748b; }
     .badge-absent { background: #fee2e2; color: #b91c1c; }
 
@@ -281,71 +370,135 @@
     /* 대시보드 관제 매트릭스 그리드 */
     .monitor-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 14px;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 16px;
       margin-top: 14px;
     }
 
     .room-monitor-card {
       background: #ffffff;
-      border: 1px solid var(--border-color);
-      border-radius: 12px;
-      padding: 14px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 16px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.03);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .room-monitor-card:hover {
+      box-shadow: 0 8px 12px -2px rgba(0, 0, 0, 0.06);
+    }
+
+    .room-monitor-card.theme-sparks {
+      border-top: 4px solid var(--sparks-theme);
+    }
+
+    .room-monitor-card.theme-tnt {
+      border-top: 4px solid var(--tnt-theme);
     }
 
     .room-monitor-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
       padding-bottom: 8px;
       border-bottom: 1px solid var(--border-light);
     }
 
-    .room-monitor-title {
-      font-size: 1rem;
+    .room-badge-title {
+      font-size: 1.05rem;
       font-weight: 800;
-      color: var(--primary);
-    }
-
-    .room-period-pills {
       display: flex;
+      align-items: center;
       gap: 6px;
-      flex-wrap: wrap;
     }
 
-    .period-pill {
-      flex: 1;
-      min-width: 32px;
-      padding: 6px 2px;
+    .room-badge-title.sparks { color: #c2410c; }
+    .room-badge-title.tnt { color: #1d4ed8; }
+
+    .room-period-cards {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+    }
+
+    .period-card-item {
+      padding: 8px 4px;
       text-align: center;
-      border-radius: 6px;
-      font-size: 0.78rem;
-      font-weight: 700;
-      border: 1px solid var(--border-light);
-    }
-
-    .period-pill.done {
-      background: #dcfce7;
-      color: #15803d;
-      border-color: #bbf7d0;
-    }
-
-    .period-pill.waiting {
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
       background: #f8fafc;
+      transition: all 0.15s ease;
+      cursor: default;
+    }
+
+    .period-card-item .period-num {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #475569;
+      margin-bottom: 3px;
+    }
+
+    .period-card-item .status-badge-chip {
+      font-size: 0.72rem;
+      font-weight: 800;
+      padding: 2px 4px;
+      border-radius: 4px;
+      display: inline-block;
+    }
+
+    .period-card-item .session-indicator-dots {
+      display: flex;
+      justify-content: center;
+      gap: 3px;
+      margin-top: 4px;
+    }
+
+    .indicator-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: #cbd5e1;
+    }
+    .indicator-dot.active { background: #10b981; }
+
+    /* 3대 세션 완전 일치 상태 */
+    .period-card-item.state-full {
+      background: #ecfdf5;
+      border-color: #a7f3d0;
+    }
+    .period-card-item.state-full .status-badge-chip {
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    .period-card-item.state-partial {
+      background: #fffbeb;
+      border-color: #fde68a;
+    }
+    .period-card-item.state-partial .status-badge-chip {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .period-card-item.state-empty {
+      background: #f8fafc;
+      border-color: #f1f5f9;
+    }
+    .period-card-item.state-empty .status-badge-chip {
+      background: #f1f5f9;
       color: #94a3b8;
     }
 
     /* 필기 입력 인풋 */
     .input-written-score {
-      width: 70px;
+      width: 75px;
       text-align: center;
-      padding: 6px;
+      padding: 7px;
       border: 1px solid var(--border-color);
-      border-radius: 6px;
-      font-size: 0.95rem;
-      font-weight: 700;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 800;
       outline: none;
     }
 
@@ -358,16 +511,162 @@
     .input-written-score.invalid {
       border-color: var(--danger);
       background: #fff5f5;
+      color: var(--danger);
     }
 
-    /* 본부 모달 팝업 */
-    .hq-modal-overlay {
+    /* 모던 커스텀 모달 팝업 */
+    .custom-modal-overlay {
       display: none;
       position: fixed;
       inset: 0;
       background: rgba(15, 23, 42, 0.65);
       backdrop-filter: blur(4px);
       z-index: 20000;
+      justify-content: center;
+      align-items: center;
+      animation: modalBackdropFadeIn 0.15s ease-out;
+      padding: 16px;
+    }
+
+    .custom-modal-card {
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.05);
+      width: 100%;
+      max-width: 480px;
+      padding: 26px 28px 24px;
+      text-align: center;
+      animation: modalScaleUp 0.15s ease-out;
+      word-break: keep-all;
+      overflow: hidden;
+      position: relative;
+    }
+
+    @keyframes modalBackdropFadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes modalScaleUp {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .custom-modal-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 5px;
+      background: #3b82f6;
+    }
+
+    .custom-modal-card.theme-danger::before { background: linear-gradient(90deg, #ef4444, #dc2626); }
+    .custom-modal-card.theme-warn::before { background: linear-gradient(90deg, #f59e0b, #d97706); }
+    .custom-modal-card.theme-submit::before { background: linear-gradient(90deg, #2563eb, #4f46e5); }
+    .custom-modal-card.theme-success::before { background: linear-gradient(90deg, #10b981, #059669); }
+
+    .modal-icon-badge {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 1.8rem;
+      margin-bottom: 14px;
+      transition: all 0.2s ease;
+    }
+
+    .badge-type-info { background: #eff6ff; color: #1d4ed8; box-shadow: 0 0 0 6px rgba(59, 130, 246, 0.12); }
+    .badge-type-submit { background: #eef2ff; color: #3730a3; box-shadow: 0 0 0 6px rgba(79, 70, 229, 0.14); }
+    .badge-type-warn { background: #fffbeb; color: #b45309; box-shadow: 0 0 0 6px rgba(245, 158, 11, 0.14); }
+    .badge-type-danger {
+      background: #fef2f2;
+      color: #b91c1c;
+      box-shadow: 0 0 0 6px rgba(239, 68, 68, 0.15);
+      animation: pulseDanger 1.8s infinite;
+    }
+
+    @keyframes pulseDanger {
+      0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.35); }
+      70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+    }
+
+    .badge-type-success { background: #ecfdf5; color: #047857; box-shadow: 0 0 0 6px rgba(16, 185, 129, 0.14); }
+
+    .modal-title {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 12px;
+      letter-spacing: -0.02em;
+    }
+    .modal-title.title-danger { color: #991b1b; }
+    .modal-title.title-submit { color: #1e3a8a; }
+
+    .modal-message {
+      font-size: 0.94rem;
+      font-weight: 500;
+      color: #334155;
+      line-height: 1.6;
+      margin-bottom: 22px;
+      white-space: pre-line;
+      text-align: center;
+    }
+
+    .modal-callout-box {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin: 10px 0 14px;
+      font-size: 0.9rem;
+      line-height: 1.55;
+      text-align: left;
+    }
+    .callout-danger { background: #fff5f5; border-color: #fecaca; color: #991b1b; }
+    .callout-submit { background: #f0f7ff; border-color: #bfdbfe; color: #1e40af; }
+
+    .modal-actions {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    .modal-btn {
+      padding: 10px 22px;
+      border-radius: 8px;
+      font-size: 0.94rem;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      min-width: 105px;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-btn-confirm { background-color: #2563eb; color: white; }
+    .modal-btn-confirm:hover { background-color: #1d4ed8; }
+    .modal-btn-submit { background-color: #1d4ed8; color: white; font-weight: 800; }
+    .modal-btn-submit:hover { background-color: #1e40af; }
+    .modal-btn-danger { background-color: #ef4444; color: white; }
+    .modal-btn-danger:hover { background-color: #dc2626; }
+    .modal-btn-cancel { background-color: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
+    .modal-btn-cancel:hover { background-color: #e2e8f0; color: #0f172a; }
+
+    /* 본부 일반 모달 (정보수정/이동) */
+    .hq-modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.65);
+      backdrop-filter: blur(4px);
+      z-index: 10000;
       justify-content: center;
       align-items: center;
       padding: 16px;
@@ -380,12 +679,7 @@
       width: 100%;
       max-width: 500px;
       padding: 24px;
-      animation: modalFadeIn 0.15s ease-out;
-    }
-
-    @keyframes modalFadeIn {
-      from { opacity: 0; transform: scale(0.96); }
-      to { opacity: 1; transform: scale(1); }
+      animation: modalScaleUp 0.15s ease-out;
     }
 
     .hq-modal-title {
@@ -424,71 +718,116 @@
       margin-top: 20px;
     }
 
-    /* 인쇄 전용 A4 스타일시트 */
+    /* =========================================================================
+       🖨️ A4 정밀 원클릭 인쇄 엔진 (빈페이지 100% 원천 차단 & 1핸드북 1페이지 완벽 수록)
+       ========================================================================= */
     @media print {
-      body {
+      @page {
+        size: A4 portrait;
+        margin: 10mm 12mm 10mm 12mm;
+      }
+
+      html, body {
         background: #ffffff !important;
+        margin: 0 !important;
         padding: 0 !important;
+        height: auto !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
       }
 
-      .hq-header, .filter-bar, .hq-nav-tabs, .btn-hq, .hq-modal-overlay, #testBanner {
-        display: none !important;
-      }
-
-      .tab-content {
-        display: block !important;
-        border: none !important;
-        box-shadow: none !important;
-        padding: 0 !important;
-      }
-
+      /* 인쇄 대상(#standingsPrintContainer)을 제외한 모든 UI 완전 소멸 */
+      .hq-header, 
+      .filter-bar, 
+      .hq-nav-tabs, 
+      .btn-hq, 
+      .hq-modal-overlay, 
+      .custom-modal-overlay, 
+      #tab-monitor, 
+      #tab-roster, 
+      #tab-written, 
       .no-print {
         display: none !important;
       }
 
-      /* 각 교실의 각 핸드북별 A4 강제 페이지 분할 */
+      .container {
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+      }
+
+      #tab-standings {
+        display: block !important;
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+      }
+
+      /* 각 핸드북별 A4 1페이지 규격 강제 고정 */
       .print-award-page {
         page-break-after: always !important;
         break-after: page !important;
-        padding: 20mm 15mm;
-        min-height: 270mm;
+        display: block !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+        padding-top: 5mm !important;
+        padding-bottom: 5mm !important;
+      }
+
+      .print-award-page:last-child {
+        page-break-after: avoid !important;
+        break-after: avoid !important;
       }
 
       .print-page-header {
-        text-align: center;
-        margin-bottom: 20px;
-        padding-bottom: 12px;
-        border-bottom: 2px solid #000000;
+        text-align: center !important;
+        margin-bottom: 12px !important;
+        padding-bottom: 8px !important;
+        border-bottom: 2px solid #000000 !important;
       }
 
       .print-page-title {
-        font-size: 18pt;
-        font-weight: 900;
-        margin-bottom: 6px;
+        font-size: 15pt !important;
+        font-weight: 900 !important;
+        margin-bottom: 4px !important;
+        color: #000000 !important;
       }
 
       .print-page-subtitle {
-        font-size: 12pt;
-        font-weight: 700;
-        color: #333333;
+        font-size: 10.5pt !important;
+        font-weight: 700 !important;
+        color: #222222 !important;
       }
 
+      /* 초압축 인쇄 테이블: 60명까지 A4 단 1장에 완벽 수록 */
       .print-table {
-        width: 100%;
-        border-collapse: collapse;
-        font-size: 10.5pt;
+        width: 100% !important;
+        border-collapse: collapse !important;
+        font-size: 8.5pt !important;
+        line-height: 1.15 !important;
       }
 
       .print-table th, .print-table td {
         border: 1px solid #444444 !important;
-        padding: 7px 6px !important;
+        padding: 3.5px 4px !important;
         text-align: center !important;
       }
 
       .print-table th {
         background-color: #f1f5f9 !important;
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
+        font-weight: 800 !important;
+      }
+
+      /* 2열 병렬 테이블 레이아웃 (30명 초과 시) */
+      .multi-col-print-grid {
+        display: flex !important;
+        gap: 12px !important;
+        width: 100% !important;
+      }
+
+      .multi-col-print-grid > table {
+        flex: 1 !important;
       }
     }
   </style>
@@ -511,6 +850,19 @@
         <button type="button" class="btn-hq btn-hq-primary" onclick="verifyAdminPin()" style="width: 100%; justify-content: center; padding: 10px;">
           본부 포털 입장
         </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 모던 커스텀 공통 모달 팝업 -->
+  <div class="custom-modal-overlay" id="customModalOverlay">
+    <div class="custom-modal-card" id="customModalCard">
+      <div class="modal-icon-badge badge-type-info" id="modalIconBadge">ℹ️</div>
+      <div class="modal-title" id="modalTitle">알림</div>
+      <div class="modal-message" id="modalMessage">내용</div>
+      <div class="modal-actions" id="modalActions">
+        <button class="modal-btn modal-btn-cancel" id="modalBtnCancel" style="display: none;">취소</button>
+        <button class="modal-btn modal-btn-confirm" id="modalBtnConfirm">확인</button>
       </div>
     </div>
   </div>
@@ -601,16 +953,79 @@
       </div>
     </header>
 
-    <!-- TAB 1: 종합 관제 대시보드 -->
+    <!-- TAB 1: 종합 관제 대시보드 (Mission Control) -->
     <section id="tab-monitor" class="tab-content active">
-      <div class="filter-bar">
-        <div class="filter-group">
-          <span style="font-weight: 800; font-size: 1.05rem;">📡 실시간 교실별 채점 제출 현황 (N개 교실 동적 관제)</span>
+      <!-- 4대 메트릭 요약 카드 -->
+      <div class="metrics-summary-grid">
+        <div class="metric-card theme-total">
+          <div class="metric-header">
+            <span class="metric-label">전체 등록 선수</span>
+            <span class="metric-icon">👥</span>
+          </div>
+          <div class="metric-value-row">
+            <span class="metric-value" id="summaryTotalStudents">0</span>
+            <span class="metric-subtext">명 출전</span>
+          </div>
+          <div style="font-size: 0.78rem; color: #64748b; margin-top: 10px;">
+            결석: <b id="summaryAbsentStudents" style="color: #dc2626;">0</b>명
+          </div>
         </div>
-        <div class="filter-group">
-          <span id="overallSubmitStats" style="font-weight: 700; color: #1e3a8a; font-size: 0.9rem;">집계 중...</span>
+
+        <div class="metric-card theme-written">
+          <div class="metric-header">
+            <span class="metric-label">📝 필기시험 채점</span>
+            <span class="metric-icon" id="writtenPercentIcon">⏳</span>
+          </div>
+          <div class="metric-value-row">
+            <span class="metric-value" id="summaryWrittenPercent">0%</span>
+            <span class="metric-subtext"><span id="summaryWrittenCount">0</span>명 입력</span>
+          </div>
+          <div class="metric-progress-track">
+            <div class="metric-progress-bar bar-written" id="barWritten" style="width: 0%;"></div>
+          </div>
+        </div>
+
+        <div class="metric-card theme-morning">
+          <div class="metric-header">
+            <span class="metric-label">☀️ 오전 객관식 세션</span>
+            <span class="metric-icon" id="morningPercentIcon">⏳</span>
+          </div>
+          <div class="metric-value-row">
+            <span class="metric-value" id="summaryMorningPercent">0%</span>
+            <span class="metric-subtext"><span id="summaryMorningCount">0</span>명 제출</span>
+          </div>
+          <div class="metric-progress-track">
+            <div class="metric-progress-bar bar-morning" id="barMorning" style="width: 0%;"></div>
+          </div>
+        </div>
+
+        <div class="metric-card theme-afternoon">
+          <div class="metric-header">
+            <span class="metric-label">🌙 오후 세션 (객관식/스피드)</span>
+            <span class="metric-icon" id="afternoonPercentIcon">⏳</span>
+          </div>
+          <div class="metric-value-row">
+            <span class="metric-value" id="summaryAfternoonPercent">0%</span>
+            <span class="metric-subtext"><span id="summaryAfternoonCount">0</span>명 제출</span>
+          </div>
+          <div class="metric-progress-track">
+            <div class="metric-progress-bar bar-afternoon" id="barAfternoon" style="width: 0%;"></div>
+          </div>
         </div>
       </div>
+
+      <div class="filter-bar">
+        <div class="filter-group">
+          <span style="font-weight: 800; font-size: 1.05rem;">📡 실시간 교실별 3대 세션 제출 현황판</span>
+          <span style="font-size: 0.82rem; color: #64748b; font-weight: 600;">
+            * [필기 + 오전 + 오후] 3개 시험이 모두 100% 제출되어야 최종 완료로 표시됩니다.
+          </span>
+        </div>
+        <div class="filter-group">
+          <span id="overallSubmitStats" style="font-weight: 800; color: #1e3a8a; font-size: 0.92rem;">집계 중...</span>
+        </div>
+      </div>
+
       <div class="monitor-grid" id="monitorGrid">
         <!-- 동적 렌더링 -->
       </div>
@@ -620,7 +1035,7 @@
     <section id="tab-roster" class="tab-content">
       <div class="filter-bar">
         <div class="filter-group">
-          <input type="text" id="rosterSearchInput" class="filter-input" placeholder="이름, 교회명, ID 검색..." oninput="filterRosterTable()" style="width: 200px;" />
+          <input type="text" id="rosterSearchInput" class="filter-input" placeholder="이름, 교회명, ID 검색..." oninput="filterRosterTable()" style="width: 220px;" />
           <select id="rosterHandbookFilter" class="filter-select" onchange="filterRosterTable()">
             <option value="">전체 핸드북</option>
           </select>
@@ -634,7 +1049,7 @@
           </select>
         </div>
         <div class="filter-group">
-          <span id="rosterCountText" style="font-size: 0.85rem; font-weight: 700; color: #64748b;">총 0명</span>
+          <span id="rosterCountText" style="font-size: 0.88rem; font-weight: 800; color: #1e3a8a;">총 0명</span>
         </div>
       </div>
 
@@ -674,8 +1089,8 @@
           </select>
         </div>
         <div class="filter-group">
-          <span style="font-size: 0.82rem; color: #2563eb; font-weight: 700;">
-            * 0~150점 (10점 단위), Enter/↓키 입력 시 다음 학생으로 자동 이동
+          <span style="font-size: 0.84rem; color: #2563eb; font-weight: 700;">
+            * 점수 규정: <b>0~150점 (10점 단위만 가능)</b> | Enter/↓키 입력 시 다음 학생으로 자동 이동
           </span>
           <button class="btn-hq btn-hq-primary" onclick="saveWrittenScoresBatch()">
             💾 해당 조 필기점수 저장 및 시상표 갱신
@@ -693,7 +1108,7 @@
               <th>이름</th>
               <th>출결</th>
               <th>기존 필기점수</th>
-              <th style="width: 140px; background: #e0e7ff; color: #1e3a8a;">필기 점수 입력 (0~150)</th>
+              <th style="width: 150px; background: #e0e7ff; color: #1e3a8a;">필기 점수 입력 (0~150)</th>
             </tr>
           </thead>
           <tbody id="writtenTableBody">
@@ -760,6 +1175,117 @@
     });
 
     /**
+     * =========================================================================
+     * 모던 커스텀 모달 (브라우저 기본 alert, confirm 100% 완전 대체)
+     * =========================================================================
+     */
+    function showCustomAlert(title, message, type = 'info', onOk = null) {
+      const overlay = document.getElementById('customModalOverlay');
+      const card = document.getElementById('customModalCard');
+      const badge = document.getElementById('modalIconBadge');
+      const titleEl = document.getElementById('modalTitle');
+      const msgEl = document.getElementById('modalMessage');
+      const btnCancel = document.getElementById('modalBtnCancel');
+      const btnConfirm = document.getElementById('modalBtnConfirm');
+
+      card.className = 'custom-modal-card';
+      titleEl.className = 'modal-title';
+      badge.className = 'modal-icon-badge';
+
+      if (type === 'warn') {
+        card.classList.add('theme-warn');
+        badge.innerText = '⚠️';
+        badge.classList.add('badge-type-warn');
+      } else if (type === 'danger') {
+        card.classList.add('theme-danger');
+        titleEl.classList.add('title-danger');
+        badge.innerText = '🚨';
+        badge.classList.add('badge-type-danger');
+      } else if (type === 'success') {
+        card.classList.add('theme-success');
+        badge.innerText = '✅';
+        badge.classList.add('badge-type-success');
+      } else {
+        card.classList.add('theme-submit');
+        badge.innerText = 'ℹ️';
+        badge.classList.add('badge-type-info');
+      }
+
+      titleEl.innerText = title;
+      msgEl.innerHTML = typeof message === 'string' && message.includes('<div') ? message : message.replace(/\n/g, '<br>');
+      btnCancel.style.display = 'none';
+
+      btnConfirm.innerText = '확인';
+      btnConfirm.className = 'modal-btn modal-btn-confirm';
+
+      btnConfirm.onclick = () => {
+        overlay.style.display = 'none';
+        if (onOk) onOk();
+      };
+
+      overlay.style.display = 'flex';
+      btnConfirm.focus();
+    }
+
+    function showCustomConfirm(title, message, onConfirm, onCancel = null, type = 'warn', options = {}) {
+      const overlay = document.getElementById('customModalOverlay');
+      const card = document.getElementById('customModalCard');
+      const badge = document.getElementById('modalIconBadge');
+      const titleEl = document.getElementById('modalTitle');
+      const msgEl = document.getElementById('modalMessage');
+      const btnCancel = document.getElementById('modalBtnCancel');
+      const btnConfirm = document.getElementById('modalBtnConfirm');
+
+      card.className = 'custom-modal-card';
+      titleEl.className = 'modal-title';
+      badge.className = 'modal-icon-badge';
+
+      if (type === 'danger') {
+        card.classList.add('theme-danger');
+        titleEl.classList.add('title-danger');
+        badge.innerText = '🚨';
+        badge.classList.add('badge-type-danger');
+      } else if (type === 'submit') {
+        card.classList.add('theme-submit');
+        titleEl.classList.add('title-submit');
+        badge.innerText = '📤';
+        badge.classList.add('badge-type-submit');
+      } else if (type === 'warn') {
+        card.classList.add('theme-warn');
+        badge.innerText = '⚠️';
+        badge.classList.add('badge-type-warn');
+      } else {
+        card.classList.add('theme-submit');
+        badge.innerText = '❓';
+        badge.classList.add('badge-type-info');
+      }
+
+      titleEl.innerText = title;
+      msgEl.innerHTML = typeof message === 'string' && message.includes('<div') ? message : message.replace(/\n/g, '<br>');
+
+      btnCancel.style.display = 'inline-block';
+      btnConfirm.innerText = options.confirmText || '확인';
+      btnCancel.innerText = options.cancelText || '취소';
+
+      btnConfirm.className = 'modal-btn ' + (options.confirmClass || (type === 'danger' ? 'modal-btn-danger' : (type === 'submit' ? 'modal-btn-submit' : 'modal-btn-confirm')));
+      btnCancel.className = 'modal-btn ' + (options.cancelClass || 'modal-btn-cancel');
+
+      btnConfirm.onclick = () => {
+        overlay.style.display = 'none';
+        if (onConfirm) onConfirm();
+      };
+
+      btnCancel.onclick = () => {
+        overlay.style.display = 'none';
+        if (onCancel) onCancel();
+      };
+
+      overlay.style.display = 'flex';
+      if (options.focusCancel) btnCancel.focus();
+      else btnConfirm.focus();
+    }
+
+    /**
      * 본부 PIN 검증
      */
     async function verifyAdminPin() {
@@ -774,7 +1300,6 @@
         return;
       }
 
-      // 초기 설정값 로드
       try {
         const resp = await fetch(`${GAS_URL}?action=init`);
         const result = await resp.json();
@@ -802,8 +1327,17 @@
     }
 
     function logoutAdmin() {
-      sessionStorage.removeItem('awana_admin_auth');
-      location.reload();
+      showCustomConfirm(
+        '본부 관리자 로그아웃',
+        '본부 관리 포털에서 안전하게 로그아웃하시겠습니까?',
+        () => {
+          sessionStorage.removeItem('awana_admin_auth');
+          location.reload();
+        },
+        null,
+        'warn',
+        { confirmText: '로그아웃', cancelText: '취소' }
+      );
     }
 
     /**
@@ -832,8 +1366,7 @@
           }
         }
       } catch (err) {
-        console.error('본부 데이터 로드 실패:', err);
-        alert('데이터 로드 실패: ' + err.message);
+        showCustomAlert('데이터 로드 실패', '데이터 조회 중 오류가 발생했습니다: ' + err.message, 'danger');
       }
     }
 
@@ -851,7 +1384,7 @@
 
     /**
      * =========================================================================
-     * TAB 1. [종합 관제 대시보드] - N개 교실 동적 렌더링
+     * TAB 1. [종합 관제 대시보드] - 3대 세션(필기+오전+오후) 완전 일치 판정 & 모던 비주얼
      * =========================================================================
      */
     function renderMonitorDashboard() {
@@ -860,62 +1393,135 @@
 
       // 1. 시간표에서 실제 교실 목록(N개) 동적 추출
       const roomSet = new Set();
-      HQ_DATA.timetable.forEach(t => {
-        if (t.room) roomSet.add(t.room);
-      });
+      HQ_DATA.timetable.forEach(t => { if (t.room) roomSet.add(t.room); });
       const roomList = Array.from(roomSet).sort();
 
-      // 학생ID -> 점수 존재 여부 체크
-      // 교실별 / 교시별 완료 여부 판정
+      // 전체 통계 집계 변수
+      const totalStudents = HQ_DATA.participants.length;
+      let absentCount = 0;
+      let writtenDoneCount = 0;
+      let morningDoneCount = 0;
+      let afternoonDoneCount = 0;
+
+      HQ_DATA.participants.forEach(p => {
+        if (p.isAbsent === true || p.status === '결석') absentCount++;
+        const sc = HQ_DATA.scores[p.id];
+        if (sc) {
+          if (sc.written !== null && sc.written !== undefined) writtenDoneCount++;
+          if (sc.multipleMorning !== null && sc.multipleMorning !== undefined) morningDoneCount++;
+          if (sc.multipleAfternoon !== null || sc.speedAfternoon !== null) afternoonDoneCount++;
+        }
+      });
+
+      // 상단 메트릭 요약 바 갱신
+      document.getElementById('summaryTotalStudents').innerText = totalStudents.toLocaleString();
+      document.getElementById('summaryAbsentStudents').innerText = absentCount.toLocaleString();
+
+      const calcPct = (count, total) => total > 0 ? Math.round((count / total) * 100) : 0;
+      const writtenPct = calcPct(writtenDoneCount, totalStudents);
+      const morningPct = calcPct(morningDoneCount, totalStudents);
+      const afternoonPct = calcPct(afternoonDoneCount, totalStudents);
+
+      document.getElementById('summaryWrittenPercent').innerText = `${writtenPct}%`;
+      document.getElementById('summaryWrittenCount').innerText = writtenDoneCount.toLocaleString();
+      document.getElementById('barWritten').style.width = `${writtenPct}%`;
+
+      document.getElementById('summaryMorningPercent').innerText = `${morningPct}%`;
+      document.getElementById('summaryMorningCount').innerText = morningDoneCount.toLocaleString();
+      document.getElementById('barMorning').style.width = `${morningPct}%`;
+
+      document.getElementById('summaryAfternoonPercent').innerText = `${afternoonPct}%`;
+      document.getElementById('summaryAfternoonCount').innerText = afternoonDoneCount.toLocaleString();
+      document.getElementById('barAfternoon').style.width = `${afternoonPct}%`;
+
+      // 2. 교실별 × 교시별 3대 세션 완전 일치 매트릭스 계산
       let totalSlots = roomList.length * 7;
-      let completedSlots = 0;
+      let fullCompletedSlots = 0;
 
       roomList.forEach(room => {
+        const isSparks = room.includes('스팍스');
         const card = document.createElement('div');
-        card.className = 'room-monitor-card';
+        card.className = `room-monitor-card ${isSparks ? 'theme-sparks' : 'theme-tnt'}`;
 
-        let pillsHtml = '';
+        let periodCardsHtml = '';
         for (let period = 1; period <= 7; period++) {
-          // 해당 교실/교시에 배정된 핸드북-조 찾기
           const tt = HQ_DATA.timetable.find(t => t.room === room && t.period === period);
-          let isSubmitted = false;
+
+          let hasWritten = false;
+          let hasMorning = false;
+          let hasAfternoon = false;
+          let studentCount = 0;
 
           if (tt) {
-            // 해당 핸드북-조 학생들 중 1명이라도 점수가 입력되었는지 확인
             const students = HQ_DATA.participants.filter(p => p.handbook === tt.handbook && p.team === tt.team);
-            if (students.length > 0) {
-              const sample = students[0];
-              const scoreObj = HQ_DATA.scores[sample.id];
-              if (scoreObj && (scoreObj.multipleMorning !== null || scoreObj.multipleAfternoon !== null || scoreObj.speedAfternoon !== null)) {
-                isSubmitted = true;
-              }
+            studentCount = students.length;
+
+            if (studentCount > 0) {
+              // 학생들 중 채점된 비율 확인
+              let wCount = 0, mCount = 0, aCount = 0;
+              students.forEach(s => {
+                const sc = HQ_DATA.scores[s.id];
+                if (sc) {
+                  if (sc.written !== null && sc.written !== undefined) wCount++;
+                  if (sc.multipleMorning !== null && sc.multipleMorning !== undefined) mCount++;
+                  if (sc.multipleAfternoon !== null || sc.speedAfternoon !== null) aCount++;
+                }
+              });
+
+              hasWritten = wCount >= Math.round(studentCount * 0.8);
+              hasMorning = mCount >= Math.round(studentCount * 0.8);
+              hasAfternoon = aCount >= Math.round(studentCount * 0.8);
             }
           }
 
-          if (isSubmitted) completedSlots++;
+          const completedCount = (hasWritten ? 1 : 0) + (hasMorning ? 1 : 0) + (hasAfternoon ? 1 : 0);
 
-          pillsHtml += `
-            <div class="period-pill ${isSubmitted ? 'done' : 'waiting'}" title="${period}교시: ${isSubmitted ? '제출 완료' : '진행 대기'}">
-              ${period}교시<br><b>${isSubmitted ? '완료' : '대기'}</b>
+          let stateClass = 'state-empty';
+          let statusChipText = '- 대기';
+
+          if (completedCount === 3) {
+            stateClass = 'state-full';
+            statusChipText = '✓ 3/3완료';
+            fullCompletedSlots++;
+          } else if (completedCount > 0) {
+            stateClass = 'state-partial';
+            statusChipText = `${completedCount}/3 진행`;
+          }
+
+          const tooltip = tt ? `[${tt.handbook} ${tt.team}조 (총 ${studentCount}명)]\n• 필기시험: ${hasWritten ? '완료' : '미완료'}\n• 오전세션: ${hasMorning ? '완료' : '미완료'}\n• 오후세션: ${hasAfternoon ? '완료' : '미완료'}` : '배정 없음';
+
+          periodCardsHtml += `
+            <div class="period-card-item ${stateClass}" title="${tooltip}">
+              <div class="period-num">${period}교시</div>
+              <div class="status-badge-chip">${statusChipText}</div>
+              <div class="session-indicator-dots">
+                <span class="indicator-dot ${hasWritten ? 'active' : ''}" title="필기"></span>
+                <span class="indicator-dot ${hasMorning ? 'active' : ''}" title="오전"></span>
+                <span class="indicator-dot ${hasAfternoon ? 'active' : ''}" title="오후"></span>
+              </div>
             </div>
           `;
         }
 
         card.innerHTML = `
           <div class="room-monitor-header">
-            <span class="room-monitor-title">📍 ${room}</span>
-            <span style="font-size: 0.82rem; color: #64748b;">1~7교시 순환</span>
+            <span class="room-badge-title ${isSparks ? 'sparks' : 'tnt'}">
+              📍 ${room}
+            </span>
+            <span style="font-size: 0.8rem; font-weight: 700; color: #64748b;">
+              ${isSparks ? 'SPARKS 시험장' : 'T&T 시험장'}
+            </span>
           </div>
-          <div class="room-period-pills">
-            ${pillsHtml}
+          <div class="room-period-cards">
+            ${periodCardsHtml}
           </div>
         `;
         grid.appendChild(card);
       });
 
-      const percent = totalSlots > 0 ? Math.round((completedSlots / totalSlots) * 100) : 0;
+      const overallPercent = totalSlots > 0 ? Math.round((fullCompletedSlots / totalSlots) * 100) : 0;
       document.getElementById('overallSubmitStats').innerHTML = `
-        전체 진행률: <b>${completedSlots}</b> / ${totalSlots} 슬롯 (${percent}%)
+        완벽 완료: <b>${fullCompletedSlots}</b> / ${totalSlots} 슬롯 (${overallPercent}%)
       `;
     }
 
@@ -971,7 +1577,6 @@
       const roomFilter = document.getElementById('rosterRoomFilter').value;
       const absentFilter = document.getElementById('rosterAbsentFilter').value;
 
-      // 시간표 기반 핸드북-조 -> 교실 맵
       const teamRoomMap = {};
       HQ_DATA.timetable.forEach(t => {
         teamRoomMap[`${t.handbook}_${t.team}`] = t.room;
@@ -1059,7 +1664,7 @@
       const church = document.getElementById('editStudentChurch').value.trim();
 
       if (!name || !church) {
-        alert('이름과 교회명을 모두 입력해 주세요.');
+        showCustomAlert('입력 누락', '단원 이름과 교회명을 모두 입력해 주세요.', 'warn');
         return;
       }
 
@@ -1083,49 +1688,70 @@
           p.church = church;
           closeEditStudentModal();
           filterRosterTable();
-          alert('선수 정보가 성공적으로 수정되었습니다.');
+          showCustomAlert('수정 완료', '선수 정보가 성공적으로 수정되었습니다.', 'success');
         } else {
-          alert('수정 실패: ' + res.message);
+          showCustomAlert('수정 실패', res.message, 'danger');
         }
       } catch (e) {
-        alert('통신 오류: ' + e.message);
+        showCustomAlert('통신 오류', e.message, 'danger');
       }
     }
 
-    // 결석 처리 토글
-    async function toggleAbsentStatus(studentId, targetAbsent) {
+    // 결석 처리 토글 (커스텀 모달 적용)
+    function toggleAbsentStatus(studentId, targetAbsent) {
       const p = HQ_DATA.participants.find(item => item.id === studentId);
       if (!p) return;
 
-      const confirmMsg = targetAbsent
-        ? `[${p.name} (${p.church})] 단원을 결석(불참) 처리하시겠습니까?\n\n* 현장 점수기록관 화면에서 해당 좌석이 자동으로 공석 처리됩니다.`
-        : `[${p.name} (${p.church})] 단원을 정상 출석 상태로 복원하시겠습니까?`;
+      const title = targetAbsent ? '선수 결석(불참) 처리 확인' : '선수 출석 상태 복원';
+      const msg = targetAbsent
+        ? `<div class="modal-callout-box callout-danger">
+             <b>📍 대상 단원:</b> ${p.name} (${p.church})<br>
+             <b>📘 소속:</b> ${p.handbook} ${p.team}조 ${p.num}번
+           </div>
+           해당 단원을 <b>결석(불참)</b> 처리하시겠습니까?<br>
+           <span style="font-size: 0.84rem; color: #dc2626;">* 현장 점수기록관 채점표에서 해당 좌석이 자동으로 공석 처리됩니다.</span>`
+        : `<div class="modal-callout-box callout-submit">
+             <b>📍 대상 단원:</b> ${p.name} (${p.church})<br>
+             <b>📘 소속:</b> ${p.handbook} ${p.team}조 ${p.num}번
+           </div>
+           해당 단원을 정상 출석 상태로 복원하시겠습니까?`;
 
-      if (!confirm(confirmMsg)) return;
-
-      try {
-        const payload = {
-          type: 'updateParticipant',
-          id: studentId,
-          isAbsent: targetAbsent,
-          handbook: p.handbook
-        };
-        const resp = await fetch(GAS_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify(payload)
-        });
-        const res = await resp.json();
-        if (res.status === 'success') {
-          p.isAbsent = targetAbsent;
-          p.status = targetAbsent ? '결석' : '';
-          filterRosterTable();
-        } else {
-          alert('결석 상태 변경 실패: ' + res.message);
+      showCustomConfirm(
+        title,
+        msg,
+        async () => {
+          try {
+            const payload = {
+              type: 'updateParticipant',
+              id: studentId,
+              isAbsent: targetAbsent,
+              handbook: p.handbook
+            };
+            const resp = await fetch(GAS_URL, {
+              method: 'POST',
+              headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+              body: JSON.stringify(payload)
+            });
+            const res = await resp.json();
+            if (res.status === 'success') {
+              p.isAbsent = targetAbsent;
+              p.status = targetAbsent ? '결석' : '';
+              filterRosterTable();
+              renderMonitorDashboard();
+            } else {
+              showCustomAlert('변경 실패', res.message, 'danger');
+            }
+          } catch (e) {
+            showCustomAlert('통신 오류', e.message, 'danger');
+          }
+        },
+        null,
+        targetAbsent ? 'danger' : 'submit',
+        {
+          confirmText: targetAbsent ? '결석 처리' : '출석 복원',
+          cancelText: '취소'
         }
-      } catch (e) {
-        alert('통신 오류: ' + e.message);
-      }
+      );
     }
 
     // 긴급 이동 모달 (기존 번호 공석 유지 + 타겟 조 마지막+1 자동 채번)
@@ -1152,7 +1778,6 @@
       const teamSelect = document.getElementById('transferTargetTeam');
       teamSelect.innerHTML = '<option value="">조 선택</option>';
 
-      // 해당 핸드북에 존재하는 조 목록 추출
       const teams = new Set();
       HQ_DATA.participants.forEach(p => {
         if (p.handbook === targetHb && p.team) teams.add(p.team);
@@ -1177,7 +1802,6 @@
         return;
       }
 
-      // 대상 조의 현재 최대 번호 검색
       let maxNum = 0;
       HQ_DATA.participants.forEach(p => {
         if (p.handbook === targetHb && Number(p.team) === targetTeam) {
@@ -1190,49 +1814,60 @@
       previewEl.style.color = '#15803d';
     }
 
-    async function executeStudentTransfer() {
+    function executeStudentTransfer() {
       const id = document.getElementById('transferStudentId').value;
       const prevHandbook = document.getElementById('transferCurrentHandbook').value;
       const targetHandbook = document.getElementById('transferTargetHandbook').value;
       const targetTeam = Number(document.getElementById('transferTargetTeam').value);
 
       if (!targetHandbook || !targetTeam) {
-        alert('이동할 대상 핸드북과 조를 선택해 주세요.');
+        showCustomAlert('선택 누락', '이동할 대상 핸드북과 조를 모두 선택해 주세요.', 'warn');
         return;
       }
 
       const p = HQ_DATA.participants.find(item => item.id === id);
-      if (!confirm(`[${p.name}] 단원을 [${targetHandbook} ${targetTeam}조]로 긴급 이동하시겠습니까?\n\n* 원래 번호(${p.num}번)는 공석(결번)으로 유지되며, 이동할 조의 마지막 번호 + 1로 자동 배정됩니다.`)) {
-        return;
-      }
 
-      try {
-        const payload = {
-          type: 'transferStudent',
-          id: id,
-          prevHandbook: prevHandbook,
-          targetHandbook: targetHandbook,
-          targetTeam: targetTeam
-        };
-        const resp = await fetch(GAS_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify(payload)
-        });
-        const res = await resp.json();
-        if (res.status === 'success') {
-          p.handbook = targetHandbook;
-          p.team = targetTeam;
-          p.num = res.newNum;
-          closeTransferModal();
-          filterRosterTable();
-          alert(res.message);
-        } else {
-          alert('이동 실패: ' + res.message);
-        }
-      } catch (e) {
-        alert('통신 오류: ' + e.message);
-      }
+      showCustomConfirm(
+        '선수 긴급 이동 확정',
+        `<div class="modal-callout-box callout-submit">
+           <b>📍 이동 단원:</b> ${p.name} (${p.church})<br>
+           <b>• 이전 위치:</b> ${p.handbook} ${p.team}조 ${p.num}번 (공석 유지)<br>
+           <b>• 신규 위치:</b> ${targetHandbook} ${targetTeam}조 (마지막 번호 + 1 자동 채번)
+         </div>
+         정말로 긴급 이동을 확정하고 구글 시트에 반영하시겠습니까?`,
+        async () => {
+          try {
+            const payload = {
+              type: 'transferStudent',
+              id: id,
+              prevHandbook: prevHandbook,
+              targetHandbook: targetHandbook,
+              targetTeam: targetTeam
+            };
+            const resp = await fetch(GAS_URL, {
+              method: 'POST',
+              headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+              body: JSON.stringify(payload)
+            });
+            const res = await resp.json();
+            if (res.status === 'success') {
+              p.handbook = targetHandbook;
+              p.team = targetTeam;
+              p.num = res.newNum;
+              closeTransferModal();
+              filterRosterTable();
+              showCustomAlert('이동 완료', res.message, 'success');
+            } else {
+              showCustomAlert('이동 실패', res.message, 'danger');
+            }
+          } catch (e) {
+            showCustomAlert('통신 오류', e.message, 'danger');
+          }
+        },
+        null,
+        'submit',
+        { confirmText: '이동 확정 및 저장', cancelText: '취소' }
+      );
     }
 
     /**
@@ -1311,7 +1946,6 @@
         tbody.appendChild(tr);
       });
 
-      // 첫 번째 입력창에 자동 포커스
       setTimeout(() => {
         const firstInput = document.querySelector('.input-written-score:not([disabled])');
         if (firstInput) firstInput.focus();
@@ -1325,7 +1959,6 @@
         return;
       }
       const num = Number(val);
-      // 0~150 범위 및 10점 단위 검증
       if (isNaN(num) || num < 0 || num > 150 || (num % 10 !== 0)) {
         el.classList.add('invalid');
       } else {
@@ -1351,11 +1984,11 @@
       }
     }
 
-    async function saveWrittenScoresBatch() {
+    function saveWrittenScoresBatch() {
       const hb = document.getElementById('writtenHandbookSelect').value;
       const team = Number(document.getElementById('writtenTeamSelect').value);
       if (!hb || !team) {
-        alert('핸드북과 조를 먼저 선택해 주세요.');
+        showCustomAlert('선택 누락', '핸드북과 조를 먼저 선택해 주세요.', 'warn');
         return;
       }
 
@@ -1385,54 +2018,72 @@
       });
 
       if (hasError) {
-        alert('⚠️ 필기점수는 0점부터 150점까지 10점 단위(예: 0, 10, ..., 140, 150)로만 입력 가능합니다.\n빨간색 표시를 확인해 주세요.');
+        showCustomAlert(
+          '점수 유효성 오류',
+          '⚠️ 필기점수는 <b>0점부터 150점까지 10점 단위</b>(예: 0, 10, 20, ..., 140, 150)로만 입력 가능합니다.<br>빨간색으로 표시된 입력칸을 확인해 주세요.',
+          'danger'
+        );
         return;
       }
 
       if (records.length === 0) {
-        alert('입력된 점수가 없습니다.');
+        showCustomAlert('입력 점수 없음', '저장할 필기점수를 먼저 입력해 주세요.', 'warn');
         return;
       }
 
-      if (!confirm(`[${hb} ${team}조] 단원 총 ${records.length}명의 필기점수를 저장하시겠습니까?\n\n* '최종집계' 및 '${hb}' 시상 시트가 즉시 동시 갱신됩니다.`)) {
-        return;
-      }
+      showCustomConfirm(
+        '필기시험 점수 일괄 저장',
+        `<div class="modal-callout-box callout-submit">
+           <b>📍 대상:</b> ${hb} ${team}조<br>
+           <b>• 입력 인원:</b> 총 <b>${records.length}명</b><br>
+           <b>• 반영 범위:</b> '필기_로그' + '최종집계' + '<b>${hb}</b>' 시상표 동시 갱신
+         </div>
+         입력하신 필기점수를 중앙 서버에 즉시 저장하시겠습니까?`,
+        async () => {
+          try {
+            const payload = {
+              type: 'written',
+              handbook: hb,
+              team: team,
+              recorder: '본부관리자',
+              records: records
+            };
 
-      try {
-        const payload = {
-          type: 'written',
-          handbook: hb,
-          team: team,
-          recorder: '본부관리자',
-          records: records
-        };
+            const resp = await fetch(GAS_URL, {
+              method: 'POST',
+              headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+              body: JSON.stringify(payload)
+            });
+            const res = await resp.json();
 
-        const resp = await fetch(GAS_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify(payload)
-        });
-        const res = await resp.json();
-
-        if (res.status === 'success') {
-          // 로컬 캐시 동기화
-          records.forEach(r => {
-            if (!HQ_DATA.scores[r.id]) HQ_DATA.scores[r.id] = {};
-            HQ_DATA.scores[r.id].written = r.score;
-          });
-          alert(`🎉 [${hb} ${team}조] 필기점수 저장 및 시상표 갱신 완료!`);
-          loadWrittenScoringList();
-        } else {
-          alert('저장 실패: ' + res.message);
-        }
-      } catch (err) {
-        alert('통신 오류: ' + err.message);
-      }
+            if (res.status === 'success') {
+              records.forEach(r => {
+                if (!HQ_DATA.scores[r.id]) HQ_DATA.scores[r.id] = {};
+                HQ_DATA.scores[r.id].written = r.score;
+              });
+              showCustomAlert(
+                '저장 완료',
+                `🎉 [${hb} ${team}조] 필기점수 저장 및 시상표 실시간 갱신이 완료되었습니다!`,
+                'success'
+              );
+              loadWrittenScoringList();
+              renderMonitorDashboard();
+            } else {
+              showCustomAlert('저장 실패', res.message, 'danger');
+            }
+          } catch (err) {
+            showCustomAlert('통신 오류', err.message, 'danger');
+          }
+        },
+        null,
+        'submit',
+        { confirmText: '지금 저장하기', cancelText: '계속 검토' }
+      );
     }
 
     /**
      * =========================================================================
-     * TAB 4. [수상자 명단 & A4 페이지 분할 인쇄] - 금/은/동 정렬, 최고득점상 제외
+     * TAB 4. [수상자 명단 & A4 페이지 분할 인쇄] - 빈페이지 100% 제거 & 1핸드북 1페이지 완벽 수록
      * =========================================================================
      */
     function renderStandingsView() {
@@ -1440,7 +2091,6 @@
       const targetRoom = document.getElementById('standingsRoomSelect').value;
       container.innerHTML = '';
 
-      // 1. 시간표 기반 [핸드북_조 -> 교실명] 맵 생성
       const teamRoomMap = {};
       const roomSet = new Set();
       HQ_DATA.timetable.forEach(t => {
@@ -1450,13 +2100,11 @@
 
       const roomsToProcess = targetRoom === 'ALL' ? Array.from(roomSet).sort() : [targetRoom];
 
-      // 2. 11개 핸드북별 메달 룰 및 점수 계산 집계
       const hbSet = new Set();
       HQ_DATA.participants.forEach(p => { if (p.handbook) hbSet.add(p.handbook); });
       const handbookList = Array.from(hbSet).sort();
 
-      // 전체 단원 핸드북별 총점 및 석차/메달 계산 매핑
-      const studentAwardMap = {}; // id -> { rank, medal, isTopScore }
+      const studentAwardMap = {};
 
       handbookList.forEach(hb => {
         const hbStudents = HQ_DATA.participants.filter(p => p.handbook === hb);
@@ -1470,7 +2118,6 @@
           return { id: s.id, total: total, speed: sa };
         }).sort((a,b) => b.total - a.total);
 
-        // 공식 메달 비율 적용 (30%, 40%, 30%)
         const totalCount = scoredStudents.length;
         const goldCount = Math.round(totalCount * 0.3);
         const silverCount = Math.round(totalCount * 0.4);
@@ -1486,12 +2133,10 @@
         });
       });
 
-      // 3. 교실별 × 핸드북별 페이지 분할 생성
       let pageCount = 0;
 
       roomsToProcess.forEach(room => {
         handbookList.forEach(hb => {
-          // 해당 교실, 해당 핸드북에 소속된 단원들 추출
           const matchingStudents = HQ_DATA.participants.filter(p => {
             const pRoom = teamRoomMap[`${p.handbook}_${p.team}`];
             return pRoom === room && p.handbook === hb;
@@ -1499,7 +2144,6 @@
 
           if (matchingStudents.length === 0) return;
 
-          // 수상자만 선별 (금, 은, 동 순으로 정렬)
           const medalOrder = { '금메달': 1, '은메달': 2, '동메달': 3 };
           const awardees = [];
 
@@ -1517,7 +2161,6 @@
 
           if (awardees.length === 0) return;
 
-          // 금 ➔ 은 ➔ 동 정렬, 동률 시 석차 순
           awardees.sort((a, b) => {
             const mDiff = medalOrder[a.medal] - medalOrder[b.medal];
             if (mDiff !== 0) return mDiff;
@@ -1526,26 +2169,65 @@
 
           pageCount++;
 
-          // A4 1페이지 단위 래퍼 생성
           const pageDiv = document.createElement('div');
           pageDiv.className = 'print-award-page';
 
-          let rowsHtml = '';
-          awardees.forEach((a, aIdx) => {
-            const badgeClass = a.medal === '금메달' ? 'badge-gold' : (a.medal === '은메달' ? 'badge-silver' : 'badge-bronze');
-            rowsHtml += `
-              <tr>
-                <td style="font-weight: 800;">${aIdx + 1}</td>
-                <td><span class="badge-status ${badgeClass}" style="font-size: 0.88rem; padding: 4px 10px;">${a.medal}</span></td>
-                <td><b>${a.rank}위</b></td>
-                <td>${a.team}조</td>
-                <td><b>${a.num}번</b></td>
-                <td style="text-align: left; padding-left: 14px;"><b>${a.name}</b></td>
-                <td style="text-align: left; padding-left: 14px;">${a.church}</td>
-                <td style="font-weight: 800; color: #1e3a8a;">${a.total}점</td>
-              </tr>
+          // 30명 초과 시 좌/우 2열 분할 레이아웃 적용으로 A4 단 1장 수록 보장
+          const useMultiCol = awardees.length > 30;
+
+          const renderTableHtml = (list, startIndex = 0) => {
+            let trs = '';
+            list.forEach((a, idx) => {
+              const badgeClass = a.medal === '금메달' ? 'badge-gold' : (a.medal === '은메달' ? 'badge-silver' : 'badge-bronze');
+              trs += `
+                <tr>
+                  <td style="font-weight: 800;">${startIndex + idx + 1}</td>
+                  <td><span class="badge-status ${badgeClass}" style="padding: 2px 6px;">${a.medal}</span></td>
+                  <td><b>${a.rank}위</b></td>
+                  <td>${a.team}조</td>
+                  <td><b>${a.num}번</b></td>
+                  <td style="text-align: left; padding-left: 8px;"><b>${a.name}</b></td>
+                  <td style="text-align: left; padding-left: 8px;">${a.church}</td>
+                  <td style="font-weight: 800; color: #1e3a8a;">${a.total}점</td>
+                </tr>
+              `;
+            });
+
+            return `
+              <table class="print-table">
+                <thead>
+                  <tr>
+                    <th style="width: 38px;">순번</th>
+                    <th style="width: 75px;">메달</th>
+                    <th style="width: 55px;">전체석차</th>
+                    <th style="width: 45px;">조</th>
+                    <th style="width: 45px;">번호</th>
+                    <th style="width: 85px;">단원 성명</th>
+                    <th>소속 교회명</th>
+                    <th style="width: 65px;">최종총점</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${trs}
+                </tbody>
+              </table>
             `;
-          });
+          };
+
+          let tableContentHtml = '';
+          if (useMultiCol) {
+            const mid = Math.ceil(awardees.length / 2);
+            const col1 = awardees.slice(0, mid);
+            const col2 = awardees.slice(mid);
+            tableContentHtml = `
+              <div class="multi-col-print-grid">
+                ${renderTableHtml(col1, 0)}
+                ${renderTableHtml(col2, mid)}
+              </div>
+            `;
+          } else {
+            tableContentHtml = renderTableHtml(awardees, 0);
+          }
 
           pageDiv.innerHTML = `
             <div class="print-page-header">
@@ -1555,25 +2237,9 @@
               </div>
             </div>
 
-            <table class="print-table">
-              <thead>
-                <tr>
-                  <th style="width: 45px;">순번</th>
-                  <th style="width: 100px;">메달</th>
-                  <th style="width: 70px;">전체석차</th>
-                  <th style="width: 55px;">조</th>
-                  <th style="width: 55px;">번호</th>
-                  <th style="width: 110px;">단원 성명</th>
-                  <th>소속 교회명</th>
-                  <th style="width: 80px;">최종총점</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${rowsHtml}
-              </tbody>
-            </table>
+            ${tableContentHtml}
 
-            <div style="margin-top: 25px; text-align: right; font-size: 9pt; color: #64748b;">
+            <div style="margin-top: 15px; text-align: right; font-size: 8pt; color: #64748b;">
               * 본 시상표는 교실별 시상 진행을 위한 공식 출력물입니다. (최고득점상은 본부 전체 집계에서 별도 수여됩니다)
             </div>
           `;
