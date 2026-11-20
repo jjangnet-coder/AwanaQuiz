@@ -1737,24 +1737,40 @@
     /**
      * 공식 11개 핸드북 순서 정의
      */
+    function normalizeHandbookName(name) {
+      if (!name) return '';
+      return String(name).replace(/\s+/g, '').replace('어드벤처', '어드밴처');
+    }
+
     const OFFICIAL_HANDBOOK_ORDER = [
       '행글라이더 1학년',
       '행글라이더 2학년',
       '윙러너 1학년',
       '윙러너 2학년',
       '스카이스토머 2학년',
-      '어드벤처1권 3학년',
-      '어드벤처1권 4학년',
-      '어드벤처2권 4학년',
+      '어드밴처1권 3학년',
+      '어드밴처1권 4학년',
+      '어드밴처2권 4학년',
       '챌린지1권 5학년',
       '챌린지1권 6학년',
       '챌린지2권 6학년'
     ];
 
+    function getHandbookOrderIndex(hbName) {
+      const norm = normalizeHandbookName(hbName);
+      for (let i = 0; i < OFFICIAL_HANDBOOK_ORDER.length; i++) {
+        const orderNorm = normalizeHandbookName(OFFICIAL_HANDBOOK_ORDER[i]);
+        if (norm === orderNorm || norm.includes(orderNorm) || orderNorm.includes(norm)) {
+          return i;
+        }
+      }
+      return -1;
+    }
+
     function sortHandbooksByOfficialOrder(hbList) {
       return [...hbList].sort((a, b) => {
-        const idxA = OFFICIAL_HANDBOOK_ORDER.indexOf(a);
-        const idxB = OFFICIAL_HANDBOOK_ORDER.indexOf(b);
+        const idxA = getHandbookOrderIndex(a);
+        const idxB = getHandbookOrderIndex(b);
         if (idxA !== -1 && idxB !== -1) return idxA - idxB;
         if (idxA !== -1) return -1;
         if (idxB !== -1) return 1;
