@@ -2812,16 +2812,15 @@
         '필기시험 점수 일괄 저장',
         `<div class="modal-callout-box callout-submit">
            <b>📍 대상:</b> ${hb} ${team}조<br>
-           <b>• 입력 인원:</b> 총 <b>${records.length}명</b><br>
-           <b>• 반영 범위:</b> '필기_로그' + '최종집계' + '<b>${hb}</b>' 시상표 동시 갱신
+           <b>• 입력 인원:</b> 총 <b>${records.length}명</b>
          </div>
          입력하신 필기점수를 중앙 서버에 즉시 저장하시겠습니까?`,
         async () => {
           showCustomLoading(
             '필기시험 점수 저장 중',
             `<div style="padding: 10px 0;">
-               [<b>${hb} ${team}조</b>] ${records.length}명의 필기점수를 서버에 동기화 중입니다...<br>
-               <span style="font-size: 0.82rem; color: #64748b;">(필기 로그 기록 + 최종집계 + 시상표 실시간 동시 재계산)</span>
+               [<b>${hb} ${team}조</b>] ${records.length}명의 필기점수를 저장하고 있습니다...<br>
+               <span style="font-size: 0.82rem; color: #64748b;">(중앙 서버 동기화 진행 중)</span>
              </div>`
           );
 
