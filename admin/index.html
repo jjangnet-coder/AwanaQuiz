@@ -1255,10 +1255,10 @@
         <div class="filter-group">
           <label style="font-weight: 700; font-size: 0.88rem;">채점 대상 선택:</label>
           <select id="writtenHandbookSelect" class="filter-select" onchange="onWrittenHandbookChange()">
-            <option value="">1. 핸드북 선택</option>
+            <option value="">핸드북 선택</option>
           </select>
           <select id="writtenTeamSelect" class="filter-select" onchange="loadWrittenScoringList()">
-            <option value="">2. 조 선택</option>
+            <option value="">조 선택</option>
           </select>
         </div>
         <div class="filter-group">
@@ -1734,9 +1734,39 @@
      * TAB 2. [선수 명단 & 이동 & 결석 관리]
      * =========================================================================
      */
+    /**
+     * 공식 11개 핸드북 순서 정의
+     */
+    const OFFICIAL_HANDBOOK_ORDER = [
+      '행글라이더 1학년',
+      '행글라이더 2학년',
+      '윙러너 1학년',
+      '윙러너 2학년',
+      '스카이스토머 2학년',
+      '어드벤처1권 3학년',
+      '어드벤처1권 4학년',
+      '어드벤처2권 4학년',
+      '챌린지1권 5학년',
+      '챌린지1권 6학년',
+      '챌린지2권 6학년'
+    ];
+
+    function sortHandbooksByOfficialOrder(hbList) {
+      return [...hbList].sort((a, b) => {
+        const idxA = OFFICIAL_HANDBOOK_ORDER.indexOf(a);
+        const idxB = OFFICIAL_HANDBOOK_ORDER.indexOf(b);
+        if (idxA !== -1 && idxB !== -1) return idxA - idxB;
+        if (idxA !== -1) return -1;
+        if (idxB !== -1) return 1;
+        return a.localeCompare(b, 'ko');
+      });
+    }
+
     function populateHandbookFilter() {
       const hbSet = new Set();
       HQ_DATA.participants.forEach(p => { if (p.handbook) hbSet.add(p.handbook); });
+      const sortedHandbooks = sortHandbooksByOfficialOrder(Array.from(hbSet));
+
       const hbSelect = document.getElementById('rosterHandbookFilter');
       const writtenHbSelect = document.getElementById('writtenHandbookSelect');
       const transferHbSelect = document.getElementById('transferTargetHandbook');
@@ -1745,7 +1775,7 @@
         if (!sel) return;
         const currentVal = sel.value;
         sel.innerHTML = sel === hbSelect ? '<option value="">전체 핸드북</option>' : '<option value="">핸드북 선택</option>';
-        hbSet.forEach(hb => {
+        sortedHandbooks.forEach(hb => {
           const opt = document.createElement('option');
           opt.value = hb;
           opt.innerText = hb;
@@ -2238,7 +2268,7 @@
     function onWrittenHandbookChange() {
       const hb = document.getElementById('writtenHandbookSelect').value;
       const teamSelect = document.getElementById('writtenTeamSelect');
-      teamSelect.innerHTML = '<option value="">2. 조 선택</option>';
+      teamSelect.innerHTML = '<option value="">조 선택</option>';
 
       if (!hb) return;
       const teams = new Set();
