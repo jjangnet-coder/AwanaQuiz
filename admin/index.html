@@ -1740,8 +1740,8 @@
       document.getElementById('summaryAfternoonCount').innerText = afternoonDoneCount.toLocaleString();
       document.getElementById('barAfternoon').style.width = `${afternoonPct}%`;
 
-      // 2. 교실별 × 교시별 3대 세션 완전 일치 매트릭스 계산
-      let totalSlots = roomList.length * 7;
+      // 2. 교실별 × 교시별 3대 세션 완전 일치 매트릭스 계산 (실제 시간표에 등록된 교시만 동적 반영)
+      let totalSlots = 0;
       let fullCompletedSlots = 0;
 
       roomList.forEach(room => {
@@ -1749,9 +1749,19 @@
         const card = document.createElement('div');
         card.className = `room-monitor-card ${isSparks ? 'theme-sparks' : 'theme-tnt'}`;
 
+        // 해당 교실의 실제 운영 교시 목록 추출 및 정렬 (중복 제거)
+        const roomPeriodsSet = new Set();
+        HQ_DATA.timetable.forEach(t => {
+          if (t.room === room && t.period) {
+            roomPeriodsSet.add(Number(t.period));
+          }
+        });
+        const actualPeriods = Array.from(roomPeriodsSet).sort((a, b) => a - b);
+        totalSlots += actualPeriods.length;
+
         let periodCardsHtml = '';
-        for (let period = 1; period <= 7; period++) {
-          const tt = HQ_DATA.timetable.find(t => t.room === room && t.period === period);
+        actualPeriods.forEach(period => {
+          const tt = HQ_DATA.timetable.find(t => t.room === room && Number(t.period) === period);
 
           let wCount = 0, mCount = 0, aCount = 0;
           let studentCount = 0;
@@ -1821,7 +1831,7 @@
               </div>
             </div>
           `;
-        }
+        });
 
         card.innerHTML = `
           <div class="room-monitor-header">
@@ -1829,7 +1839,7 @@
               📍 ${room}
             </span>
             <span style="font-size: 0.8rem; font-weight: 700; color: #64748b;">
-              ${isSparks ? 'SPARKS 시험장' : 'T&T 시험장'}
+              ${isSparks ? 'SPARKS 시험장' : 'T&T 시험장'} (${actualPeriods.length}개 교시)
             </span>
           </div>
           <div class="room-period-cards">
