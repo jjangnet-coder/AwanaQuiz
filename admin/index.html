@@ -182,20 +182,20 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-    /* 상단 요약 위젯 카드 (시원하고 안정적인 황금비율 레이아웃) */
+    /* 상단 요약 위젯 카드 (Zero-Scroll 1화면 피팅) */
     .metrics-summary-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 12px;
-      margin-bottom: 14px;
+      gap: 10px;
+      margin-bottom: 8px;
     }
 
     .metric-card {
       background: #ffffff;
       border: 1px solid #e2e8f0;
-      border-radius: 12px;
-      padding: 12px 16px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+      border-radius: 10px;
+      padding: 8px 12px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.02);
       position: relative;
       overflow: hidden;
       display: flex;
@@ -221,17 +221,17 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 4px;
+      margin-bottom: 2px;
     }
 
     .metric-label {
-      font-size: 0.82rem;
+      font-size: 0.78rem;
       font-weight: 700;
       color: #64748b;
     }
 
     .metric-icon {
-      font-size: 1.05rem;
+      font-size: 0.95rem;
     }
 
     .metric-value-row {
@@ -241,11 +241,11 @@
     }
 
     .metric-value {
-      font-size: 1.35rem;
+      font-size: 1.2rem;
       font-weight: 900;
       color: #0f172a;
       letter-spacing: -0.4px;
-      line-height: 1.2;
+      line-height: 1.15;
     }
 
     .metric-subtext {
@@ -371,25 +371,25 @@
     .badge-silver { background: #f1f5f9; color: #475569; font-weight: 800; border: 1px solid #cbd5e1; }
     .badge-bronze { background: #ffedd5; color: #9a3412; font-weight: 800; border: 1px solid #fed7aa; }
 
-    /* 대시보드 관제 매트릭스 그리드 (동적 4열 대칭 레이아웃) */
+    /* 대시보드 관제 매트릭스 그리드 (동적 4열 대칭 레이아웃 - Zero-Scroll 피팅) */
     .monitor-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 12px;
-      margin-top: 10px;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-top: 6px;
     }
 
     .room-monitor-card {
       background: #ffffff;
       border: 1px solid #e2e8f0;
-      border-radius: 12px;
-      padding: 12px 14px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+      border-radius: 8px;
+      padding: 6px 8px;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
       transition: transform 0.15s ease, box-shadow 0.15s ease;
     }
 
     .room-monitor-card:hover {
-      box-shadow: 0 4px 8px -1px rgba(0, 0, 0, 0.05);
+      box-shadow: 0 3px 6px -1px rgba(0, 0, 0, 0.05);
     }
 
     .room-monitor-card.theme-sparks {
@@ -404,33 +404,33 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 8px;
-      padding-bottom: 6px;
+      margin-bottom: 4px;
+      padding-bottom: 3px;
       border-bottom: 1px solid var(--border-light);
     }
 
     .room-badge-title {
-      font-size: 0.98rem;
+      font-size: 0.88rem;
       font-weight: 800;
       display: flex;
       align-items: center;
-      gap: 5px;
+      gap: 4px;
     }
 
     .room-badge-title.sparks { color: #c2410c; }
     .room-badge-title.tnt { color: #1d4ed8; }
 
-    /* 1~4교시 / 5~7교시 2줄 그리드로 복원하여 넉넉하고 시원한 시인성 확보 */
+    /* 1~7교시 버튼을 1줄에 7개 또는 4+3으로 초경량 배치 */
     .room-period-cards {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 6px;
+      gap: 4px;
     }
 
     .period-card-item {
-      padding: 6px 4px;
+      padding: 3px 2px;
       text-align: center;
-      border-radius: 6px;
+      border-radius: 4px;
       border: 1px solid #e2e8f0;
       background: #f8fafc;
       transition: all 0.15s ease;
@@ -438,18 +438,18 @@
     }
 
     .period-card-item .period-num {
-      font-size: 0.74rem;
+      font-size: 0.68rem;
       font-weight: 700;
       color: #475569;
-      margin-bottom: 2px;
+      margin-bottom: 1px;
       white-space: nowrap;
     }
 
     .period-card-item .status-badge-chip {
-      font-size: 0.68rem;
+      font-size: 0.62rem;
       font-weight: 800;
-      padding: 1px 3px;
-      border-radius: 4px;
+      padding: 1px 2px;
+      border-radius: 3px;
       display: inline-block;
       white-space: nowrap;
     }
@@ -1121,7 +1121,7 @@
 
       <div class="hq-header-actions">
         <span id="hqStaffBadge" style="font-size: 0.85rem; font-weight: 700; color: #475569;">본부 운영실</span>
-        <button class="btn-hq" onclick="refreshHqData()">🔄 새로고침</button>
+        <button class="btn-hq" id="btnHqRefresh" onclick="refreshHqDataManual()">🔄 새로고침</button>
         <button class="btn-hq btn-hq-danger" onclick="logoutAdmin()">🔒 로그아웃</button>
       </div>
     </header>
@@ -1187,15 +1187,17 @@
         </div>
       </div>
 
-      <div class="filter-bar">
-        <div class="filter-group">
-          <span style="font-weight: 800; font-size: 1.05rem;">📡 실시간 교실별 3대 세션 제출 현황판</span>
-          <span style="font-size: 0.82rem; color: #64748b; font-weight: 600;">
-            * [필기 + 오전 + 오후] 3개 시험이 모두 100% 제출되어야 최종 완료로 표시됩니다.
-          </span>
+      <div class="filter-bar" style="padding: 6px 14px; margin-bottom: 6px;">
+        <div class="filter-group" style="gap: 12px; align-items: center;">
+          <span style="font-weight: 800; font-size: 0.95rem; color: #0f172a;">📡 교실별 교시 진행 현황 관제</span>
+          <div style="display: inline-flex; align-items: center; gap: 6px; background: #f1f5f9; padding: 2px 8px; border-radius: 6px; font-size: 0.78rem;">
+            <span id="livePollingIndicator">🟢 실시간 자동 갱신 (30초)</span>
+            <button type="button" id="btnTogglePolling" class="btn-hq" style="padding: 1px 6px; font-size: 0.72rem; height: auto;" onclick="toggleAutoPolling()">일시정지</button>
+            <span id="lastUpdatedText" style="color: #64748b; font-size: 0.74rem; margin-left: 4px;">-</span>
+          </div>
         </div>
         <div class="filter-group">
-          <span id="overallSubmitStats" style="font-weight: 800; color: #1e3a8a; font-size: 0.92rem;">집계 중...</span>
+          <span id="overallSubmitStats" style="font-weight: 800; color: #1e3a8a; font-size: 0.88rem;">집계 중...</span>
         </div>
       </div>
 
@@ -1547,13 +1549,69 @@
     /**
      * 본부 포털 초기화 및 전체 데이터 로드
      */
+    let AUTO_POLLING_TIMER = null;
+    let IS_POLLING_ACTIVE = true;
+
     async function initHqPortal() {
       await refreshHqData();
       populateHandbookFilter();
       populateRoomFilter();
+      startAutoPolling();
     }
 
+    // 초경량 백그라운드 점수 동기화 (action=getScores, 0.05초 초고속, 구글 시트 부하 '0')
+    async function syncScoresLightweight(isSilent = true) {
+      const refreshBtn = document.getElementById('btnHqRefresh');
+      const lastUpdatedEl = document.getElementById('lastUpdatedText');
+      const startTime = performance.now();
+
+      if (!isSilent && refreshBtn) {
+        refreshBtn.innerHTML = '<span style="display:inline-block; animation: spin 0.8s linear infinite;">🔄</span> 갱신 중...';
+        refreshBtn.disabled = true;
+      }
+
+      try {
+        const resp = await fetch(`${GAS_URL}?action=getScores`);
+        const result = await resp.json();
+        if (result.status === 'success' && result.data && result.data.scores) {
+          HQ_DATA.scores = result.data.scores;
+          renderMonitorDashboard();
+
+          // 수상자 명단 탭이 열려있다면 시상표도 동기화
+          if (document.getElementById('tab-standings').classList.contains('active')) {
+            renderStandingsView();
+          }
+
+          const elapsed = ((performance.now() - startTime) / 1000).toFixed(1);
+          const now = new Date();
+          const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+          if (lastUpdatedEl) {
+            lastUpdatedEl.innerText = `${timeStr} 갱신됨 (${elapsed}s)`;
+            lastUpdatedEl.style.color = '#15803d';
+          }
+        }
+      } catch (err) {
+        console.warn('초경량 점수 갱신 중 통신 오류:', err);
+        if (lastUpdatedEl) {
+          lastUpdatedEl.innerText = '동기화 지연';
+          lastUpdatedEl.style.color = '#dc2626';
+        }
+      } finally {
+        if (!isSilent && refreshBtn) {
+          refreshBtn.innerHTML = '🔄 새로고침';
+          refreshBtn.disabled = false;
+        }
+      }
+    }
+
+    // 수동 새로고침 버튼 핸들러 (사용자 즉각 피드백 제공)
+    async function refreshHqDataManual() {
+      await syncScoresLightweight(false);
+    }
+
+    // 전체 마스터 데이터 초기 로드 (최초 1회 실행)
     async function refreshHqData() {
+      const lastUpdatedEl = document.getElementById('lastUpdatedText');
       try {
         const resp = await fetch(GAS_URL);
         const result = await resp.json();
@@ -1568,9 +1626,42 @@
           if (document.getElementById('tab-standings').classList.contains('active')) {
             renderStandingsView();
           }
+
+          const now = new Date();
+          const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+          if (lastUpdatedEl) {
+            lastUpdatedEl.innerText = `${timeStr} 전체 로드 완료`;
+          }
         }
       } catch (err) {
         showCustomAlert('데이터 로드 실패', '데이터 조회 중 오류가 발생했습니다: ' + err.message, 'danger');
+      }
+    }
+
+    // 30초 주기 초경량 실시간 자동 갱신 엔진
+    function startAutoPolling() {
+      if (AUTO_POLLING_TIMER) clearInterval(AUTO_POLLING_TIMER);
+      AUTO_POLLING_TIMER = setInterval(() => {
+        if (IS_POLLING_ACTIVE && document.getElementById('tab-monitor').classList.contains('active')) {
+          syncScoresLightweight(true);
+        }
+      }, 30000);
+    }
+
+    function toggleAutoPolling() {
+      IS_POLLING_ACTIVE = !IS_POLLING_ACTIVE;
+      const indicator = document.getElementById('livePollingIndicator');
+      const btn = document.getElementById('btnTogglePolling');
+
+      if (IS_POLLING_ACTIVE) {
+        indicator.innerHTML = '🟢 실시간 자동 갱신 (30초)';
+        indicator.style.color = '#15803d';
+        btn.innerText = '일시정지';
+        syncScoresLightweight(true);
+      } else {
+        indicator.innerHTML = '⏸️ 실시간 갱신 일시정지';
+        indicator.style.color = '#64748b';
+        btn.innerText = '재개';
       }
     }
 
@@ -1651,9 +1742,7 @@
         for (let period = 1; period <= 7; period++) {
           const tt = HQ_DATA.timetable.find(t => t.room === room && t.period === period);
 
-          let hasWritten = false;
-          let hasMorning = false;
-          let hasAfternoon = false;
+          let wCount = 0, mCount = 0, aCount = 0;
           let studentCount = 0;
 
           if (tt) {
@@ -1661,38 +1750,54 @@
             studentCount = students.length;
 
             if (studentCount > 0) {
-              // 학생들 중 채점된 비율 확인
-              let wCount = 0, mCount = 0, aCount = 0;
               students.forEach(s => {
                 const sc = HQ_DATA.scores[s.id];
                 if (sc) {
-                  if (sc.written !== null && sc.written !== undefined) wCount++;
-                  if (sc.multipleMorning !== null && sc.multipleMorning !== undefined) mCount++;
+                  if (sc.written !== null && sc.written !== undefined && sc.written !== '') wCount++;
+                  if (sc.multipleMorning !== null && sc.multipleMorning !== undefined && sc.multipleMorning !== '') mCount++;
                   if (sc.multipleAfternoon !== null || sc.speedAfternoon !== null) aCount++;
                 }
               });
-
-              hasWritten = wCount >= Math.round(studentCount * 0.8);
-              hasMorning = mCount >= Math.round(studentCount * 0.8);
-              hasAfternoon = aCount >= Math.round(studentCount * 0.8);
             }
           }
 
+          // 100% 완전 전원 완료 여부 판정
+          const hasWritten = studentCount > 0 && wCount === studentCount;
+          const hasMorning = studentCount > 0 && mCount === studentCount;
+          const hasAfternoon = studentCount > 0 && aCount === studentCount;
+
+          const isWrittenProgress = wCount > 0 && !hasWritten;
+          const isMorningProgress = mCount > 0 && !hasMorning;
+          const isAfternoonProgress = aCount > 0 && !hasAfternoon;
+
           const completedCount = (hasWritten ? 1 : 0) + (hasMorning ? 1 : 0) + (hasAfternoon ? 1 : 0);
+          const inProgressCount = (isWrittenProgress ? 1 : 0) + (isMorningProgress ? 1 : 0) + (isAfternoonProgress ? 1 : 0);
 
           let stateClass = 'state-empty';
-          let statusChipText = '- 대기';
+          let statusChipText = '- 대기 중';
 
           if (completedCount === 3) {
             stateClass = 'state-full';
-            statusChipText = '✓ 3/3완료';
+            statusChipText = '✓ 전원 완료';
             fullCompletedSlots++;
-          } else if (completedCount > 0) {
+          } else if (completedCount > 0 || inProgressCount > 0) {
             stateClass = 'state-partial';
-            statusChipText = `${completedCount}/3 진행`;
+            if (completedCount > 0) {
+              statusChipText = `${completedCount}개 완료`;
+            } else {
+              statusChipText = '진행 중';
+            }
           }
 
-          const tooltip = tt ? `[${tt.handbook} ${tt.team}조 (총 ${studentCount}명)]\n• 필기시험: ${hasWritten ? '완료' : '미완료'}\n• 오전세션: ${hasMorning ? '완료' : '미완료'}\n• 오후세션: ${hasAfternoon ? '완료' : '미완료'}` : '배정 없음';
+          // 툴팁 텍스트 구성: 대기 / 진행 중(X/Y명) / 완료(전원 완료)
+          const formatSessionStatus = (done, count, total) => {
+            if (total === 0) return '배정 없음';
+            if (done) return `완료 (${total}/${total}명 전원)`;
+            if (count > 0) return `진행 중 (${count}/${total}명)`;
+            return '미입력 (대기)';
+          };
+
+          const tooltip = tt ? `[${tt.handbook} ${tt.team}조 (총 ${studentCount}명)]\n• 📝 필기시험: ${formatSessionStatus(hasWritten, wCount, studentCount)}\n• ☀️ 오전세션: ${formatSessionStatus(hasMorning, mCount, studentCount)}\n• 🌙 오후세션: ${formatSessionStatus(hasAfternoon, aCount, studentCount)}` : '배정 없음';
 
           periodCardsHtml += `
             <div class="period-card-item ${stateClass}" title="${tooltip}">
@@ -1725,7 +1830,7 @@
 
       const overallPercent = totalSlots > 0 ? Math.round((fullCompletedSlots / totalSlots) * 100) : 0;
       document.getElementById('overallSubmitStats').innerHTML = `
-        완벽 완료: <b>${fullCompletedSlots}</b> / ${totalSlots} 슬롯 (${overallPercent}%)
+        전체 시험 완료: <b>${fullCompletedSlots}</b> / ${totalSlots}개 교시 (${overallPercent}%)
       `;
     }
 

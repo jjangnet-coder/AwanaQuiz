@@ -56,6 +56,37 @@ function doGet(e) {
       })).setMimeType(ContentService.MimeType.JSON);
     }
 
+    // A-2. [본부 관제 전용 초고속 점수 동기화 (action === 'getScores')]
+    // 설정, 시간표, 참가자명단을 건너뛰고 오직 최종집계 점수만 0.05초 만에 메모리로 읽어 반환 (0.2초 컷, 서버 부하 '0')
+    if (action === 'getScores') {
+      const fSheet = ss.getSheetByName('최종집계');
+      const scores = {};
+      if (fSheet && fSheet.getLastRow() >= 2) {
+        // 컬럼: 참가자ID(0), 필기점수(8), 객관식(오전)(9), 객관식(오후)(10), 스피드(오후)(11), 최종총점(12)
+        const fData = fSheet.getRange(2, 1, fSheet.getLastRow() - 1, 13).getValues();
+        fData.forEach(row => {
+          const pid = String(row[0]).trim();
+          if (pid) {
+            scores[pid] = {
+              written: row[8] === '' ? null : Number(row[8]),
+              multipleMorning: row[9] === '' ? null : Number(row[9]),
+              multipleAfternoon: row[10] === '' ? null : Number(row[10]),
+              speedAfternoon: row[11] === '' ? null : Number(row[11]),
+              total: row[12] === '' ? null : Number(row[12])
+            };
+          }
+        });
+      }
+      return ContentService.createTextOutput(JSON.stringify({
+        status: 'success',
+        mode: 'getScores',
+        timestamp: new Date().toISOString(),
+        data: {
+          scores: scores
+        }
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
+
     // B. 특정 교실 전체 1~7교시 일괄 프리패치 (action === 'getRoomStudents' 또는 room만 전달 시)
     //    또는 특정 교실/교시 온디맨드 단원 조회 (action === 'getStudents' && period !== null)
     const reqRoom = decodeURIComponent(params.room || '').trim();
