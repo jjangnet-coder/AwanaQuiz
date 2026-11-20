@@ -498,28 +498,74 @@
       color: #94a3b8;
     }
 
-    /* 필기 입력 인풋 */
+    /* 필기시험 전용 고밀도 슬림 테이블 (25명 한 화면 100% 한눈에 피팅) */
+    .written-table th {
+      padding: 6px 6px;
+      font-size: 0.82rem;
+      background: #f1f5f9;
+    }
+
+    .written-table td {
+      padding: 3px 6px;
+      font-size: 0.82rem;
+      height: 32px;
+    }
+
+    .written-table tr:hover {
+      background-color: #f1f5f9;
+    }
+
+    /* 필기 입력 인풋 (고밀도 슬림 디자인) */
     .input-written-score {
-      width: 75px;
+      width: 70px;
       text-align: center;
-      padding: 7px;
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      font-size: 1rem;
+      padding: 3px 4px;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 6px;
+      font-size: 0.92rem;
       font-weight: 800;
       outline: none;
+      height: 26px;
+      line-height: 26px;
+      transition: all 0.15s ease;
+    }
+
+    /* 미입력 상태 강조 테두리 */
+    .input-written-score.is-unfilled {
+      border-color: #f59e0b;
+      background: #fffbeb;
     }
 
     .input-written-score:focus {
-      border-color: var(--primary-light);
-      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
-      background: #eff6ff;
+      border-color: #2563eb;
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+      background: #eff6ff !important;
     }
 
     .input-written-score.invalid {
-      border-color: var(--danger);
-      background: #fff5f5;
+      border-color: var(--danger) !important;
+      background: #fff5f5 !important;
       color: var(--danger);
+    }
+
+    /* 미입력 단원 퀵 칩 */
+    .unfilled-chip {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 7px;
+      background: #fff7ed;
+      border: 1px solid #fdba74;
+      color: #c2410c;
+      border-radius: 4px;
+      font-size: 0.74rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .unfilled-chip:hover {
+      background: #ea580c;
+      color: white;
     }
 
     /* 모던 커스텀 모달 팝업 */
@@ -1252,39 +1298,48 @@
       </div>
     </section>
 
-    <!-- TAB 3: 필기시험 채점 (핸드북-조 단위 워크플로우) -->
-    <section id="tab-written" class="tab-content">
-      <div class="filter-bar">
-        <div class="filter-group">
-          <label style="font-weight: 700; font-size: 0.88rem;">채점 대상 선택:</label>
-          <select id="writtenHandbookSelect" class="filter-select" onchange="onWrittenHandbookChange()">
+    <!-- TAB 3: 필기시험 채점 (25명 한눈에 무스크롤 고속 채점) -->
+    <section id="tab-written" class="tab-content" style="padding: 14px 18px;">
+      <div class="filter-bar" style="padding: 6px 12px; margin-bottom: 8px;">
+        <div class="filter-group" style="gap: 8px; align-items: center;">
+          <label style="font-weight: 800; font-size: 0.88rem; color: #0f172a;">채점 대상:</label>
+          <select id="writtenHandbookSelect" class="filter-select" onchange="onWrittenHandbookChange()" style="padding: 4px 8px; font-size: 0.86rem;">
             <option value="">핸드북 선택</option>
           </select>
-          <select id="writtenTeamSelect" class="filter-select" onchange="loadWrittenScoringList()">
+          <select id="writtenTeamSelect" class="filter-select" onchange="loadWrittenScoringList()" style="padding: 4px 8px; font-size: 0.86rem;">
             <option value="">조 선택</option>
           </select>
+          <div id="writtenProgressSummary" style="display: none; align-items: center; gap: 6px; margin-left: 8px; font-size: 0.82rem; font-weight: 700;">
+            <!-- 동적 집계 뱃지 -->
+          </div>
         </div>
-        <div class="filter-group">
-          <span style="font-size: 0.84rem; color: #2563eb; font-weight: 700;">
-            * 점수 규정: <b>0~150점 (10점 단위만 가능)</b> | Enter/↓키 입력 시 다음 학생으로 자동 이동
+        <div class="filter-group" style="gap: 10px; align-items: center;">
+          <span style="font-size: 0.78rem; color: #64748b; font-weight: 600;">
+            * <b>0~150점 (10점 단위)</b> | Enter/↓키 고속 이동
           </span>
-          <button class="btn-hq btn-hq-primary" onclick="saveWrittenScoresBatch()">
-            💾 해당 조 필기점수 저장 및 시상표 갱신
+          <button class="btn-hq btn-hq-primary" onclick="saveWrittenScoresBatch()" style="padding: 6px 14px; font-size: 0.84rem;">
+            💾 점수 일괄 저장 및 시상표 갱신
           </button>
         </div>
       </div>
 
-      <div class="hq-table-container">
-        <table class="hq-table">
+      <!-- 미입력 단원 퀵 뱃지 바 -->
+      <div id="writtenUnfilledBar" style="display: none; margin-bottom: 8px; background: #fffaf0; border: 1px solid #fed7aa; border-radius: 6px; padding: 5px 10px; align-items: center; gap: 8px; font-size: 0.8rem;">
+        <span style="font-weight: 800; color: #c2410c; white-space: nowrap;">⚠️ 미입력 단원:</span>
+        <div id="writtenUnfilledChips" style="display: flex; flex-wrap: wrap; gap: 4px;"></div>
+      </div>
+
+      <div class="hq-table-container" style="max-height: calc(100vh - 210px); overflow-y: auto;">
+        <table class="hq-table written-table">
           <thead>
             <tr>
-              <th>번호</th>
-              <th>ID</th>
-              <th>교회명</th>
-              <th>이름</th>
-              <th>출결</th>
-              <th>기존 필기점수</th>
-              <th style="width: 150px; background: #e0e7ff; color: #1e3a8a;">필기 점수 입력 (0~150)</th>
+              <th style="width: 55px;">번호</th>
+              <th style="width: 75px;">ID</th>
+              <th style="width: 140px;">교회명</th>
+              <th style="width: 90px;">이름</th>
+              <th style="width: 80px;">출결</th>
+              <th style="width: 95px;">기존 점수</th>
+              <th style="width: 130px; background: #e0e7ff; color: #1e3a8a;">필기 점수 입력 (0~150)</th>
             </tr>
           </thead>
           <tbody id="writtenTableBody">
@@ -2429,9 +2484,14 @@
       const hb = document.getElementById('writtenHandbookSelect').value;
       const team = Number(document.getElementById('writtenTeamSelect').value);
       const tbody = document.getElementById('writtenTableBody');
+      const progressEl = document.getElementById('writtenProgressSummary');
+      const unfilledBar = document.getElementById('writtenUnfilledBar');
+      const unfilledChips = document.getElementById('writtenUnfilledChips');
 
       if (!hb || !team) {
         tbody.innerHTML = '<tr><td colspan="7" style="padding: 30px; color: #64748b;">핸드북과 조를 모두 선택해 주세요.</td></tr>';
+        if (progressEl) progressEl.style.display = 'none';
+        if (unfilledBar) unfilledBar.style.display = 'none';
         return;
       }
 
@@ -2442,13 +2502,29 @@
       tbody.innerHTML = '';
       if (students.length === 0) {
         tbody.innerHTML = '<tr><td colspan="7" style="padding: 30px; color: #94a3b8;">해당 조에 배정된 선수가 없습니다.</td></tr>';
+        if (progressEl) progressEl.style.display = 'none';
+        if (unfilledBar) unfilledBar.style.display = 'none';
         return;
       }
+
+      let filledCount = 0;
+      let absentCount = 0;
+      const unfilledStudents = [];
 
       students.forEach((s, idx) => {
         const scoreObj = HQ_DATA.scores[s.id] || {};
         const existingWritten = scoreObj.written !== null && scoreObj.written !== undefined ? scoreObj.written : '';
         const isAbsent = s.isAbsent === true || s.status === '결석';
+
+        if (isAbsent) {
+          absentCount++;
+        } else if (existingWritten !== '') {
+          filledCount++;
+        } else {
+          unfilledStudents.push(s);
+        }
+
+        const isUnfilled = !isAbsent && existingWritten === '';
 
         const tr = document.createElement('tr');
         if (isAbsent) tr.className = 'row-absent';
@@ -2458,8 +2534,8 @@
           <td>${s.id}</td>
           <td>${s.church}</td>
           <td><b>${s.name}</b></td>
-          <td>${isAbsent ? '<span class="badge-status badge-absent">결석(미응시)</span>' : '<span class="badge-status badge-done">응시</span>'}</td>
-          <td>${existingWritten !== '' ? `${existingWritten}점` : '<span style="color:#94a3b8;">미입력</span>'}</td>
+          <td>${isAbsent ? '<span class="badge-status badge-absent" style="padding: 1px 4px; font-size: 0.72rem;">결석</span>' : '<span class="badge-status badge-done" style="padding: 1px 4px; font-size: 0.72rem;">응시</span>'}</td>
+          <td>${existingWritten !== '' ? `<b>${existingWritten}점</b>` : '<span style="color:#94a3b8; font-size: 0.78rem;">미입력</span>'}</td>
           <td style="background: #eef2ff;">
             <input type="number" 
                    step="10" 
@@ -2468,20 +2544,89 @@
                    id="written_input_${s.id}" 
                    data-id="${s.id}" 
                    data-idx="${idx}" 
-                   class="input-written-score" 
+                   data-num="${s.num}" 
+                   class="input-written-score ${isUnfilled ? 'is-unfilled' : ''}" 
                    value="${existingWritten}" 
                    ${isAbsent ? 'disabled placeholder="결시"' : 'placeholder="0~150"'} 
                    onkeydown="handleWrittenKeydown(event, ${idx})" 
-                   oninput="validateWrittenScoreInput(this)" />
+                   oninput="validateWrittenScoreInput(this); updateWrittenProgressLive();" />
           </td>
         `;
         tbody.appendChild(tr);
       });
 
+      // 진행 현황 집계 뱃지 갱신
+      updateWrittenProgressLive();
+
       setTimeout(() => {
-        const firstInput = document.querySelector('.input-written-score:not([disabled])');
-        if (firstInput) firstInput.focus();
+        const firstUnfilled = document.querySelector('.input-written-score.is-unfilled:not([disabled])') ||
+                              document.querySelector('.input-written-score:not([disabled])');
+        if (firstUnfilled) firstUnfilled.focus();
       }, 50);
+    }
+
+    // 실시간 미입력 단원 카운트 및 퀵 칩 동기화
+    function updateWrittenProgressLive() {
+      const inputs = document.querySelectorAll('.input-written-score:not([disabled])');
+      const progressEl = document.getElementById('writtenProgressSummary');
+      const unfilledBar = document.getElementById('writtenUnfilledBar');
+      const unfilledChips = document.getElementById('writtenUnfilledChips');
+      if (!progressEl || inputs.length === 0) return;
+
+      let filled = 0;
+      const unfilledList = [];
+
+      inputs.forEach(inp => {
+        const val = inp.value.trim();
+        const id = inp.getAttribute('data-id');
+        const num = inp.getAttribute('data-num');
+        const student = HQ_DATA.participants.find(p => p.id === id);
+
+        if (val !== '') {
+          filled++;
+          inp.classList.remove('is-unfilled');
+        } else {
+          inp.classList.add('is-unfilled');
+          if (student) {
+            unfilledList.push({ id, num, name: student.name });
+          }
+        }
+      });
+
+      const total = inputs.length;
+      const unfilledCount = total - filled;
+
+      progressEl.style.display = 'inline-flex';
+      progressEl.innerHTML = `
+        <span style="background: #e0f2fe; color: #0369a1; padding: 2px 8px; border-radius: 4px;">전체 ${total}명</span>
+        <span style="background: #dcfce7; color: #15803d; padding: 2px 8px; border-radius: 4px;">완료 ${filled}명</span>
+        <span style="background: ${unfilledCount > 0 ? '#ffedd5' : '#f1f5f9'}; color: ${unfilledCount > 0 ? '#c2410c' : '#64748b'}; padding: 2px 8px; border-radius: 4px;">
+          ${unfilledCount > 0 ? `⚠️ 미입력 ${unfilledCount}명` : '✓ 전원 입력완료'}
+        </span>
+      `;
+
+      if (unfilledBar && unfilledChips) {
+        if (unfilledCount > 0) {
+          unfilledBar.style.display = 'flex';
+          unfilledChips.innerHTML = unfilledList.map(u => `
+            <span class="unfilled-chip" onclick="focusWrittenInput('${u.id}')" title="클릭 시 해당 입력칸으로 즉시 이동">
+              ${u.num}번 ${u.name}
+            </span>
+          `).join('');
+        } else {
+          unfilledBar.style.display = 'none';
+          unfilledChips.innerHTML = '';
+        }
+      }
+    }
+
+    function focusWrittenInput(studentId) {
+      const inp = document.getElementById(`written_input_${studentId}`);
+      if (inp) {
+        inp.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        inp.focus();
+        inp.select();
+      }
     }
 
     function validateWrittenScoreInput(el) {
