@@ -485,7 +485,7 @@ function doPost(e) {
         message: '선수 정보가 성공적으로 수정되었습니다.'
       })).setMimeType(ContentService.MimeType.JSON);
 
-    // 5. [선수 긴급 이동 (Room & Seat Transfer: 기존 자리 공석 유지 + 타겟 조 마지막번호+1 자동채번)]
+    // 5. [선수 긴급 이동 (Room & Seat Transfer: 기존 자리 공석 유지 + 지정 번호 또는 자동채번)]
     } else if (type === 'transferStudent') {
       const pSheet = ss.getSheetByName('참가자명단');
       if (!pSheet) throw new Error("'참가자명단' 시트를 찾을 수 없습니다.");
@@ -493,6 +493,7 @@ function doPost(e) {
       const targetId = String(payload.id || '').trim();
       const targetHandbook = String(payload.targetHandbook || '').trim();
       const targetTeam = Number(payload.targetTeam);
+      const reqTargetNum = payload.targetNum !== undefined && payload.targetNum !== null && payload.targetNum !== '' ? Number(payload.targetNum) : null;
 
       if (!targetId || !targetHandbook || isNaN(targetTeam)) {
         throw new Error('이동할 학생ID, 대상 핸드북, 대상 조 정보가 누락되었습니다.');
@@ -501,10 +502,11 @@ function doPost(e) {
       const pLastRow = pSheet.getLastRow();
       let pRowFound = -1;
       let maxNumInTargetGroup = 0;
+      const usedNumsInTargetGroup = new Set();
 
       if (pLastRow >= 2) {
         const pData = pSheet.getRange(2, 1, pLastRow - 1, 7).getValues();
-        // 1) 대상 학생 행 찾기 & 2) 대상 조의 현재 최대 번호 구하기
+        // 1) 대상 학생 행 찾기 & 2) 대상 조의 사용 중인 번호 목록 및 최대 번호 수집
         for (let i = 0; i < pData.length; i++) {
           const rowId = String(pData[i][0]).trim();
           const rowHb = String(pData[i][1]).trim();
@@ -514,9 +516,12 @@ function doPost(e) {
           if (rowId === targetId) {
             pRowFound = i + 2;
           }
-          if (rowHb === targetHandbook && rowTeam === targetTeam) {
-            if (!isNaN(rowNum) && rowNum > maxNumInTargetGroup) {
-              maxNumInTargetGroup = rowNum;
+          if (rowHb === targetHandbook && rowTeam === targetTeam && rowId !== targetId) {
+            if (!isNaN(rowNum) && rowNum > 0) {
+              usedNumsInTargetGroup.add(rowNum);
+              if (rowNum > maxNumInTargetGroup) {
+                maxNumInTargetGroup = rowNum;
+              }
             }
           }
         }
@@ -526,8 +531,16 @@ function doPost(e) {
         throw new Error(`참가자ID [${targetId}]를 찾을 수 없습니다.`);
       }
 
-      // 신규 번호 자동 채번: 대상 조의 마지막 번호 + 1
-      const newAssignedNum = maxNumInTargetGroup + 1;
+      // 신규 번호 결정: 요청된 번호가 있고 비어있으면 지정, 없으면 (최대번호 + 1)
+      let newAssignedNum = 0;
+      if (reqTargetNum && reqTargetNum > 0) {
+        if (usedNumsInTargetGroup.has(reqTargetNum)) {
+          throw new Error(`선택하신 [${reqTargetNum}번]은 이미 대상 조의 다른 선수가 사용 중입니다.`);
+        }
+        newAssignedNum = reqTargetNum;
+      } else {
+        newAssignedNum = maxNumInTargetGroup + 1;
+      }
 
       // 시간표 시트에서 대상 조의 교실명 조회
       const tSheet = ss.getSheetByName('시간표') || ss.getSheetByName('교실순환시간표');

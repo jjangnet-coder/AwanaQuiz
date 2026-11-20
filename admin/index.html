@@ -1066,10 +1066,10 @@
   <div class="hq-modal-overlay" id="transferModalOverlay">
     <div class="hq-modal-card">
       <div class="hq-modal-title">선수 시험장/조 긴급 이동</div>
-      <div style="font-size: 0.84rem; color: #dc2626; margin-bottom: 14px; background: #fff5f5; padding: 10px; border-radius: 8px; border: 1px solid #fecaca; line-height: 1.5;">
+      <div style="font-size: 0.84rem; color: #64748b; margin-bottom: 14px; background: #fffbeb; padding: 10px; border-radius: 8px; border: 1px solid #fef3c7; line-height: 1.5;">
         ⚠️ <b>현장 좌석 규칙 안내:</b><br>
         • 이미 좌석이 공지되었으므로, <b>원래 있던 번호는 공석(결번)으로 유지</b>됩니다.<br>
-        • 이동할 대상 조의 <b>현재 마지막 번호 + 1</b>로 자동 채번되어 배정됩니다.
+        • 이동할 대상 조의 <b>비어있는 번호</b>를 선택하거나, <b>마지막 번호 + 1</b>로 배정할 수 있습니다.
       </div>
       <input type="hidden" id="transferStudentId" />
       <input type="hidden" id="transferCurrentHandbook" />
@@ -1077,6 +1077,7 @@
       <div class="hq-form-group">
         <label>이동 대상 단원</label>
         <div id="transferStudentInfo" style="font-weight: 700; color: #1e3a8a; padding: 6px 0;">-</div>
+        <div id="transferOriginalLocationBadge" style="display: none; margin-top: 4px;"></div>
       </div>
 
       <div class="hq-form-group">
@@ -1086,12 +1087,13 @@
 
       <div class="hq-form-group">
         <label>이동할 조</label>
-        <select id="transferTargetTeam" class="hq-form-control" onchange="previewNewAssignedNumber()"></select>
+        <select id="transferTargetTeam" class="hq-form-control" onchange="updateTransferSeatOptions()"></select>
       </div>
 
-      <div class="hq-form-group" style="background: #f0fdf4; border: 1px solid #bbf7d0; padding: 10px; border-radius: 8px;">
-        <label style="color: #166534;">배정 예정 신규 번호</label>
-        <div id="transferNewNumPreview" style="font-size: 1.1rem; font-weight: 800; color: #15803d;">선택 후 자동 계산</div>
+      <div class="hq-form-group" style="background: #f0fdf4; border: 1px solid #bbf7d0; padding: 12px; border-radius: 8px;">
+        <label style="color: #166534; margin-bottom: 6px;">배정할 번호 선택 (비어있는 번호만 표시)</label>
+        <select id="transferTargetNum" class="hq-form-control" style="font-weight: 800; font-size: 0.95rem;" onchange="previewNewAssignedNumber()"></select>
+        <div id="transferNewNumPreview" style="font-size: 0.86rem; font-weight: 700; color: #15803d; margin-top: 6px;">조를 선택하면 사용 가능한 빈 번호가 나옵니다.</div>
       </div>
 
       <div class="hq-modal-actions">
@@ -1350,6 +1352,33 @@
      * 모던 커스텀 모달 (브라우저 기본 alert, confirm 100% 완전 대체)
      * =========================================================================
      */
+    function showCustomLoading(title, message) {
+      const overlay = document.getElementById('customModalOverlay');
+      const card = document.getElementById('customModalCard');
+      const badge = document.getElementById('modalIconBadge');
+      const titleEl = document.getElementById('modalTitle');
+      const msgEl = document.getElementById('modalMessage');
+      const btnCancel = document.getElementById('modalBtnCancel');
+      const btnConfirm = document.getElementById('modalBtnConfirm');
+
+      card.className = 'custom-modal-card theme-submit';
+      titleEl.className = 'modal-title title-submit';
+      badge.className = 'modal-icon-badge badge-type-submit';
+      badge.innerHTML = '<span style="display:inline-block; animation: spin 1s linear infinite;">⏳</span>';
+
+      titleEl.innerText = title;
+      msgEl.innerHTML = typeof message === 'string' && message.includes('<div') ? message : message.replace(/\n/g, '<br>');
+
+      btnCancel.style.display = 'none';
+      btnConfirm.style.display = 'inline-block';
+      btnConfirm.innerText = '처리 중...';
+      btnConfirm.className = 'modal-btn modal-btn-cancel';
+      btnConfirm.disabled = true;
+      btnConfirm.onclick = null;
+
+      overlay.style.display = 'flex';
+    }
+
     function showCustomAlert(title, message, type = 'info', onOk = null) {
       const overlay = document.getElementById('customModalOverlay');
       const card = document.getElementById('customModalCard');
@@ -1386,6 +1415,8 @@
       msgEl.innerHTML = typeof message === 'string' && message.includes('<div') ? message : message.replace(/\n/g, '<br>');
       btnCancel.style.display = 'none';
 
+      btnConfirm.style.display = 'inline-block';
+      btnConfirm.disabled = false;
       btnConfirm.innerText = '확인';
       btnConfirm.className = 'modal-btn modal-btn-confirm';
 
@@ -1435,6 +1466,8 @@
       msgEl.innerHTML = typeof message === 'string' && message.includes('<div') ? message : message.replace(/\n/g, '<br>');
 
       btnCancel.style.display = 'inline-block';
+      btnConfirm.style.display = 'inline-block';
+      btnConfirm.disabled = false;
       btnConfirm.innerText = options.confirmText || '확인';
       btnCancel.innerText = options.cancelText || '취소';
 
@@ -1925,14 +1958,39 @@
       );
     }
 
-    // 긴급 이동 모달 (기존 번호 공석 유지 + 타겟 조 마지막+1 자동 채번)
+    // 긴급 이동 모달 (기존 번호 공석 유지 + 비어있는 번호 선택 및 자동채번 지원)
     function openTransferModal(studentId) {
       const p = HQ_DATA.participants.find(item => item.id === studentId);
       if (!p) return;
 
+      // 최초 원래 위치 기록 보존
+      if (!p.originalLocation) {
+        p.originalLocation = {
+          handbook: p.handbook,
+          team: p.team,
+          num: p.num
+        };
+      }
+
       document.getElementById('transferStudentId').value = p.id;
       document.getElementById('transferCurrentHandbook').value = p.handbook;
       document.getElementById('transferStudentInfo').innerText = `[${p.id}] ${p.name} (${p.church}) | 현재: ${p.handbook} ${p.team}조 ${p.num}번`;
+
+      // 이동 이력이 있으면 원복 버튼 노출
+      const origBadge = document.getElementById('transferOriginalLocationBadge');
+      const isMoved = (p.originalLocation.handbook !== p.handbook || p.originalLocation.team !== p.team || p.originalLocation.num !== p.num);
+      if (isMoved) {
+        origBadge.style.display = 'block';
+        origBadge.innerHTML = `
+          <div style="background: #e0f2fe; border: 1px solid #bae6fd; padding: 6px 10px; border-radius: 6px; font-size: 0.82rem; color: #0369a1; display: flex; justify-content: space-between; align-items: center;">
+            <span>📍 최초 원래 위치: <b>${p.originalLocation.handbook} ${p.originalLocation.team}조 ${p.originalLocation.num}번</b></span>
+            <button type="button" class="btn-hq" style="padding: 2px 8px; font-size: 0.78rem; background: #0284c7; color: white;" onclick="revertStudentTransfer('${p.id}')">↩️ 원래 위치로 원복</button>
+          </div>
+        `;
+      } else {
+        origBadge.style.display = 'none';
+        origBadge.innerHTML = '';
+      }
 
       document.getElementById('transferTargetHandbook').value = p.handbook;
       updateTransferTeamOptions();
@@ -1959,61 +2017,127 @@
         teamSelect.appendChild(opt);
       });
 
-      previewNewAssignedNumber();
+      updateTransferSeatOptions();
     }
 
-    function previewNewAssignedNumber() {
+    function updateTransferSeatOptions() {
       const targetHb = document.getElementById('transferTargetHandbook').value;
       const targetTeam = Number(document.getElementById('transferTargetTeam').value);
+      const numSelect = document.getElementById('transferTargetNum');
       const previewEl = document.getElementById('transferNewNumPreview');
+      const currentStudentId = document.getElementById('transferStudentId').value;
+
+      numSelect.innerHTML = '';
 
       if (!targetHb || !targetTeam) {
-        previewEl.innerText = '핸드북과 조를 선택하면 자동 계산됩니다.';
+        numSelect.innerHTML = '<option value="">조를 먼저 선택해 주세요</option>';
+        previewEl.innerText = '조를 선택하면 사용 가능한 빈 번호가 나옵니다.';
         previewEl.style.color = '#64748b';
         return;
       }
 
+      // 대상 조에서 이미 사용 중인 번호 수집
+      const usedNums = new Set();
       let maxNum = 0;
       HQ_DATA.participants.forEach(p => {
-        if (p.handbook === targetHb && Number(p.team) === targetTeam) {
-          if (p.num && Number(p.num) > maxNum) maxNum = Number(p.num);
+        if (p.handbook === targetHb && Number(p.team) === targetTeam && p.id !== currentStudentId) {
+          if (p.num && Number(p.num) > 0) {
+            const n = Number(p.num);
+            usedNums.add(n);
+            if (n > maxNum) maxNum = n;
+          }
         }
       });
 
-      const nextNum = maxNum + 1;
-      previewEl.innerText = `👉 신규 배정 번호: [ ${nextNum}번 ] (현재 최대 ${maxNum}번 + 1)`;
+      const nextAutoNum = maxNum + 1;
+
+      // 1. 추천 번호 (마지막 번호 + 1 자동채번)
+      const autoOpt = document.createElement('option');
+      autoOpt.value = nextAutoNum;
+      autoOpt.innerText = `[추천] ${nextAutoNum}번 (마지막 번호 + 1 자동 채번)`;
+      numSelect.appendChild(autoOpt);
+
+      // 2. 중간 공석 번호 및 사용 가능한 번호 (1번부터 maxNum 사이의 빈 번호)
+      for (let num = 1; num <= maxNum; num++) {
+        if (!usedNums.has(num)) {
+          const opt = document.createElement('option');
+          opt.value = num;
+          opt.innerText = `${num}번 (현재 비어있는 공석)`;
+          numSelect.appendChild(opt);
+        }
+      }
+
+      // 3. 추가 여유 번호 (nextAutoNum + 1 ~ + 3)
+      for (let num = nextAutoNum + 1; num <= nextAutoNum + 3; num++) {
+        const opt = document.createElement('option');
+        opt.value = num;
+        opt.innerText = `${num}번 (신규 지정)`;
+        numSelect.appendChild(opt);
+      }
+
+      previewNewAssignedNumber();
+    }
+
+    function previewNewAssignedNumber() {
+      const numSelect = document.getElementById('transferTargetNum');
+      const selectedNum = numSelect.value;
+      const previewEl = document.getElementById('transferNewNumPreview');
+
+      if (!selectedNum) {
+        previewEl.innerText = '배정할 번호를 선택해 주세요.';
+        previewEl.style.color = '#64748b';
+        return;
+      }
+
+      previewEl.innerText = `👉 신규 배정 번호: [ ${selectedNum}번 ] 으로 확정 예정`;
       previewEl.style.color = '#15803d';
     }
 
+    // 이동 확정 및 저장 (플로우 개선: 모달 닫힘 -> 승인 팝업 -> 저장중 팝업 -> 완료 알림)
     function executeStudentTransfer() {
       const id = document.getElementById('transferStudentId').value;
       const prevHandbook = document.getElementById('transferCurrentHandbook').value;
       const targetHandbook = document.getElementById('transferTargetHandbook').value;
       const targetTeam = Number(document.getElementById('transferTargetTeam').value);
+      const targetNum = Number(document.getElementById('transferTargetNum').value);
 
-      if (!targetHandbook || !targetTeam) {
-        showCustomAlert('선택 누락', '이동할 대상 핸드북과 조를 모두 선택해 주세요.', 'warn');
+      if (!targetHandbook || !targetTeam || !targetNum) {
+        showCustomAlert('선택 누락', '이동할 대상 핸드북, 조, 배정 번호를 모두 선택해 주세요.', 'warn');
         return;
       }
 
       const p = HQ_DATA.participants.find(item => item.id === id);
 
+      // 1. 기존 이동 모달 즉시 닫기
+      closeTransferModal();
+
+      // 2. 확인 컨펌 팝업 표시 (취소 시 다시 이동 모달 복원)
       showCustomConfirm(
         '선수 긴급 이동 확정',
         `<div class="modal-callout-box callout-submit">
            <b>📍 이동 단원:</b> ${p.name} (${p.church})<br>
            <b>• 이전 위치:</b> ${p.handbook} ${p.team}조 ${p.num}번 (공석 유지)<br>
-           <b>• 신규 위치:</b> ${targetHandbook} ${targetTeam}조 (마지막 번호 + 1 자동 채번)
+           <b>• 신규 위치:</b> <b>${targetHandbook} ${targetTeam}조 ${targetNum}번</b>
          </div>
          정말로 긴급 이동을 확정하고 구글 시트에 반영하시겠습니까?`,
         async () => {
+          // 3. 확인 클릭 시 '저장 중' 로딩 팝업으로 즉시 전환
+          showCustomLoading(
+            '데이터 저장 및 시트 반영 중',
+            `<div style="padding: 10px 0;">
+               선수 <b>${p.name}</b> 단원을 [<b>${targetHandbook} ${targetTeam}조 ${targetNum}번</b>]으로 이동 처리 중입니다.<br>
+               <span style="font-size: 0.85rem; color: #64748b;">(구글 시트 참가자명단 및 최종집계, 시상표 동시 갱신 중...)</span>
+             </div>`
+          );
+
           try {
             const payload = {
               type: 'transferStudent',
               id: id,
               prevHandbook: prevHandbook,
               targetHandbook: targetHandbook,
-              targetTeam: targetTeam
+              targetTeam: targetTeam,
+              targetNum: targetNum
             };
             const resp = await fetch(GAS_URL, {
               method: 'POST',
@@ -2024,9 +2148,10 @@
             if (res.status === 'success') {
               p.handbook = targetHandbook;
               p.team = targetTeam;
-              p.num = res.newNum;
-              closeTransferModal();
+              p.num = res.newNum || targetNum;
               filterRosterTable();
+              renderMonitorDashboard();
+              // 4. 완료 알림으로 깔끔하게 교체
               showCustomAlert('이동 완료', res.message, 'success');
             } else {
               showCustomAlert('이동 실패', res.message, 'danger');
@@ -2035,9 +2160,73 @@
             showCustomAlert('통신 오류', e.message, 'danger');
           }
         },
-        null,
+        () => {
+          // 취소 시 이동 모달을 다시 복원하여 재수정 가능하게 함
+          document.getElementById('transferModalOverlay').style.display = 'flex';
+        },
         'submit',
         { confirmText: '이동 확정 및 저장', cancelText: '취소' }
+      );
+    }
+
+    // 조 이동 취소(원래 위치로 원복)
+    function revertStudentTransfer(studentId) {
+      const p = HQ_DATA.participants.find(item => item.id === studentId);
+      if (!p || !p.originalLocation) return;
+
+      const orig = p.originalLocation;
+      closeTransferModal();
+
+      showCustomConfirm(
+        '원래 위치로 원복',
+        `<div class="modal-callout-box callout-submit">
+           <b>📍 원복 대상:</b> ${p.name} (${p.church})<br>
+           <b>• 현재 위치:</b> ${p.handbook} ${p.team}조 ${p.num}번<br>
+           <b>• 원복 위치:</b> <b>${orig.handbook} ${orig.team}조 ${orig.num}번</b>
+         </div>
+         이동을 취소하고 최초 원래 좌석으로 원복하시겠습니까?`,
+        async () => {
+          showCustomLoading(
+            '원래 위치로 복원 중',
+            `<div style="padding: 10px 0;">
+               선수 <b>${p.name}</b> 단원을 [<b>${orig.handbook} ${orig.team}조 ${orig.num}번</b>]으로 원복 중입니다...
+             </div>`
+          );
+
+          try {
+            const payload = {
+              type: 'transferStudent',
+              id: p.id,
+              prevHandbook: p.handbook,
+              targetHandbook: orig.handbook,
+              targetTeam: orig.team,
+              targetNum: orig.num
+            };
+            const resp = await fetch(GAS_URL, {
+              method: 'POST',
+              headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+              body: JSON.stringify(payload)
+            });
+            const res = await resp.json();
+            if (res.status === 'success') {
+              p.handbook = orig.handbook;
+              p.team = orig.team;
+              p.num = orig.num;
+              filterRosterTable();
+              renderMonitorDashboard();
+              showCustomAlert('원복 완료', `성공적으로 최초 원래 위치 [${orig.handbook} ${orig.team}조 ${orig.num}번]으로 복원되었습니다.`, 'success');
+            } else {
+              showCustomAlert('원복 실패', res.message, 'danger');
+            }
+          } catch (e) {
+            showCustomAlert('통신 오류', e.message, 'danger');
+          }
+        },
+        () => {
+          document.getElementById('transferModalOverlay').style.display = 'flex';
+        },
+        'submit',
+        { confirmText: '원래 위치로 복원', cancelText: '취소' }
       );
     }
 
