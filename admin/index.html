@@ -500,8 +500,8 @@
 
     /* 필기시험 전용 고밀도 슬림 테이블 (가변 인원 자동 피팅) */
     .written-table th {
-      padding: 5px 6px;
-      font-size: 0.8rem;
+      padding: 6px 8px;
+      font-size: 0.84rem;
       background: #f1f5f9;
       position: sticky;
       top: 0;
@@ -509,47 +509,80 @@
     }
 
     .written-table td {
-      padding: 2px 6px;
-      font-size: 0.8rem;
-      border-bottom: 1px solid #f1f5f9;
+      padding: 3px 8px;
+      font-size: 0.84rem;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    /* 홀수/짝수 행 교차 배경색 (Zebra Striping) */
+    .written-table tbody tr:nth-child(even) {
+      background-color: #f8fafc;
+    }
+    .written-table tbody tr:nth-child(odd) {
+      background-color: #ffffff;
     }
 
     .written-table tr:hover {
-      background-color: #f8fafc;
+      background-color: #e0f2fe !important;
     }
 
     /* 15명 이하 넉넉한 높이 */
     .written-table.fit-spacious td {
-      height: 35px;
-      padding: 4px 6px;
-      font-size: 0.84rem;
+      height: 42px;
+      padding: 6px 8px;
+      font-size: 0.88rem;
     }
     .written-table.fit-spacious .input-written-score {
-      height: 28px;
-      font-size: 0.95rem;
+      height: 32px;
+      font-size: 0.98rem;
     }
 
     /* 16~22명 표준 높이 */
     .written-table.fit-medium td {
-      height: 29px;
-      padding: 2.5px 6px;
-      font-size: 0.81rem;
+      height: 34px;
+      padding: 4px 8px;
+      font-size: 0.84rem;
     }
     .written-table.fit-medium .input-written-score {
-      height: 25px;
-      font-size: 0.9rem;
+      height: 28px;
+      font-size: 0.92rem;
     }
 
-    /* 23~26명 초밀착 높이 (FHD 화면에서 25명 무스크롤 100% 피팅) */
+    /* 23~26명 초밀착 높이 (FHD 화면에서 25명 무스크롤 쾌적 피팅) */
     .written-table.fit-compact td {
-      height: 25px;
-      padding: 1px 6px;
-      font-size: 0.78rem;
+      height: 28px;
+      padding: 2px 8px;
+      font-size: 0.82rem;
     }
     .written-table.fit-compact .input-written-score {
-      height: 22px;
-      font-size: 0.85rem;
-      padding: 1px 3px;
+      height: 24px;
+      font-size: 0.88rem;
+      padding: 1px 4px;
+    }
+
+    /* 필기 점수 저장 버튼 강조 애니메이션 */
+    .btn-written-save {
+      transition: all 0.2s ease;
+      font-weight: 700;
+    }
+
+    .btn-written-save.is-dirty {
+      background: linear-gradient(135deg, #ea580c, #f97316) !important;
+      border-color: #c2410c !important;
+      color: #ffffff !important;
+      box-shadow: 0 0 12px rgba(249, 115, 22, 0.45);
+      animation: pulseSaveBtn 1.8s infinite ease-in-out;
+    }
+
+    @keyframes pulseSaveBtn {
+      0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 0 10px rgba(249, 115, 22, 0.4);
+      }
+      50% {
+        transform: scale(1.03);
+        box-shadow: 0 0 16px rgba(249, 115, 22, 0.7);
+      }
     }
 
     /* 필기 입력 인풋 (고밀도 슬림 디자인) */
@@ -1333,8 +1366,8 @@
           <span style="font-size: 0.78rem; color: #64748b; font-weight: 600;">
             * <b>0~150점 (10점 단위)</b> | Enter/↓키 고속 이동
           </span>
-          <button class="btn-hq btn-hq-primary" onclick="saveWrittenScoresBatch()" style="padding: 6px 14px; font-size: 0.84rem;">
-            💾 점수 일괄 저장 및 시상표 갱신
+          <button id="btnSaveWrittenBatch" class="btn-hq btn-hq-primary btn-written-save" onclick="saveWrittenScoresBatch()" style="padding: 6px 14px; font-size: 0.84rem;">
+            💾 해당 조 필기점수 저장 및 시상표 갱신
           </button>
         </div>
       </div>
@@ -2522,6 +2555,21 @@
         const id = inp.getAttribute('data-id');
         INITIAL_WRITTEN_INPUT_VALUES[id] = inp.value.trim();
       });
+      syncWrittenSaveButtonState();
+    }
+
+    // 변경사항 발생 여부에 따라 저장 버튼의 비주얼 상태(오렌지 강조 & 펄스 애니메이션 & 라벨) 실시간 동기화
+    function syncWrittenSaveButtonState() {
+      const btn = document.getElementById('btnSaveWrittenBatch');
+      if (!btn) return;
+      const isDirty = checkUnsavedWrittenScores();
+      if (isDirty) {
+        btn.classList.add('is-dirty');
+        btn.innerHTML = '💾 변경된 필기점수 저장하기 *';
+      } else {
+        btn.classList.remove('is-dirty');
+        btn.innerHTML = '💾 해당 조 필기점수 저장 및 시상표 갱신';
+      }
     }
 
     function handleWrittenHandbookSelectChange() {
@@ -2583,6 +2631,7 @@
       CURRENT_LOADED_WRITTEN_HB = hb;
       CURRENT_LOADED_WRITTEN_TEAM = null;
       INITIAL_WRITTEN_INPUT_VALUES = {};
+      syncWrittenSaveButtonState();
 
       teamSelect.innerHTML = '<option value="">조 선택</option>';
       if (progressEl) {
@@ -2699,10 +2748,13 @@
       }, 50);
     }
 
-    // 실시간 미입력 단원 카운트 동기화
+    // 실시간 미입력 단원 카운트 및 저장 버튼 상태 동기화
     function updateWrittenProgressLive() {
       const inputs = document.querySelectorAll('.input-written-score:not([disabled])');
       const progressEl = document.getElementById('writtenProgressSummary');
+      
+      syncWrittenSaveButtonState();
+
       if (!progressEl || inputs.length === 0) return;
 
       let filled = 0;
