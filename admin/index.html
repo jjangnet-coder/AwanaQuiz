@@ -371,25 +371,26 @@
     .badge-silver { background: #f1f5f9; color: #475569; font-weight: 800; border: 1px solid #cbd5e1; }
     .badge-bronze { background: #ffedd5; color: #9a3412; font-weight: 800; border: 1px solid #fed7aa; }
 
-    /* 대시보드 관제 매트릭스 그리드 (동적 4열 대칭 레이아웃 - Zero-Scroll 피팅) */
+    /* 대시보드 관제 매트릭스 그리드 (시험장 개수에 영향받지 않는 표준 고정 규격) */
     .monitor-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 8px;
-      margin-top: 6px;
+      gap: 12px;
+      margin-top: 10px;
     }
 
     .room-monitor-card {
       background: #ffffff;
       border: 1px solid #e2e8f0;
-      border-radius: 8px;
-      padding: 6px 8px;
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+      border-radius: 12px;
+      padding: 12px 14px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
       transition: transform 0.15s ease, box-shadow 0.15s ease;
+      min-height: 125px;
     }
 
     .room-monitor-card:hover {
-      box-shadow: 0 3px 6px -1px rgba(0, 0, 0, 0.05);
+      box-shadow: 0 4px 8px -1px rgba(0, 0, 0, 0.05);
     }
 
     .room-monitor-card.theme-sparks {
@@ -404,33 +405,33 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 4px;
-      padding-bottom: 3px;
+      margin-bottom: 8px;
+      padding-bottom: 6px;
       border-bottom: 1px solid var(--border-light);
     }
 
     .room-badge-title {
-      font-size: 0.88rem;
+      font-size: 0.98rem;
       font-weight: 800;
       display: flex;
       align-items: center;
-      gap: 4px;
+      gap: 5px;
     }
 
     .room-badge-title.sparks { color: #c2410c; }
     .room-badge-title.tnt { color: #1d4ed8; }
 
-    /* 1~7교시 버튼을 1줄에 7개 또는 4+3으로 초경량 배치 */
+    /* 1~4교시 / 5~7교시 쾌적한 2줄 그리드 */
     .room-period-cards {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 4px;
+      gap: 6px;
     }
 
     .period-card-item {
-      padding: 3px 2px;
+      padding: 6px 4px;
       text-align: center;
-      border-radius: 4px;
+      border-radius: 6px;
       border: 1px solid #e2e8f0;
       background: #f8fafc;
       transition: all 0.15s ease;
@@ -438,18 +439,18 @@
     }
 
     .period-card-item .period-num {
-      font-size: 0.68rem;
+      font-size: 0.74rem;
       font-weight: 700;
       color: #475569;
-      margin-bottom: 1px;
+      margin-bottom: 2px;
       white-space: nowrap;
     }
 
     .period-card-item .status-badge-chip {
-      font-size: 0.62rem;
+      font-size: 0.68rem;
       font-weight: 800;
-      padding: 1px 2px;
-      border-radius: 3px;
+      padding: 1px 3px;
+      border-radius: 4px;
       display: inline-block;
       white-space: nowrap;
     }
@@ -1638,11 +1639,13 @@
       }
     }
 
-    // 30초 주기 초경량 실시간 자동 갱신 엔진
+    // 30초 주기 초경량 실시간 자동 갱신 엔진 (오직 종합 관제 탭에서만 동작)
     function startAutoPolling() {
       if (AUTO_POLLING_TIMER) clearInterval(AUTO_POLLING_TIMER);
       AUTO_POLLING_TIMER = setInterval(() => {
-        if (IS_POLLING_ACTIVE && document.getElementById('tab-monitor').classList.contains('active')) {
+        const monitorTab = document.getElementById('tab-monitor');
+        // 오직 종합 관제 탭이 활성화되어 있을 때만 실행
+        if (IS_POLLING_ACTIVE && monitorTab && monitorTab.classList.contains('active')) {
           syncScoresLightweight(true);
         }
       }, 30000);
@@ -1657,7 +1660,10 @@
         indicator.innerHTML = '🟢 실시간 자동 갱신 (30초)';
         indicator.style.color = '#15803d';
         btn.innerText = '일시정지';
-        syncScoresLightweight(true);
+        const monitorTab = document.getElementById('tab-monitor');
+        if (monitorTab && monitorTab.classList.contains('active')) {
+          syncScoresLightweight(true);
+        }
       } else {
         indicator.innerHTML = '⏸️ 실시간 갱신 일시정지';
         indicator.style.color = '#64748b';
@@ -1672,7 +1678,12 @@
       event.currentTarget.classList.add('active');
       document.getElementById(`tab-${tabKey}`).classList.add('active');
 
-      if (tabKey === 'standings') {
+      // 종합 관제 탭으로 돌아왔을 때만 즉시 최신 점수 1회 가볍게 동기화
+      if (tabKey === 'monitor') {
+        if (IS_POLLING_ACTIVE) {
+          syncScoresLightweight(true);
+        }
+      } else if (tabKey === 'standings') {
         renderStandingsView();
       }
     }
