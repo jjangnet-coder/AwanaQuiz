@@ -1297,7 +1297,7 @@
           <div style="display: inline-flex; align-items: center; gap: 6px; background: #f1f5f9; padding: 2px 8px; border-radius: 6px; font-size: 0.78rem;">
             <span id="livePollingIndicator">🟢 실시간 자동 갱신 (30초)</span>
             <button type="button" id="btnTogglePolling" class="btn-hq" style="padding: 1px 6px; font-size: 0.72rem; height: auto;" onclick="toggleAutoPolling()">일시정지</button>
-            <span id="lastUpdatedText" style="color: #64748b; font-size: 0.74rem; margin-left: 4px;">-</span>
+            <span id="lastUpdatedText" style="color: #64748b; font-size: 0.78rem; margin-left: 4px; display: inline-flex; align-items: center; gap: 4px;">-</span>
           </div>
         </div>
         <div class="filter-group">
@@ -1692,7 +1692,7 @@
           const now = new Date();
           const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
           if (lastUpdatedEl) {
-            lastUpdatedEl.innerText = `${timeStr} 갱신됨 (${elapsed}s)`;
+            lastUpdatedEl.innerHTML = `<span style="font-family: Consolas, 'Courier New', monospace; font-weight: 700; letter-spacing: 0.6px; font-size: 0.82rem;">${timeStr}</span> 갱신됨 (${elapsed}s)`;
             lastUpdatedEl.style.color = '#15803d';
           }
         }
@@ -1736,7 +1736,7 @@
           const now = new Date();
           const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
           if (lastUpdatedEl) {
-            lastUpdatedEl.innerText = `${timeStr} 전체 로드 완료`;
+            lastUpdatedEl.innerHTML = `<span style="font-family: Consolas, 'Courier New', monospace; font-weight: 700; letter-spacing: 0.6px; font-size: 0.82rem;">${timeStr}</span> 전체 로드 완료`;
           }
         }
       } catch (err) {
