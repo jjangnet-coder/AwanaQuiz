@@ -500,8 +500,8 @@
 
     /* 필기시험 전용 고밀도 슬림 테이블 (채점 패널 고정 높이 100% 자동 분배) */
     .written-table-container {
-      height: calc(100vh - 280px);
-      min-height: 420px;
+      height: calc(100vh - 235px);
+      min-height: 460px;
       border: 1px solid #cbd5e1;
       border-radius: 8px;
       overflow-y: hidden;
@@ -2708,7 +2708,7 @@
 
       if (containerEl && theadEl) {
         const availH = containerEl.clientHeight - theadEl.clientHeight - 4;
-        calculatedRowHeight = Math.max(18, Math.min(45, Math.floor(availH / totalCount)));
+        calculatedRowHeight = Math.max(18, Math.min(48, Math.floor(availH / totalCount)));
       }
 
       students.forEach((s, idx) => {
