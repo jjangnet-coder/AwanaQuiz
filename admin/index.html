@@ -966,9 +966,9 @@
     }
 
     .awardee-church-part {
-      font-weight: 700;
-      color: #334155;
-      font-size: 0.85em;
+      font-weight: 800;
+      color: #000000;
+      font-size: 0.88em;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -976,11 +976,13 @@
     }
 
     .empty-awardee-notice {
-      color: #475569;
-      font-size: 0.9rem;
-      font-weight: 700;
+      color: #000000;
+      font-size: 0.95rem;
+      font-weight: 800;
       text-align: center;
-      padding: 10px;
+      padding: 14px;
+      grid-column: 1 / -1;
+      width: 100%;
     }
 
     /* =========================================================================
@@ -1178,7 +1180,15 @@
       .awardee-church-part {
         font-size: 9.5pt !important;
         font-weight: 800 !important;
-        color: #334155 !important;
+        color: #000000 !important;
+      }
+
+      .empty-awardee-notice {
+        grid-column: 1 / -1 !important;
+        text-align: center !important;
+        font-size: 10.5pt !important;
+        font-weight: 800 !important;
+        color: #000000 !important;
       }
 
       .summary-table th {
@@ -3105,30 +3115,26 @@
         });
       });
 
-      // 3. 메달 불출 종합 집계표 (Summary Page) 생성 헬퍼
-      const createSummaryPageHtml = (title, roomsToShow) => {
+      // 3. 본부 전체 메달 반출 종합 집계표 (A4 1장 초간결 컴팩트)
+      const createMasterSummaryPageHtml = () => {
         let rowsHtml = '';
         let sumGold = 0, sumSilver = 0, sumBronze = 0, sumTotal = 0;
 
-        roomsToShow.forEach(room => {
+        allRooms.forEach(room => {
           const rData = roomSummaryData[room];
           if (!rData || rData.totals.total === 0) return;
 
-          const hbNames = Object.keys(rData.handbooks);
-          const hbBreakdown = hbNames.map(h => {
-            const item = rData.handbooks[h];
-            return `<b>${h}</b> (금${item.gold}/은${item.silver}/동${item.bronze})`;
-          }).join(', ');
+          const isSparks = room.includes('스팍스');
+          const dept = isSparks ? 'SPARKS' : 'T&T';
 
           rowsHtml += `
-            <tr>
+            <tr style="height: 32px;">
               <td style="font-weight: 900; font-size: 1.05rem;">${room}</td>
-              <td style="text-align: left; padding: 6px 10px; font-size: 0.85rem;">${hbBreakdown}</td>
-              <td style="font-weight: 900; background: #fffbeb; font-size: 1.05rem;">${rData.totals.gold}</td>
-              <td style="font-weight: 900; background: #f8fafc; font-size: 1.05rem;">${rData.totals.silver}</td>
-              <td style="font-weight: 900; background: #fff7ed; font-size: 1.05rem;">${rData.totals.bronze}</td>
-              <td style="font-weight: 900; background: #f1f5f9; font-size: 1.1rem; color: #1e3a8a;">${rData.totals.total}개</td>
-              <td style="width: 80px;"></td>
+              <td style="font-weight: 800; font-size: 0.95rem; color: #000000;">${dept}</td>
+              <td style="font-weight: 900; font-size: 1.1rem; color: #000000;">${rData.totals.gold}</td>
+              <td style="font-weight: 900; font-size: 1.1rem; color: #000000;">${rData.totals.silver}</td>
+              <td style="font-weight: 900; font-size: 1.1rem; color: #000000;">${rData.totals.bronze}</td>
+              <td style="font-weight: 900; font-size: 1.15rem; color: #000000;">${rData.totals.total}개</td>
             </tr>
           `;
 
@@ -3139,89 +3145,131 @@
         });
 
         return `
-          <div class="print-award-page">
-            <div class="print-page-header">
-              <div class="print-page-title">${title}</div>
-              <div class="print-page-subtitle">
-                본부 메달 불출 및 시험장 수령 검수용 공식 집계표
-              </div>
+          <div class="print-award-page" style="padding: 10px 14px;">
+            <div class="print-page-header" style="margin-bottom: 12px; padding-bottom: 8px;">
+              <div class="print-page-title" style="font-size: 18pt;">2026-2027 AWANA 성경퀴즈대회 메달 반출 종합 집계표</div>
+              <div class="print-page-subtitle" style="font-size: 11.5pt;">본부 메달 총괄 불출 및 시험장별 배분 현황표</div>
             </div>
 
-            <div style="background: #f8fafc; border: 2px solid #000000; border-radius: 6px; padding: 10px 14px; margin-bottom: 12px; display: flex; justify-content: space-around; font-size: 1.05rem; font-weight: 900;">
-              <span>🥇 총 금메달: <b style="color: #b45309;">${sumGold}개</b></span>
-              <span>🥈 총 은메달: <b style="color: #475569;">${sumSilver}개</b></span>
-              <span>🥉 총 동메달: <b style="color: #c2410c;">${sumBronze}개</b></span>
-              <span>📦 불출 총합계: <b style="color: #1e3a8a; font-size: 1.15rem;">${sumTotal}개</b></span>
+            <div style="background: #ffffff; border: 2.5px solid #000000; border-radius: 6px; padding: 10px 14px; margin-bottom: 14px; display: flex; justify-content: space-around; font-size: 1.15rem; font-weight: 900; color: #000000;">
+              <span>🥇 총 금메달: <b>${sumGold}개</b></span>
+              <span>🥈 총 은메달: <b>${sumSilver}개</b></span>
+              <span>🥉 총 동메달: <b>${sumBronze}개</b></span>
+              <span>📦 불출 총합계: <b style="font-size: 1.25rem;">${sumTotal}개</b></span>
             </div>
 
-            <table class="summary-table">
+            <table class="summary-table" style="margin-top: 6px;">
               <thead>
-                <tr>
-                  <th style="width: 14%;">시험장</th>
-                  <th style="width: 44%;">핸드북별 세부 메달 수량</th>
-                  <th style="width: 8%;">🥇 금</th>
-                  <th style="width: 8%;">🥈 은</th>
-                  <th style="width: 8%;">🥉 동</th>
-                  <th style="width: 10%;">소계</th>
-                  <th style="width: 8%;">수령확인</th>
+                <tr style="height: 34px;">
+                  <th style="width: 25%; font-size: 1.05rem;">시험장</th>
+                  <th style="width: 20%; font-size: 1.05rem;">구 분</th>
+                  <th style="width: 15%; font-size: 1.05rem;">🥇 금메달</th>
+                  <th style="width: 15%; font-size: 1.05rem;">🥈 은메달</th>
+                  <th style="width: 15%; font-size: 1.05rem;">🥉 동메달</th>
+                  <th style="width: 10%; font-size: 1.05rem;">소 계</th>
                 </tr>
               </thead>
               <tbody>
                 ${rowsHtml}
-                <tr class="total-row">
-                  <td colspan="2" style="text-align: center; font-weight: 900; padding: 10px;">전 체 총 계</td>
-                  <td style="color: #b45309; font-size: 1.1rem;">${sumGold}</td>
-                  <td style="color: #475569; font-size: 1.1rem;">${sumSilver}</td>
-                  <td style="color: #c2410c; font-size: 1.1rem;">${sumBronze}</td>
-                  <td style="color: #1e3a8a; font-size: 1.2rem;">${sumTotal}개</td>
-                  <td>-</td>
+                <tr class="total-row" style="height: 38px; border-top: 3px double #000000;">
+                  <td colspan="2" style="text-align: center; font-weight: 900; font-size: 1.15rem; padding: 8px;">전 체 총 계</td>
+                  <td style="font-weight: 900; font-size: 1.25rem; color: #000000;">${sumGold}</td>
+                  <td style="font-weight: 900; font-size: 1.25rem; color: #000000;">${sumSilver}</td>
+                  <td style="font-weight: 900; font-size: 1.25rem; color: #000000;">${sumBronze}</td>
+                  <td style="font-weight: 900; font-size: 1.3rem; color: #000000;">${sumTotal}개</td>
                 </tr>
               </tbody>
             </table>
-
-            <div class="signature-box-container">
-              <div class="sig-box">
-                <div class="sig-box-title">본부 불출 책임자</div>
-                <div class="sig-box-line">(서명 / 인)</div>
-              </div>
-              <div class="sig-box">
-                <div class="sig-box-title">총괄 진행 본부장</div>
-                <div class="sig-box-line">(서명 / 인)</div>
-              </div>
-            </div>
-
-            <div style="margin-top: 14px; text-align: right; font-size: 8pt; color: #475569;">
-              * 본 집계표는 메달 불출 및 수령 확인을 위한 공식 문서입니다. 각 시험장 인계 전 수량을 반드시 대조하십시오.
-            </div>
           </div>
         `;
       };
 
-      // 4. 출력 모드에 따른 분기 렌더링
+      // 4. 개별 교실 메달 Summary 페이지 (A4 1장)
+      const createRoomSummaryPageHtml = (room) => {
+        const rData = roomSummaryData[room];
+        if (!rData || rData.totals.total === 0) return '';
+
+        let hbRows = '';
+        const hbKeys = sortHandbooksByOfficialOrder(Object.keys(rData.handbooks));
+        hbKeys.forEach(hb => {
+          const item = rData.handbooks[hb];
+          hbRows += `
+            <tr style="height: 36px;">
+              <td style="text-align: left; padding: 6px 14px; font-weight: 900; font-size: 1.05rem;">${hb}</td>
+              <td style="font-weight: 900; font-size: 1.15rem; color: #000000;">${item.gold}</td>
+              <td style="font-weight: 900; font-size: 1.15rem; color: #000000;">${item.silver}</td>
+              <td style="font-weight: 900; font-size: 1.15rem; color: #000000;">${item.bronze}</td>
+              <td style="font-weight: 900; font-size: 1.2rem; color: #000000;">${item.total}개</td>
+            </tr>
+          `;
+        });
+
+        return `
+          <div class="print-award-page" style="padding: 14px 18px;">
+            <div class="print-page-header" style="margin-bottom: 16px; padding-bottom: 10px;">
+              <div class="print-page-title" style="font-size: 18pt;">2026-2027 AWANA 성경퀴즈대회 [${room}] 시험장 메달 현황</div>
+              <div class="print-page-subtitle" style="font-size: 12pt;">시험장 운영 핸드북별 메달 배분 요약서</div>
+            </div>
+
+            <div style="background: #ffffff; border: 2.5px solid #000000; border-radius: 6px; padding: 12px 18px; margin-bottom: 18px; display: flex; justify-content: space-around; font-size: 1.2rem; font-weight: 900; color: #000000;">
+              <span>🥇 금메달: <b>${rData.totals.gold}개</b></span>
+              <span>🥈 은메달: <b>${rData.totals.silver}개</b></span>
+              <span>🥉 동메달: <b>${rData.totals.bronze}개</b></span>
+              <span>📦 [${room}] 불출 합계: <b style="font-size: 1.3rem;">${rData.totals.total}개</b></span>
+            </div>
+
+            <table class="summary-table" style="margin-top: 10px;">
+              <thead>
+                <tr style="height: 38px;">
+                  <th style="width: 48%; font-size: 1.05rem; text-align: left; padding-left: 14px;">운영 핸드북</th>
+                  <th style="width: 13%; font-size: 1.05rem;">🥇 금메달</th>
+                  <th style="width: 13%; font-size: 1.05rem;">🥈 은메달</th>
+                  <th style="width: 13%; font-size: 1.05rem;">🥉 동메달</th>
+                  <th style="width: 13%; font-size: 1.05rem;">소 계</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${hbRows}
+                <tr class="total-row" style="height: 42px; border-top: 3px double #000000;">
+                  <td style="text-align: center; font-weight: 900; font-size: 1.15rem; padding: 8px;">[${room}] 총 합 계</td>
+                  <td style="font-weight: 900; font-size: 1.25rem; color: #000000;">${rData.totals.gold}</td>
+                  <td style="font-weight: 900; font-size: 1.25rem; color: #000000;">${rData.totals.silver}</td>
+                  <td style="font-weight: 900; font-size: 1.25rem; color: #000000;">${rData.totals.bronze}</td>
+                  <td style="font-weight: 900; font-size: 1.3rem; color: #000000;">${rData.totals.total}개</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        `;
+      };
+
+      // 5. 출력 모드에 따른 계층형 분기 렌더링
       if (targetRoom === 'SUMMARY_ONLY') {
-        container.innerHTML = createSummaryPageHtml('2026-2027 AWANA 성경퀴즈대회 메달 반출 종합 집계표', allRooms);
+        container.innerHTML = createMasterSummaryPageHtml();
         return;
       }
 
-      // 전체 일괄 인쇄(ALL)일 경우, 맨 첫 장에 전체 종합 집계표 삽입
+      // 전체 일괄 인쇄(ALL)일 경우, 맨 첫 장에 본부 전체 종합 집계표(1장) 삽입
       if (targetRoom === 'ALL') {
-        const summaryPageDiv = document.createElement('div');
-        summaryPageDiv.innerHTML = createSummaryPageHtml('2026-2027 AWANA 성경퀴즈대회 메달 반출 종합 집계표', allRooms);
-        container.appendChild(summaryPageDiv.firstElementChild);
+        const masterPageWrapper = document.createElement('div');
+        masterPageWrapper.innerHTML = createMasterSummaryPageHtml();
+        container.appendChild(masterPageWrapper.firstElementChild);
       }
 
-      // 개별 교실 인쇄일 경우, 해당 교실의 메달 불출 확인표를 첫 장에 삽입
-      if (targetRoom !== 'ALL') {
-        const roomSummaryDiv = document.createElement('div');
-        roomSummaryDiv.innerHTML = createSummaryPageHtml(`[${targetRoom}] 시험장 메달 불출 확인서`, [targetRoom]);
-        container.appendChild(roomSummaryDiv.firstElementChild);
-      }
-
-      // 5. 각 시험장별/핸드북별 시상식 공식 명단 (A4 1장 완벽 고대비 호명표) 렌더링
+      // 6. 각 시험장별 패키징: [교실별 Summary 1장] ➔ [해당 교실 핸드북 시상표들] 순차 렌더링
       const roomsToProcess = targetRoom === 'ALL' ? allRooms : [targetRoom];
       let pageCount = 0;
 
       roomsToProcess.forEach(room => {
+        // 교실별 Summary 페이지 삽입 (항상 교실 시상표들 맨 앞에 1장)
+        const roomSummaryHtml = createRoomSummaryPageHtml(room);
+        if (roomSummaryHtml) {
+          const roomPageWrapper = document.createElement('div');
+          roomPageWrapper.innerHTML = roomSummaryHtml;
+          container.appendChild(roomPageWrapper.firstElementChild);
+        }
+
+        // 해당 교실의 핸드북별 시상 명단 (A4 1장씩)
         handbookList.forEach(hb => {
           const matchingStudents = HQ_DATA.participants.filter(p => {
             const pRoom = teamRoomMap[`${p.handbook}_${p.team}`];
@@ -3264,7 +3312,7 @@
           pageDiv.className = `print-award-page ${fitClass}`;
 
           // 메달 섹션 생성 헬퍼 함수 (호명 순서: 동 ➔ 은 ➔ 금, 1, 2, 3... 순번 부여)
-          const createMedalSectionHtml = (title, medalBadgeClass, sectionThemeClass, list, startIdx = 1) => {
+          const createMedalSectionHtml = (title, medalBadgeClass, sectionThemeClass, list) => {
             let cardsHtml = '';
             if (list.length === 0) {
               cardsHtml = '<div class="empty-awardee-notice">해당 메달 수상자가 없습니다.</div>';
@@ -3310,10 +3358,6 @@
             ${bronzeHtml}
             ${silverHtml}
             ${goldHtml}
-
-            <div style="margin-top: 6px; text-align: right; font-size: 8pt; color: #334155; font-weight: 600;">
-              * 본 시상표는 교실별 시상 진행(호명)을 위한 공식 출력물이며, 각 메달별 단원은 성명 가나다순으로 표기되어 있습니다. (최고득점상은 본부 전체 집계에서 별도 수여)
-            </div>
           `;
 
           container.appendChild(pageDiv);
