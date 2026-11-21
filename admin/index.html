@@ -3134,7 +3134,7 @@
               <td style="font-weight: 900; font-size: 1.1rem; color: #000000;">${rData.totals.gold}</td>
               <td style="font-weight: 900; font-size: 1.1rem; color: #000000;">${rData.totals.silver}</td>
               <td style="font-weight: 900; font-size: 1.1rem; color: #000000;">${rData.totals.bronze}</td>
-              <td style="font-weight: 900; font-size: 1.15rem; color: #000000;">${rData.totals.total}개</td>
+              <td style="font-weight: 900; font-size: 1.15rem; color: #000000; white-space: nowrap;">${rData.totals.total}개</td>
             </tr>
           `;
 
@@ -3151,22 +3151,22 @@
               <div class="print-page-subtitle" style="font-size: 11.5pt;">본부 메달 총괄 불출 및 시험장별 배분 현황표</div>
             </div>
 
-            <div style="background: #ffffff; border: 2.5px solid #000000; border-radius: 6px; padding: 10px 14px; margin-bottom: 14px; display: flex; justify-content: space-around; font-size: 1.15rem; font-weight: 900; color: #000000;">
-              <span>🥇 총 금메달: <b>${sumGold}개</b></span>
-              <span>🥈 총 은메달: <b>${sumSilver}개</b></span>
-              <span>🥉 총 동메달: <b>${sumBronze}개</b></span>
-              <span>📦 불출 총합계: <b style="font-size: 1.25rem;">${sumTotal}개</b></span>
+            <div style="background: #ffffff; border: 2.5px solid #000000; border-radius: 6px; padding: 10px 14px; margin-bottom: 14px; display: flex; justify-content: space-around; align-items: center; font-size: 1.05rem; font-weight: 900; color: #000000;">
+              <span style="white-space: nowrap;">🥇 총 금메달: <b>${sumGold}개</b></span>
+              <span style="white-space: nowrap;">🥈 총 은메달: <b>${sumSilver}개</b></span>
+              <span style="white-space: nowrap;">🥉 총 동메달: <b>${sumBronze}개</b></span>
+              <span style="white-space: nowrap;">📦 불출 총합계: <b style="font-size: 1.2rem;">${sumTotal}개</b></span>
             </div>
 
             <table class="summary-table" style="margin-top: 6px;">
               <thead>
                 <tr style="height: 34px;">
-                  <th style="width: 25%; font-size: 1.05rem;">시험장</th>
-                  <th style="width: 20%; font-size: 1.05rem;">구 분</th>
+                  <th style="width: 22%; font-size: 1.05rem;">시험장</th>
+                  <th style="width: 16%; font-size: 1.05rem;">구 분</th>
                   <th style="width: 15%; font-size: 1.05rem;">🥇 금메달</th>
                   <th style="width: 15%; font-size: 1.05rem;">🥈 은메달</th>
                   <th style="width: 15%; font-size: 1.05rem;">🥉 동메달</th>
-                  <th style="width: 10%; font-size: 1.05rem;">소 계</th>
+                  <th style="width: 17%; font-size: 1.05rem;">소 계</th>
                 </tr>
               </thead>
               <tbody>
@@ -3176,7 +3176,7 @@
                   <td style="font-weight: 900; font-size: 1.25rem; color: #000000;">${sumGold}</td>
                   <td style="font-weight: 900; font-size: 1.25rem; color: #000000;">${sumSilver}</td>
                   <td style="font-weight: 900; font-size: 1.25rem; color: #000000;">${sumBronze}</td>
-                  <td style="font-weight: 900; font-size: 1.3rem; color: #000000;">${sumTotal}개</td>
+                  <td style="font-weight: 900; font-size: 1.25rem; color: #000000; white-space: nowrap;">${sumTotal}개</td>
                 </tr>
               </tbody>
             </table>
@@ -3199,7 +3199,7 @@
               <td style="font-weight: 900; font-size: 1.15rem; color: #000000;">${item.gold}</td>
               <td style="font-weight: 900; font-size: 1.15rem; color: #000000;">${item.silver}</td>
               <td style="font-weight: 900; font-size: 1.15rem; color: #000000;">${item.bronze}</td>
-              <td style="font-weight: 900; font-size: 1.2rem; color: #000000;">${item.total}개</td>
+              <td style="font-weight: 900; font-size: 1.2rem; color: #000000; white-space: nowrap;">${item.total}개</td>
             </tr>
           `;
         });
@@ -3211,21 +3211,21 @@
               <div class="print-page-subtitle" style="font-size: 12pt;">시험장 운영 핸드북별 메달 배분 요약서</div>
             </div>
 
-            <div style="background: #ffffff; border: 2.5px solid #000000; border-radius: 6px; padding: 12px 18px; margin-bottom: 18px; display: flex; justify-content: space-around; font-size: 1.2rem; font-weight: 900; color: #000000;">
-              <span>🥇 금메달: <b>${rData.totals.gold}개</b></span>
-              <span>🥈 은메달: <b>${rData.totals.silver}개</b></span>
-              <span>🥉 동메달: <b>${rData.totals.bronze}개</b></span>
-              <span>📦 [${room}] 불출 합계: <b style="font-size: 1.3rem;">${rData.totals.total}개</b></span>
+            <div style="background: #ffffff; border: 2.5px solid #000000; border-radius: 6px; padding: 12px 18px; margin-bottom: 18px; display: flex; justify-content: space-around; align-items: center; font-size: 1.15rem; font-weight: 900; color: #000000;">
+              <span style="white-space: nowrap;">🥇 금메달: <b>${rData.totals.gold}개</b></span>
+              <span style="white-space: nowrap;">🥈 은메달: <b>${rData.totals.silver}개</b></span>
+              <span style="white-space: nowrap;">🥉 동메달: <b>${rData.totals.bronze}개</b></span>
+              <span style="white-space: nowrap;">📦 [${room}] 불출 합계: <b style="font-size: 1.25rem;">${rData.totals.total}개</b></span>
             </div>
 
             <table class="summary-table" style="margin-top: 10px;">
               <thead>
                 <tr style="height: 38px;">
-                  <th style="width: 48%; font-size: 1.05rem; text-align: left; padding-left: 14px;">운영 핸드북</th>
-                  <th style="width: 13%; font-size: 1.05rem;">🥇 금메달</th>
-                  <th style="width: 13%; font-size: 1.05rem;">🥈 은메달</th>
-                  <th style="width: 13%; font-size: 1.05rem;">🥉 동메달</th>
-                  <th style="width: 13%; font-size: 1.05rem;">소 계</th>
+                  <th style="width: 44%; font-size: 1.05rem; text-align: left; padding-left: 14px;">운영 핸드북</th>
+                  <th style="width: 14%; font-size: 1.05rem;">🥇 금메달</th>
+                  <th style="width: 14%; font-size: 1.05rem;">🥈 은메달</th>
+                  <th style="width: 14%; font-size: 1.05rem;">🥉 동메달</th>
+                  <th style="width: 14%; font-size: 1.05rem;">소 계</th>
                 </tr>
               </thead>
               <tbody>
@@ -3235,7 +3235,7 @@
                   <td style="font-weight: 900; font-size: 1.25rem; color: #000000;">${rData.totals.gold}</td>
                   <td style="font-weight: 900; font-size: 1.25rem; color: #000000;">${rData.totals.silver}</td>
                   <td style="font-weight: 900; font-size: 1.25rem; color: #000000;">${rData.totals.bronze}</td>
-                  <td style="font-weight: 900; font-size: 1.3rem; color: #000000;">${rData.totals.total}개</td>
+                  <td style="font-weight: 900; font-size: 1.25rem; color: #000000; white-space: nowrap;">${rData.totals.total}개</td>
                 </tr>
               </tbody>
             </table>
