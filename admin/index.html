@@ -830,157 +830,228 @@
     }
 
     /* =========================================================================
-       🖨️ A4 정밀 원클릭 인쇄 엔진 (빈페이지 100% 원천 차단 & 메달별 그룹핑 & 1핸드북 1장 종결)
+       🖨️ A4 정밀 원클릭 인쇄 엔진 (초고대비 호명 최적화 & 메달 불출 요약표 & A4 1장 완벽 종결)
        ========================================================================= */
     .print-award-page {
       background: #ffffff;
-      border: 1px solid #e2e8f0;
-      border-radius: 12px;
+      border: 2px solid #0f172a;
+      border-radius: 8px;
       padding: 24px;
       margin-bottom: 24px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.04);
     }
 
     .print-page-header {
       text-align: center;
       margin-bottom: 14px;
       padding-bottom: 10px;
-      border-bottom: 2px solid #0f172a;
+      border-bottom: 2.5px solid #000000;
     }
 
     .print-page-title {
-      font-size: 1.35rem;
+      font-size: 1.45rem;
       font-weight: 900;
       letter-spacing: -0.5px;
-      color: #0f172a;
+      color: #000000;
       margin-bottom: 4px;
     }
 
     .print-page-subtitle {
-      font-size: 0.95rem;
-      font-weight: 700;
-      color: #334155;
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: #000000;
     }
 
-    /* 시상식 전용 메달별 섹션 컨테이너 */
+    /* 시상식 전용 메달별 섹션 컨테이너 (고대비 호명형) */
     .medal-section {
-      border: 1.5px solid #cbd5e1;
-      border-radius: 10px;
-      padding: 12px 14px;
+      border: 2px solid #000000;
+      border-radius: 8px;
+      padding: 10px 14px 12px;
       margin-bottom: 12px;
       page-break-inside: avoid;
       break-inside: avoid;
+      background: #ffffff;
     }
 
     .medal-section-bronze {
-      border-color: #fdba74;
-      background: #fffaf5;
+      border-top: 5px solid #9a3412;
     }
 
     .medal-section-silver {
-      border-color: #cbd5e1;
-      background: #f8fafc;
+      border-top: 5px solid #475569;
     }
 
     .medal-section-gold {
-      border-color: #fde047;
-      background: #fefce8;
+      border-top: 5px solid #000000;
+      background: #fafafa;
     }
 
     .medal-section-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding-bottom: 8px;
-      margin-bottom: 10px;
-      border-bottom: 1.5px dashed #cbd5e1;
+      padding-bottom: 6px;
+      margin-bottom: 8px;
+      border-bottom: 2px solid #000000;
     }
-
-    .medal-section-bronze .medal-section-header { border-color: #fed7aa; }
-    .medal-section-silver .medal-section-header { border-color: #e2e8f0; }
-    .medal-section-gold .medal-section-header { border-color: #fef08a; }
 
     .medal-title-wrap {
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
     }
 
     .medal-badge-print {
       display: inline-block;
-      padding: 4px 12px;
-      border-radius: 6px;
-      font-size: 0.95rem;
+      padding: 3px 10px;
+      border-radius: 4px;
+      font-size: 1rem;
       font-weight: 900;
       letter-spacing: -0.3px;
+      border: 1.5px solid #000000;
     }
 
-    .badge-bronze-print { background: #ea580c; color: #ffffff; }
-    .badge-silver-print { background: #475569; color: #ffffff; }
-    .badge-gold-print { background: #d97706; color: #ffffff; }
+    .badge-bronze-print { background: #9a3412; color: #ffffff; }
+    .badge-silver-print { background: #334155; color: #ffffff; }
+    .badge-gold-print { background: #000000; color: #ffffff; }
 
     .medal-count-label {
-      font-size: 0.88rem;
-      font-weight: 800;
-      color: #475569;
+      font-size: 0.95rem;
+      font-weight: 900;
+      color: #000000;
     }
 
-    /* 수상자 명단 그리드 (이름 가나다순 나열) */
+    /* 수상자 명단 그리드 (호명형 고대비 카드) */
     .awardee-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 6px 12px;
+      gap: 6px 10px;
     }
 
     .print-award-page.fit-dense .awardee-grid {
-      grid-template-columns: repeat(4, 1fr);
-      gap: 5px 8px;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 4px 8px;
     }
 
     .awardee-card-item {
       display: flex;
       align-items: center;
-      justify-content: space-between;
       padding: 4px 8px;
       background: #ffffff;
-      border: 1px solid #e2e8f0;
-      border-radius: 6px;
-      font-size: 0.88rem;
-      line-height: 1.3;
+      border: 1.5px solid #334155;
+      border-radius: 4px;
+      font-size: 0.95rem;
+      line-height: 1.25;
     }
 
     .print-award-page.fit-dense .awardee-card-item {
       padding: 3px 6px;
-      font-size: 0.82rem;
+      font-size: 0.88rem;
+    }
+
+    .awardee-idx {
+      font-weight: 900;
+      color: #000000;
+      width: 26px;
+      font-size: 0.9em;
+      flex-shrink: 0;
     }
 
     .awardee-name-part {
-      font-weight: 800;
-      color: #0f172a;
+      font-weight: 900;
+      color: #000000;
       white-space: nowrap;
+      font-size: 1.05em;
+      letter-spacing: -0.3px;
     }
 
     .awardee-church-part {
-      font-weight: 500;
-      color: #475569;
-      font-size: 0.82em;
+      font-weight: 700;
+      color: #334155;
+      font-size: 0.85em;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      margin-left: 4px;
+      margin-left: 6px;
     }
 
     .empty-awardee-notice {
-      color: #94a3b8;
-      font-size: 0.85rem;
+      color: #475569;
+      font-size: 0.9rem;
+      font-weight: 700;
       text-align: center;
       padding: 10px;
+    }
+
+    /* =========================================================================
+       📊 메달 불출 종합 집계표 (Summary Page) 전용 스타일
+       ========================================================================= */
+    .summary-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      text-align: center;
+    }
+
+    .summary-table th {
+      background: #0f172a;
+      color: #ffffff;
+      font-weight: 800;
+      font-size: 0.92rem;
+      padding: 8px 6px;
+      border: 1px solid #000000;
+    }
+
+    .summary-table td {
+      padding: 6px 6px;
+      font-size: 0.9rem;
+      border: 1px solid #000000;
+      color: #000000;
+    }
+
+    .summary-table tr.total-row {
+      background: #f1f5f9;
+      font-weight: 900;
+      font-size: 0.98rem;
+    }
+
+    .summary-table tr:nth-child(even):not(.total-row) {
+      background: #fafafa;
+    }
+
+    .signature-box-container {
+      display: flex;
+      justify-content: flex-end;
+      gap: 24px;
+      margin-top: 24px;
+    }
+
+    .sig-box {
+      border: 1.5px solid #000000;
+      border-radius: 6px;
+      width: 180px;
+      padding: 8px;
+      text-align: center;
+    }
+
+    .sig-box-title {
+      font-size: 0.84rem;
+      font-weight: 800;
+      border-bottom: 1px solid #000000;
+      padding-bottom: 4px;
+      margin-bottom: 24px;
+    }
+
+    .sig-box-line {
+      font-size: 0.84rem;
+      font-weight: 700;
+      color: #475569;
     }
 
     @media print {
       @page {
         size: A4 portrait;
-        margin: 10mm 12mm 10mm 12mm;
+        margin: 8mm 10mm 8mm 10mm;
       }
 
       html, body {
@@ -1027,7 +1098,7 @@
         display: block !important;
         width: 100% !important;
         box-sizing: border-box !important;
-        padding: 4mm 0 !important;
+        padding: 2mm 0 !important;
         margin: 0 !important;
         border: none !important;
         box-shadow: none !important;
@@ -1040,69 +1111,85 @@
 
       .print-page-header {
         text-align: center !important;
-        margin-bottom: 10px !important;
+        margin-bottom: 8px !important;
         padding-bottom: 6px !important;
-        border-bottom: 2px solid #000000 !important;
+        border-bottom: 2.5px solid #000000 !important;
       }
 
       .print-page-title {
-        font-size: 15pt !important;
+        font-size: 16pt !important;
         font-weight: 900 !important;
-        margin-bottom: 3px !important;
+        margin-bottom: 2px !important;
         color: #000000 !important;
       }
 
       .print-page-subtitle {
-        font-size: 10.5pt !important;
-        font-weight: 700 !important;
-        color: #111111 !important;
+        font-size: 11pt !important;
+        font-weight: 800 !important;
+        color: #000000 !important;
       }
 
       .medal-section {
-        border-width: 1.5pt !important;
-        padding: 8px 10px !important;
+        border: 2pt solid #000000 !important;
+        padding: 6px 10px 8px !important;
         margin-bottom: 8px !important;
+        background: #ffffff !important;
       }
 
       .medal-section-bronze {
-        background: #fff7ed !important;
-        border-color: #ea580c !important;
+        border-top: 5pt solid #000000 !important;
       }
-
       .medal-section-silver {
-        background: #f1f5f9 !important;
-        border-color: #64748b !important;
+        border-top: 5pt solid #475569 !important;
       }
-
       .medal-section-gold {
-        background: #fefce8 !important;
-        border-color: #ca8a04 !important;
+        border-top: 6pt solid #000000 !important;
+        background: #fafafa !important;
       }
 
       .medal-badge-print {
-        font-size: 10pt !important;
+        font-size: 11pt !important;
         padding: 2px 8px !important;
+        border: 1.5pt solid #000000 !important;
       }
 
-      .badge-bronze-print { background: #ea580c !important; color: #ffffff !important; }
-      .badge-silver-print { background: #475569 !important; color: #ffffff !important; }
-      .badge-gold-print { background: #b45309 !important; color: #ffffff !important; }
+      .badge-bronze-print { background: #9a3412 !important; color: #ffffff !important; }
+      .badge-silver-print { background: #334155 !important; color: #ffffff !important; }
+      .badge-gold-print { background: #000000 !important; color: #ffffff !important; }
 
       .awardee-card-item {
-        border: 1px solid #94a3b8 !important;
+        border: 1.5pt solid #000000 !important;
         background: #ffffff !important;
-        padding: 3px 5px !important;
+        padding: 3px 6px !important;
       }
 
-      /* 적응형 폰트 축소 */
-      .print-award-page.fit-compact .awardee-card-item {
-        font-size: 8.5pt !important;
-        padding: 2px 4px !important;
+      .awardee-idx {
+        font-size: 10pt !important;
+        font-weight: 900 !important;
+        color: #000000 !important;
       }
 
-      .print-award-page.fit-dense .awardee-card-item {
-        font-size: 7.5pt !important;
-        padding: 1.5px 3px !important;
+      .awardee-name-part {
+        font-size: 11.5pt !important;
+        font-weight: 900 !important;
+        color: #000000 !important;
+      }
+
+      .awardee-church-part {
+        font-size: 9.5pt !important;
+        font-weight: 800 !important;
+        color: #334155 !important;
+      }
+
+      .summary-table th {
+        background: #000000 !important;
+        color: #ffffff !important;
+        border: 1.5pt solid #000000 !important;
+      }
+
+      .summary-table td {
+        border: 1.5pt solid #000000 !important;
+        color: #000000 !important;
       }
     }
   </style>
@@ -1405,7 +1492,8 @@
         <div class="filter-group">
           <label style="font-weight: 700; font-size: 0.88rem;">출력 대상 선택:</label>
           <select id="standingsRoomSelect" class="filter-select" onchange="renderStandingsView()">
-            <option value="ALL">전체 교실 일괄 인쇄 (교실-핸드북별 분할)</option>
+            <option value="ALL">전체 일괄 인쇄 (메달 반출 집계표 + 전 교실 시상표)</option>
+            <option value="SUMMARY_ONLY">📊 [본부용] 시험장별 메달 반출 종합 집계표만 출력</option>
           </select>
           <span style="font-size: 0.82rem; color: #64748b;">
             * 각 교실의 각 핸드북별로 서로 다른 A4 용지로 자동 분할 출력됩니다. (최고득점상 제외)
@@ -2066,15 +2154,18 @@
       const standingsRoomSelect = document.getElementById('standingsRoomSelect');
 
       roomSelect.innerHTML = '<option value="">전체 교실</option>';
-      standingsRoomSelect.innerHTML = '<option value="ALL">전체 교실 일괄 인쇄 (교실-핸드북별 분할)</option>';
+      standingsRoomSelect.innerHTML = `
+        <option value="ALL">전체 일괄 인쇄 (메달 반출 집계표 + 전 교실 시상표)</option>
+        <option value="SUMMARY_ONLY">📊 [본부용] 시험장별 메달 반출 종합 집계표만 출력</option>
+      `;
 
-      roomSet.forEach(r => {
+      Array.from(roomSet).sort().forEach(r => {
         const opt1 = document.createElement('option');
         opt1.value = r; opt1.innerText = r;
         roomSelect.appendChild(opt1);
 
         const opt2 = document.createElement('option');
-        opt2.value = r; opt2.innerText = `📍 [${r}] 교실 단독 인쇄`;
+        opt2.value = r; opt2.innerText = `📍 [${r}] 교실 단독 인쇄 (요약 + 시상표)`;
         standingsRoomSelect.appendChild(opt2);
       });
     }
@@ -2936,7 +3027,7 @@
 
     /**
      * =========================================================================
-     * TAB 4. [수상자 명단 & A4 페이지 분할 인쇄] - 메달별 그룹핑 [동 ➔ 은 ➔ 금] & 가나다순 & 1핸드북 1장 종결
+     * TAB 4. [수상자 명단 & A4 페이지 분할 인쇄 & 메달 반출 종합 집계표]
      * =========================================================================
      */
     function renderStandingsView() {
@@ -2951,14 +3042,12 @@
         if (t.room) roomSet.add(t.room);
       });
 
-      const roomsToProcess = targetRoom === 'ALL' ? Array.from(roomSet).sort() : [targetRoom];
-
       const hbSet = new Set();
       HQ_DATA.participants.forEach(p => { if (p.handbook) hbSet.add(p.handbook); });
-      const handbookList = Array.from(hbSet).sort();
+      const handbookList = sortHandbooksByOfficialOrder(Array.from(hbSet));
 
+      // 1. 전역 수상자 랭킹 및 메달 산정
       const studentAwardMap = {};
-
       handbookList.forEach(hb => {
         const hbStudents = HQ_DATA.participants.filter(p => p.handbook === hb);
         const scoredStudents = hbStudents.map(s => {
@@ -2986,6 +3075,150 @@
         });
       });
 
+      // 2. 시험장별/핸드북별 메달 집계 데이터 산출
+      const allRooms = Array.from(roomSet).sort();
+      const roomSummaryData = {}; // { room: { handbooks: { hb: { gold, silver, bronze, total } }, totals: { gold, silver, bronze, total } } }
+
+      allRooms.forEach(room => {
+        roomSummaryData[room] = { handbooks: {}, totals: { gold: 0, silver: 0, bronze: 0, total: 0 } };
+        handbookList.forEach(hb => {
+          const matching = HQ_DATA.participants.filter(p => {
+            return teamRoomMap[`${p.handbook}_${p.team}`] === room && p.handbook === hb;
+          });
+          if (matching.length === 0) return;
+
+          let g = 0, s = 0, b = 0;
+          matching.forEach(p => {
+            const aw = studentAwardMap[p.id];
+            if (aw && aw.medal === '금메달') g++;
+            else if (aw && aw.medal === '은메달') s++;
+            else if (aw && aw.medal === '동메달') b++;
+          });
+
+          if (g + s + b > 0) {
+            roomSummaryData[room].handbooks[hb] = { gold: g, silver: s, bronze: b, total: g + s + b };
+            roomSummaryData[room].totals.gold += g;
+            roomSummaryData[room].totals.silver += s;
+            roomSummaryData[room].totals.bronze += b;
+            roomSummaryData[room].totals.total += (g + s + b);
+          }
+        });
+      });
+
+      // 3. 메달 불출 종합 집계표 (Summary Page) 생성 헬퍼
+      const createSummaryPageHtml = (title, roomsToShow) => {
+        let rowsHtml = '';
+        let sumGold = 0, sumSilver = 0, sumBronze = 0, sumTotal = 0;
+
+        roomsToShow.forEach(room => {
+          const rData = roomSummaryData[room];
+          if (!rData || rData.totals.total === 0) return;
+
+          const hbNames = Object.keys(rData.handbooks);
+          const hbBreakdown = hbNames.map(h => {
+            const item = rData.handbooks[h];
+            return `<b>${h}</b> (금${item.gold}/은${item.silver}/동${item.bronze})`;
+          }).join(', ');
+
+          rowsHtml += `
+            <tr>
+              <td style="font-weight: 900; font-size: 1.05rem;">${room}</td>
+              <td style="text-align: left; padding: 6px 10px; font-size: 0.85rem;">${hbBreakdown}</td>
+              <td style="font-weight: 900; background: #fffbeb; font-size: 1.05rem;">${rData.totals.gold}</td>
+              <td style="font-weight: 900; background: #f8fafc; font-size: 1.05rem;">${rData.totals.silver}</td>
+              <td style="font-weight: 900; background: #fff7ed; font-size: 1.05rem;">${rData.totals.bronze}</td>
+              <td style="font-weight: 900; background: #f1f5f9; font-size: 1.1rem; color: #1e3a8a;">${rData.totals.total}개</td>
+              <td style="width: 80px;"></td>
+            </tr>
+          `;
+
+          sumGold += rData.totals.gold;
+          sumSilver += rData.totals.silver;
+          sumBronze += rData.totals.bronze;
+          sumTotal += rData.totals.total;
+        });
+
+        return `
+          <div class="print-award-page">
+            <div class="print-page-header">
+              <div class="print-page-title">${title}</div>
+              <div class="print-page-subtitle">
+                본부 메달 불출 및 시험장 수령 검수용 공식 집계표
+              </div>
+            </div>
+
+            <div style="background: #f8fafc; border: 2px solid #000000; border-radius: 6px; padding: 10px 14px; margin-bottom: 12px; display: flex; justify-content: space-around; font-size: 1.05rem; font-weight: 900;">
+              <span>🥇 총 금메달: <b style="color: #b45309;">${sumGold}개</b></span>
+              <span>🥈 총 은메달: <b style="color: #475569;">${sumSilver}개</b></span>
+              <span>🥉 총 동메달: <b style="color: #c2410c;">${sumBronze}개</b></span>
+              <span>📦 불출 총합계: <b style="color: #1e3a8a; font-size: 1.15rem;">${sumTotal}개</b></span>
+            </div>
+
+            <table class="summary-table">
+              <thead>
+                <tr>
+                  <th style="width: 14%;">시험장</th>
+                  <th style="width: 44%;">핸드북별 세부 메달 수량</th>
+                  <th style="width: 8%;">🥇 금</th>
+                  <th style="width: 8%;">🥈 은</th>
+                  <th style="width: 8%;">🥉 동</th>
+                  <th style="width: 10%;">소계</th>
+                  <th style="width: 8%;">수령확인</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${rowsHtml}
+                <tr class="total-row">
+                  <td colspan="2" style="text-align: center; font-weight: 900; padding: 10px;">전 체 총 계</td>
+                  <td style="color: #b45309; font-size: 1.1rem;">${sumGold}</td>
+                  <td style="color: #475569; font-size: 1.1rem;">${sumSilver}</td>
+                  <td style="color: #c2410c; font-size: 1.1rem;">${sumBronze}</td>
+                  <td style="color: #1e3a8a; font-size: 1.2rem;">${sumTotal}개</td>
+                  <td>-</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div class="signature-box-container">
+              <div class="sig-box">
+                <div class="sig-box-title">본부 불출 책임자</div>
+                <div class="sig-box-line">(서명 / 인)</div>
+              </div>
+              <div class="sig-box">
+                <div class="sig-box-title">총괄 진행 본부장</div>
+                <div class="sig-box-line">(서명 / 인)</div>
+              </div>
+            </div>
+
+            <div style="margin-top: 14px; text-align: right; font-size: 8pt; color: #475569;">
+              * 본 집계표는 메달 불출 및 수령 확인을 위한 공식 문서입니다. 각 시험장 인계 전 수량을 반드시 대조하십시오.
+            </div>
+          </div>
+        `;
+      };
+
+      // 4. 출력 모드에 따른 분기 렌더링
+      if (targetRoom === 'SUMMARY_ONLY') {
+        container.innerHTML = createSummaryPageHtml('2026-2027 AWANA 성경퀴즈대회 메달 반출 종합 집계표', allRooms);
+        return;
+      }
+
+      // 전체 일괄 인쇄(ALL)일 경우, 맨 첫 장에 전체 종합 집계표 삽입
+      if (targetRoom === 'ALL') {
+        const summaryPageDiv = document.createElement('div');
+        summaryPageDiv.innerHTML = createSummaryPageHtml('2026-2027 AWANA 성경퀴즈대회 메달 반출 종합 집계표', allRooms);
+        container.appendChild(summaryPageDiv.firstElementChild);
+      }
+
+      // 개별 교실 인쇄일 경우, 해당 교실의 메달 불출 확인표를 첫 장에 삽입
+      if (targetRoom !== 'ALL') {
+        const roomSummaryDiv = document.createElement('div');
+        roomSummaryDiv.innerHTML = createSummaryPageHtml(`[${targetRoom}] 시험장 메달 불출 확인서`, [targetRoom]);
+        container.appendChild(roomSummaryDiv.firstElementChild);
+      }
+
+      // 5. 각 시험장별/핸드북별 시상식 공식 명단 (A4 1장 완벽 고대비 호명표) 렌더링
+      const roomsToProcess = targetRoom === 'ALL' ? allRooms : [targetRoom];
       let pageCount = 0;
 
       roomsToProcess.forEach(room => {
@@ -3021,25 +3254,24 @@
 
           const totalAwardees = awardees.length;
 
-          // 인원수에 따른 A4 1장 최적화 밀도 클래스 부여 (35명 이하 기본 / 36~50명 컴팩트 / 51명 이상 초밀착)
+          // 인원수에 따른 A4 1장 밀도 클래스
           let fitClass = '';
           if (totalAwardees > 50) {
             fitClass = 'fit-dense';
-          } else if (totalAwardees > 34) {
-            fitClass = 'fit-compact';
           }
 
           const pageDiv = document.createElement('div');
           pageDiv.className = `print-award-page ${fitClass}`;
 
-          // 메달 섹션 생성 헬퍼 함수 (호명 순서: 동메달 -> 은메달 -> 금메달)
-          const createMedalSectionHtml = (title, medalBadgeClass, sectionThemeClass, list) => {
+          // 메달 섹션 생성 헬퍼 함수 (호명 순서: 동 ➔ 은 ➔ 금, 1, 2, 3... 순번 부여)
+          const createMedalSectionHtml = (title, medalBadgeClass, sectionThemeClass, list, startIdx = 1) => {
             let cardsHtml = '';
             if (list.length === 0) {
               cardsHtml = '<div class="empty-awardee-notice">해당 메달 수상자가 없습니다.</div>';
             } else {
-              cardsHtml = list.map(item => `
+              cardsHtml = list.map((item, idx) => `
                 <div class="awardee-card-item">
+                  <span class="awardee-idx">${idx + 1}.</span>
                   <span class="awardee-name-part">${item.name}</span>
                   <span class="awardee-church-part">(${item.church})</span>
                 </div>
@@ -3061,7 +3293,7 @@
             `;
           };
 
-          // 시상식 호명 순서: 🥉 동메달 ➔ 🥈 은메달 ➔ 🥇 금메달 순으로 렌더링
+          // 시상식 호명 순서: 🥉 동메달 ➔ 🥈 은메달 ➔ 🥇 금메달
           const bronzeHtml = createMedalSectionHtml('🥉 동메달 (Bronze Medal)', 'badge-bronze-print', 'medal-section-bronze', bronzeList);
           const silverHtml = createMedalSectionHtml('🥈 은메달 (Silver Medal)', 'badge-silver-print', 'medal-section-silver', silverList);
           const goldHtml = createMedalSectionHtml('🥇 금메달 (Gold Medal)', 'badge-gold-print', 'medal-section-gold', goldList);
@@ -3079,7 +3311,7 @@
             ${silverHtml}
             ${goldHtml}
 
-            <div style="margin-top: 8px; text-align: right; font-size: 8pt; color: #64748b;">
+            <div style="margin-top: 6px; text-align: right; font-size: 8pt; color: #334155; font-weight: 600;">
               * 본 시상표는 교실별 시상 진행(호명)을 위한 공식 출력물이며, 각 메달별 단원은 성명 가나다순으로 표기되어 있습니다. (최고득점상은 본부 전체 집계에서 별도 수여)
             </div>
           `;
@@ -3088,7 +3320,7 @@
         });
       });
 
-      if (pageCount === 0) {
+      if (pageCount === 0 && targetRoom !== 'SUMMARY_ONLY') {
         container.innerHTML = '<div style="padding: 40px; text-align: center; color: #94a3b8;">출력할 수상자 데이터가 없습니다. 점수가 제출되었는지 확인해 주세요.</div>';
       }
     }
