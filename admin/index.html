@@ -988,6 +988,39 @@
     /* =========================================================================
        📊 메달 불출 종합 집계표 (Summary Page) 전용 스타일
        ========================================================================= */
+    .summary-banner-box {
+      background: #ffffff;
+      border: 2px solid #000000;
+      border-radius: 6px;
+      padding: 8px 12px;
+      margin-bottom: 12px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      align-items: center;
+      text-align: center;
+      box-sizing: border-box;
+      width: 100%;
+    }
+
+    .summary-banner-item {
+      font-size: 0.96rem;
+      font-weight: 900;
+      color: #000000;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .summary-banner-item b {
+      font-weight: 900;
+      letter-spacing: -0.2px;
+    }
+
+    .summary-banner-item.highlight b {
+      font-size: 1.08rem;
+    }
+
     .summary-table {
       width: 100%;
       border-collapse: collapse;
@@ -1200,6 +1233,25 @@
       .summary-table td {
         border: 1.5pt solid #000000 !important;
         color: #000000 !important;
+      }
+
+      .summary-banner-box {
+        border: 2pt solid #000000 !important;
+        padding: 6px 8px !important;
+        margin-bottom: 10px !important;
+        display: grid !important;
+        grid-template-columns: repeat(4, 1fr) !important;
+        gap: 6px !important;
+      }
+
+      .summary-banner-item {
+        font-size: 9.5pt !important;
+        font-weight: 900 !important;
+        white-space: nowrap !important;
+      }
+
+      .summary-banner-item.highlight b {
+        font-size: 10.5pt !important;
       }
     }
   </style>
@@ -3151,11 +3203,11 @@
               <div class="print-page-subtitle" style="font-size: 11.5pt;">본부 메달 총괄 불출 및 시험장별 배분 현황표</div>
             </div>
 
-            <div style="background: #ffffff; border: 2.5px solid #000000; border-radius: 6px; padding: 10px 14px; margin-bottom: 14px; display: flex; justify-content: space-around; align-items: center; font-size: 1.05rem; font-weight: 900; color: #000000;">
-              <span style="white-space: nowrap;">🥇 총 금메달: <b>${sumGold}개</b></span>
-              <span style="white-space: nowrap;">🥈 총 은메달: <b>${sumSilver}개</b></span>
-              <span style="white-space: nowrap;">🥉 총 동메달: <b>${sumBronze}개</b></span>
-              <span style="white-space: nowrap;">📦 불출 총합계: <b style="font-size: 1.2rem;">${sumTotal}개</b></span>
+            <div class="summary-banner-box">
+              <div class="summary-banner-item">🥇 총 금메달: <b>${sumGold}개</b></div>
+              <div class="summary-banner-item">🥈 총 은메달: <b>${sumSilver}개</b></div>
+              <div class="summary-banner-item">🥉 총 동메달: <b>${sumBronze}개</b></div>
+              <div class="summary-banner-item highlight">📦 불출 총합계: <b>${sumTotal}개</b></div>
             </div>
 
             <table class="summary-table" style="margin-top: 6px;">
@@ -3211,11 +3263,11 @@
               <div class="print-page-subtitle" style="font-size: 12pt;">시험장 운영 핸드북별 메달 배분 요약서</div>
             </div>
 
-            <div style="background: #ffffff; border: 2.5px solid #000000; border-radius: 6px; padding: 12px 18px; margin-bottom: 18px; display: flex; justify-content: space-around; align-items: center; font-size: 1.15rem; font-weight: 900; color: #000000;">
-              <span style="white-space: nowrap;">🥇 금메달: <b>${rData.totals.gold}개</b></span>
-              <span style="white-space: nowrap;">🥈 은메달: <b>${rData.totals.silver}개</b></span>
-              <span style="white-space: nowrap;">🥉 동메달: <b>${rData.totals.bronze}개</b></span>
-              <span style="white-space: nowrap;">📦 [${room}] 불출 합계: <b style="font-size: 1.25rem;">${rData.totals.total}개</b></span>
+            <div class="summary-banner-box">
+              <div class="summary-banner-item">🥇 금메달: <b>${rData.totals.gold}개</b></div>
+              <div class="summary-banner-item">🥈 은메달: <b>${rData.totals.silver}개</b></div>
+              <div class="summary-banner-item">🥉 동메달: <b>${rData.totals.bronze}개</b></div>
+              <div class="summary-banner-item highlight">📦 [${room}] 불출 합계: <b>${rData.totals.total}개</b></div>
             </div>
 
             <table class="summary-table" style="margin-top: 10px;">
