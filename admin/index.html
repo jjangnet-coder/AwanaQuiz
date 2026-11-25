@@ -1320,6 +1320,15 @@
     /* =========================================================================
        ✨ Stripe / Toss 스타일 풀스크린 소프트 라이트 (Soft Editorial Light)
        ========================================================================= */
+    html,
+    body {
+      height: 100vh !important;
+      min-height: 0 !important;
+      overflow: hidden !important;
+      display: flex;
+      flex-direction: column;
+    }
+
     body {
       background: #f4f6f9 !important;
       color: #111827 !important;
@@ -1328,9 +1337,15 @@
 
     .container {
       max-width: 100% !important;
+      width: 100%;
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
     }
 
     .hq-header {
+      flex-shrink: 0;
       background: rgba(255, 255, 255, 0.94) !important;
       backdrop-filter: blur(12px);
       border: 1px solid rgba(15, 23, 42, 0.07) !important;
@@ -1408,11 +1423,13 @@
       padding: 18px 20px !important;
     }
 
-    /* 대시보드는 3중 박스 탈출 — 정확히 1화면(100vh) 고정, 브라우저 스크롤 0% */
+    /* 대시보드는 3중 박스 탈출 — 매직 넘버 없는 Flex 100vh 고정 (스크롤 0%) */
     #tab-monitor.active {
       display: flex !important;
       flex-direction: column;
-      height: calc(100vh - 82px) !important;
+      flex: 1;
+      min-height: 0;
+      height: auto !important;
       overflow: hidden !important;
       background: transparent !important;
       border: none !important;
@@ -1599,24 +1616,36 @@
     .session-seg.done-m { background: #f59e0b; }
     .session-seg.done-a { background: #10b981; }
 
-    /* 필기 채점 풀높이 고정 패널 (바깥/안쪽 모두 스크롤 0%) */
+    /* 필기 채점 풀높이 고정 패널 (매직 넘버 없는 Flex 100% 분배) */
     .written-table-container {
-      height: calc(100vh - 185px) !important;
+      flex: 1 !important;
+      min-height: 0 !important;
+      height: auto !important;
       border: 1px solid #e2e8f0 !important;
       border-radius: 12px !important;
       overflow-y: hidden !important;
     }
 
-    /* 단원 관리 · 핸드북별 결과 탭 풀높이 통일 (화면 하단 빈 여백 0%) */
+    /* 단원 관리 · 필기 채점 · 핸드북별 결과 탭 풀높이 통일 (매직 넘버 0개) */
     #tab-participants.active,
+    #tab-written.active,
     #tab-handbook-awards.active {
       display: flex !important;
       flex-direction: column;
-      height: calc(100vh - 82px) !important;
+      flex: 1;
+      min-height: 0;
+      height: auto !important;
       overflow: hidden !important;
     }
 
-    #tab-participants .filter-bar {
+    #tab-awards.active {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+    }
+
+    #tab-participants .filter-bar,
+    #tab-written .filter-bar {
       flex-shrink: 0;
     }
 
@@ -1634,10 +1663,17 @@
     }
 
     @media print {
+      html,
+      body,
+      .container,
+      .tab-content.active,
       #tab-handbook-awards.active,
-      #tab-participants.active {
+      #tab-participants.active,
+      #tab-awards.active {
         height: auto !important;
+        min-height: 0 !important;
         overflow: visible !important;
+        display: block !important;
       }
     }
 
