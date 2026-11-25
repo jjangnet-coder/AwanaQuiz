@@ -354,26 +354,7 @@ function formatAllSheetsNicely() {
     }
   }
 
-  // 8. 11개 공식 핸드북별 시상 시트 (A~P: 16개 열 전수 표준화)
-  getOfficial11HandbooksList().forEach(hb => {
-    const hbSheet = ss.getSheetByName(hb);
-    if (!hbSheet) return;
 
-    // ID:90, 핸드북:135, 교실:85, 학년:55, 조:55, 번호:55, 교회명:150, 이름:85, 필기:75, 오전:90, 오후:90, 스피드:90, 총점:95, 석차:65, 메달:100, 최고득점:120
-    const widths = [90, 135, 85, 55, 55, 55, 150, 85, 75, 90, 90, 90, 95, 65, 100, 120];
-    widths.forEach((w, i) => hbSheet.setColumnWidth(i + 1, w));
-
-    if (hbSheet.getLastRow() >= 1) {
-      hbSheet.getRange(1, 1, hbSheet.getLastRow(), 8).setHorizontalAlignment('center');
-      hbSheet.getRange(1, 9, hbSheet.getLastRow(), 5).setHorizontalAlignment('right'); // 점수 컬럼
-      hbSheet.getRange(1, 14, hbSheet.getLastRow(), 3).setHorizontalAlignment('center'); // 석차, 메달, 최고득점
-      hbSheet.getRange(1, 1, 1, 16).setFontWeight('bold').setBackground('#F1F5F9');
-      if (hbSheet.getLastRow() >= 2) {
-        hbSheet.getRange(2, 13, hbSheet.getLastRow() - 1, 1).setFontWeight('bold'); // 총점 굵게
-        hbSheet.getRange(2, 14, hbSheet.getLastRow() - 1, 1).setFontWeight('bold'); // 석차 굵게
-      }
-    }
-  });
 
   SpreadsheetApp.flush();
   Logger.log('🎉 [서식 표준화 완료] 18개 모든 시트의 열 너비 및 정렬이 완벽하게 정리되었습니다.');
