@@ -1858,6 +1858,7 @@
           <table class="hq-table" id="hbAwardTable">
             <thead>
               <tr>
+                <th style="width: 50px;">No.</th>
                 <th>핸드북</th>
                 <th>석차</th>
                 <th>메달</th>
@@ -2535,12 +2536,13 @@
       }
 
       if (allRows.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="14" style="text-align:center; padding:24px; color:#94a3b8;">조회된 데이터가 없습니다.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="15" style="text-align:center; padding:24px; color:#94a3b8;">조회된 데이터가 없습니다.</td></tr>';
         return;
       }
 
-      tbody.innerHTML = allRows.map(r => `
+      tbody.innerHTML = allRows.map((r, idx) => `
         <tr>
+          <td>${idx + 1}</td>
           <td>${r.handbook}</td>
           <td><b>${r.rank || '-'}</b></td>
           <td>${r.medal || '-'}</td>
