@@ -2492,12 +2492,12 @@
           const maxScore = rows.length > 0 ? rows[0].total : 0;
           const bodyHtml = rows.length === 0
             ? '<div style="color:#94a3b8; font-size:0.86rem; padding:8px 0;">집계된 최고득점자 없음</div>'
-            : `<div style="display:flex; flex-wrap:wrap; gap:6px;">` +
-              rows.map(r => `<span style="display:inline-flex; align-items:center; gap:4px; background:#eff6ff; border:1px solid #bfdbfe; color:#1e3a8a; padding:4px 9px; border-radius:6px; font-size:0.83rem;">🏆 <b>${r.name}</b> (${r.church} · ${r.room || '-'} · ${r.team}조)</span>`).join('') +
+            : `<div style="display:flex; flex-wrap:wrap; gap:6px; max-height:160px; overflow-y:auto;">` +
+              rows.map(r => `<span style="display:inline-flex; align-items:center; gap:4px; background:#eff6ff; border:1px solid #bfdbfe; color:#1e3a8a; padding:4px 9px; border-radius:6px; font-size:0.83rem;">🏆 <b>${r.name}</b> (${r.church})</span>`).join('') +
               `</div>`;
 
           return `
-            <div style="border:1px solid #e2e8f0; border-radius:10px; padding:12px 14px; background:#fff;">
+            <div style="border:1px solid #e2e8f0; border-radius:10px; padding:12px 14px; background:#fff; min-height:120px;">
               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; border-bottom:1px solid #f1f5f9; padding-bottom:6px;">
                 <b style="color:#0f172a; font-size:0.95rem;">${hb}</b>
                 <span style="font-size:0.82rem; font-weight:700; color:${rows.length > 0 ? '#16a34a' : '#94a3b8'};">
