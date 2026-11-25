@@ -1213,14 +1213,14 @@
       const enteredCode = roomCodeInput.value.trim();
 
       if (!selectedRoom) {
-        errMsg.innerText = '담당 시험장(교실)을 먼저 선택해 주세요.';
+        errMsg.innerText = '담당 시험장을 먼저 선택해 주세요.';
         errMsg.style.display = 'block';
         roomSelect.focus();
         return;
       }
 
       if (!enteredCode) {
-        errMsg.innerText = '교실 접속 코드를 입력해 주세요.';
+        errMsg.innerText = '접속 코드를 입력해 주세요.';
         errMsg.style.display = 'block';
         roomCodeInput.focus();
         return;
@@ -1233,7 +1233,7 @@
         errMsg.style.display = 'none';
         closeGatewayModal();
         applyLockedRoom(selectedRoom);
-        showCustomAlert('교실 인증 완료', `📍 [${selectedRoom}] 점수기록관으로 정상 인증되었습니다.\n점수기록관 성함을 확인하고 교시를 선택해 주세요.`, 'success');
+        showCustomAlert('시험장 입장 완료', `[${selectedRoom}] 점수기록관으로 입장했습니다.\n점수기록관 성함을 확인하고 교시를 선택해 주세요.`, 'success');
       } else {
         errMsg.innerText = `[${selectedRoom}]의 접속 코드가 일치하지 않습니다. 다시 확인해 주세요.`;
         errMsg.style.display = 'block';
@@ -1260,18 +1260,18 @@
     function requestRoomChange() {
       if (hasUnsavedChanges()) {
         const isModified = SUBMIT_LIFECYCLE_STATE === 'ready_modified';
-        const warningTitle = isModified ? '점수 수정 미제출 로그아웃 경고' : '채점 미제출 로그아웃 경고';
+        const warningTitle = isModified ? '수정 점수 미전송 경고' : '채점 미전송 경고';
         const warningBox = isModified
           ? `<div class="modal-callout-box callout-danger">
-               <b>⚠️ 주의:</b> 수정한 O/X 채점 데이터가 아직 중앙 서버로 재제출되지 않았습니다.<br>
-               지금 로그아웃하시면 수정한 점수가 저장되지 않고 이전 상태로 유지됩니다.
+               <b>주의:</b> 수정한 O/X 채점 데이터가 아직 본부로 재전송되지 않았습니다.<br>
+               지금 시험장을 변경하면 수정한 점수가 저장되지 않고 이전 상태로 유지됩니다.
              </div>
-             정말로 수정을 취소하고 로그아웃하시겠습니까?`
+             정말로 수정을 취소하고 시험장을 변경하시겠습니까?`
           : `<div class="modal-callout-box callout-danger">
-               <b>⚠️ 주의:</b> 작성 중이던 [${CURRENT_ROOM} / ${CURRENT_PERIOD || '진행 중'}교시] 조의 채점 데이터가 아직 제출되지 않았습니다.<br>
-               지금 로그아웃하시면 모든 입력 내용이 즉시 사라집니다.
+               <b>주의:</b> 작성 중이던 [${CURRENT_ROOM} · ${CURRENT_PERIOD || '진행 중'}교시] 조의 채점 데이터가 아직 전송되지 않았습니다.<br>
+               지금 시험장을 변경하면 모든 입력 내용이 즉시 사라집니다.
              </div>
-             정말로 작성을 취소하고 로그아웃하시겠습니까?`;
+             정말로 작성을 취소하고 시험장을 변경하시겠습니까?`;
 
         showCustomConfirm(
           warningTitle,
@@ -1282,7 +1282,7 @@
           null,
           'danger',
           {
-            confirmText: '작성 취소 및 로그아웃',
+            confirmText: '취소하고 시험장 변경',
             cancelText: '계속 채점하기',
             confirmClass: 'modal-btn-danger',
             cancelClass: 'modal-btn-confirm',
@@ -1291,18 +1291,18 @@
         );
       } else {
         showCustomConfirm(
-          '교실 로그아웃',
+          '시험장 변경',
           `<div class="modal-callout-box callout-submit">
-             📍 현재 교실: <b>${LOCKED_ROOM}</b>
+             현재 시험장: <b>${LOCKED_ROOM}</b>
            </div>
-           현재 교실에서 안전하게 로그아웃하고 시험장 선택 화면으로 이동하시겠습니까?`,
+           현재 시험장에서 나가고 시험장 선택 화면으로 이동하시겠습니까?`,
           () => {
             executeRoomReset();
           },
           null,
           'submit',
           {
-            confirmText: '🔓 로그아웃',
+            confirmText: '시험장 변경',
             cancelText: '취소'
           }
         );
@@ -1645,7 +1645,7 @@
      */
     async function prefetchRoomStudents(roomName, onComplete = null) {
       if (!roomName) return;
-      showLoading(`[${roomName}] 전체 교시 선수 명단을 준비 중입니다...`);
+      showLoading(`[${roomName}] 전체 교시 단원 명단을 준비 중입니다...`);
 
       try {
         const queryUrl = `${GAS_URL}?action=getRoomStudents&room=${encodeURIComponent(roomName)}`;
@@ -1662,14 +1662,14 @@
           MASTER_DATA.participants = ROOM_PREFETCH_CACHE.participants;
           MASTER_DATA.scores = ROOM_PREFETCH_CACHE.scores;
           MASTER_DATA.submittedAnswers = ROOM_PREFETCH_CACHE.submittedAnswers;
-          document.getElementById('gasEndpointInfo').innerText = '구글 스프레드시트 연결 정상';
+          document.getElementById('gasEndpointInfo').innerText = '서버 연결됨';
           if (onComplete) onComplete();
         } else {
           throw new Error(result.message);
         }
       } catch (err) {
         console.error('교실 프리패치 실패:', err);
-        showCustomAlert('데이터 로드 실패', `[${roomName}] 선수 명단을 가져오지 못했습니다: ${err.message}`, 'warn');
+        showCustomAlert('데이터 로드 실패', `[${roomName}] 단원 명단을 가져오지 못했습니다: ${err.message}`, 'warn');
       } finally {
         hideLoading();
       }
@@ -1697,7 +1697,7 @@
         document.getElementById('tableBody').innerHTML = `
       <tr>
         <td colspan="18" style="padding: 40px; color: var(--text-muted); font-size: 0.95rem;">
-          상단에서 <b>교시</b>를 선택하면 해당 교시의 선수 명단이 나타납니다.
+          상단에서 <b>교시</b>를 선택하면 해당 교시의 단원 명단이 나타납니다.
         </td>
       </tr>`;
         return;
@@ -1734,7 +1734,7 @@
         document.getElementById('tableBody').innerHTML = `
       <tr>
         <td colspan="18" style="padding: 30px; color: #ef4444; font-weight: 700;">
-          시간표 시트에 해당 교실/교시 배정이 없습니다.
+          시간표에 해당 시험장·교시 배정이 없습니다.
         </td>
       </tr>`;
         return;

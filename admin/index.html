@@ -1844,10 +1844,10 @@
     </div>
   </div>
 
-  <!-- 선수 정보 수정 모달 -->
+  <!-- 단원 정보 수정 모달 -->
   <div class="hq-modal-overlay" id="editStudentModalOverlay">
     <div class="hq-modal-card">
-      <div class="hq-modal-title">선수 정보 수정</div>
+      <div class="hq-modal-title">단원 정보 수정</div>
       <input type="hidden" id="editStudentId" />
       <div class="hq-form-group">
         <label>참가자 ID</label>
@@ -1868,10 +1868,10 @@
     </div>
   </div>
 
-  <!-- 선수 긴급 이동 (Room & Seat Transfer) 모달 -->
+  <!-- 단원 긴급 이동 모달 -->
   <div class="hq-modal-overlay" id="transferModalOverlay">
     <div class="hq-modal-card">
-      <div class="hq-modal-title">선수 시험장/조 긴급 이동</div>
+      <div class="hq-modal-title">단원 시험장·조 이동</div>
       <div
         style="font-size: 0.84rem; color: #64748b; margin-bottom: 14px; background: #fffbeb; padding: 10px; border-radius: 8px; border: 1px solid #fef3c7; line-height: 1.5;">
         ⚠️ <b>현장 좌석 규칙 안내:</b><br>
@@ -2029,7 +2029,7 @@
             <option value="">전체 핸드북</option>
           </select>
           <select id="rosterRoomFilter" class="filter-select" onchange="filterRosterTable()">
-            <option value="">전체 교실</option>
+            <option value="">전체 시험장</option>
           </select>
           <select id="rosterAbsentFilter" class="filter-select" onchange="filterRosterTable()">
             <option value="">전체 출결</option>
@@ -2048,7 +2048,7 @@
             <tr>
               <th>ID</th>
               <th>핸드북</th>
-              <th>교실</th>
+              <th>시험장</th>
               <th>학년</th>
               <th>조</th>
               <th>번호</th>
@@ -2060,7 +2060,7 @@
           </thead>
           <tbody id="rosterTableBody">
             <tr>
-              <td colspan="10" style="padding: 30px;">선수 명단을 불러오는 중...</td>
+              <td colspan="10" style="padding: 30px;">단원 명단을 불러오는 중...</td>
             </tr>
           </tbody>
         </table>
@@ -2125,11 +2125,11 @@
         <div class="filter-group">
           <label style="font-weight: 700; font-size: 0.88rem;">출력 대상 선택:</label>
           <select id="standingsRoomSelect" class="filter-select" onchange="renderStandingsView()">
-            <option value="ALL">전체 일괄 인쇄 (메달 반출 집계표 + 전 교실 시상표)</option>
-            <option value="SUMMARY_ONLY">📊 [본부용] 시험장별 메달 반출 종합 집계표만 출력</option>
+            <option value="ALL">전체 일괄 인쇄 (메달 반출 집계표 + 전 시험장 시상표)</option>
+            <option value="SUMMARY_ONLY">[본부용] 시험장별 메달 반출 종합 집계표만 출력</option>
           </select>
-          <span style="font-size: 0.82rem; color: #64748b;">
-            * 각 교실의 각 핸드북별로 서로 다른 A4 용지로 자동 분할 출력됩니다. (최고득점상 제외)
+          <span style="font-size: 0.82rem; color: #94a3b8;">
+            * 각 시험장의 핸드북별로 서로 다른 A4 용지로 자동 분할 출력됩니다. (최고득점상 제외)
           </span>
         </div>
         <div class="filter-group">
@@ -2176,7 +2176,7 @@
                 <th>핸드북</th>
                 <th>석차</th>
                 <th>메달</th>
-                <th>교실</th>
+                <th>시험장</th>
                 <th>학년</th>
                 <th>조</th>
                 <th>번호</th>
@@ -3238,10 +3238,10 @@
       const roomSelect = document.getElementById('rosterRoomFilter');
       const standingsRoomSelect = document.getElementById('standingsRoomSelect');
 
-      roomSelect.innerHTML = '<option value="">전체 교실</option>';
+      roomSelect.innerHTML = '<option value="">전체 시험장</option>';
       standingsRoomSelect.innerHTML = `
-        <option value="ALL">전체 일괄 인쇄 (메달 반출 집계표 + 전 교실 시상표)</option>
-        <option value="SUMMARY_ONLY">📊 [본부용] 시험장별 메달 반출 종합 집계표만 출력</option>
+        <option value="ALL">전체 일괄 인쇄 (메달 반출 집계표 + 전 시험장 시상표)</option>
+        <option value="SUMMARY_ONLY">[본부용] 시험장별 메달 반출 종합 집계표만 출력</option>
       `;
 
       Array.from(roomSet).sort().forEach(r => {
@@ -3250,7 +3250,7 @@
         roomSelect.appendChild(opt1);
 
         const opt2 = document.createElement('option');
-        opt2.value = r; opt2.innerText = `📍 [${r}] 교실 단독 인쇄 (요약 + 시상표)`;
+        opt2.value = r; opt2.innerText = `[${r}] 시험장 단독 인쇄 (요약 + 시상표)`;
         standingsRoomSelect.appendChild(opt2);
       });
     }
@@ -3290,7 +3290,7 @@
       tbody.innerHTML = '';
 
       if (filtered.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="10" style="padding: 30px; color: #94a3b8;">조건에 해당하는 선수가 없습니다.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="10" style="padding: 30px; color: #94a3b8;">조건에 해당하는 단원이 없습니다.</td></tr>';
         return;
       }
 
@@ -3372,7 +3372,7 @@
           p.church = church;
           closeEditStudentModal();
           filterRosterTable();
-          showCustomAlert('수정 완료', '선수 정보가 성공적으로 수정되었습니다.', 'success');
+          showCustomAlert('수정 완료', '단원 정보가 성공적으로 수정되었습니다.', 'success');
         } else {
           showCustomAlert('수정 실패', res.message, 'danger');
         }
@@ -3386,7 +3386,7 @@
       const p = HQ_DATA.participants.find(item => item.id === studentId);
       if (!p) return;
 
-      const title = targetAbsent ? '선수 결석(불참) 처리 확인' : '선수 출석 상태 복원';
+      const title = targetAbsent ? '단원 결석(불참) 처리 확인' : '단원 출석 상태 복원';
       const msg = targetAbsent
         ? `<div class="modal-callout-box callout-danger">
              <b>📍 대상 단원:</b> ${p.name} (${p.church})<br>
@@ -3593,20 +3593,19 @@
 
       // 2. 확인 컨펌 팝업 표시 (취소 시 다시 이동 모달 복원)
       showCustomConfirm(
-        '선수 긴급 이동 확정',
+        '단원 이동 확정',
         `<div class="modal-callout-box callout-submit">
-           <b>📍 이동 단원:</b> ${p.name} (${p.church})<br>
+           <b>이동 단원:</b> ${p.name} (${p.church})<br>
            <b>• 이전 위치:</b> ${p.handbook} ${p.team}조 ${p.num}번 (공석 유지)<br>
            <b>• 신규 위치:</b> <b>${targetHandbook} ${targetTeam}조 ${targetNum}번</b>
          </div>
-         정말로 긴급 이동을 확정하고 구글 시트에 반영하시겠습니까?`,
+         이동을 확정하고 본부 명단에 반영하시겠습니까?`,
         async () => {
-          // 3. 확인 클릭 시 '저장 중' 로딩 팝업으로 즉시 전환
           showCustomLoading(
-            '데이터 저장 및 시트 반영 중',
+            '데이터 저장 및 명단 반영 중',
             `<div style="padding: 10px 0;">
-               선수 <b>${p.name}</b> 단원을 [<b>${targetHandbook} ${targetTeam}조 ${targetNum}번</b>]으로 이동 처리 중입니다.<br>
-               <span style="font-size: 0.85rem; color: #64748b;">(구글 시트 참가자명단 및 최종집계, 시상표 동시 갱신 중...)</span>
+               <b>${p.name}</b> 단원을 [<b>${targetHandbook} ${targetTeam}조 ${targetNum}번</b>]으로 이동 처리 중입니다.<br>
+               <span style="font-size: 0.85rem; color: #94a3b8;">(단원 명단 및 최종 집계 반영 중...)</span>
              </div>`
           );
 
@@ -3669,7 +3668,7 @@
           showCustomLoading(
             '원래 위치로 복원 중',
             `<div style="padding: 10px 0;">
-               선수 <b>${p.name}</b> 단원을 [<b>${orig.handbook} ${orig.team}조 ${orig.num}번</b>]으로 원복 중입니다...
+               <b>${p.name}</b> 단원을 [<b>${orig.handbook} ${orig.team}조 ${orig.num}번</b>]으로 원복 중입니다...
              </div>`
           );
 
@@ -3868,7 +3867,7 @@
 
       tbody.innerHTML = '';
       if (students.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" style="padding: 40px; color: #94a3b8; text-align: center;">해당 조에 배정된 선수가 없습니다.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" style="padding: 40px; color: #94a3b8; text-align: center;">해당 조에 배정된 단원이 없습니다.</td></tr>';
         if (progressEl) {
           progressEl.style.display = 'none';
           progressEl.innerHTML = '';
@@ -4058,13 +4057,13 @@
            <b>📍 대상:</b> ${hb} ${team}조<br>
            <b>• 입력 인원:</b> 총 <b>${records.length}명</b>
          </div>
-         입력하신 필기점수를 중앙 서버에 즉시 저장하시겠습니까?`,
+         입력하신 필기점수를 본부 집계에 즉시 저장하시겠습니까?`,
         async () => {
           showCustomLoading(
             '필기시험 점수 저장 중',
             `<div style="padding: 10px 0;">
                [<b>${hb} ${team}조</b>] ${records.length}명의 필기점수를 저장하고 있습니다...<br>
-               <span style="font-size: 0.82rem; color: #64748b;">(중앙 서버 동기화 진행 중)</span>
+               <span style="font-size: 0.82rem; color: #94a3b8;">(본부 집계 반영 중)</span>
              </div>`
           );
 
