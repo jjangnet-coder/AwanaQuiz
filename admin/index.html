@@ -2431,8 +2431,8 @@
       });
 
       const valid = rows.filter(r => r.hasParticipated).sort((a, b) => b.total - a.total);
-      const totalValid = valid.length;
-      const maxScore = totalValid > 0 ? valid[0].total : 0;
+      const totalDenominator = rows.length || 1;
+      const maxScore = valid.length > 0 ? valid[0].total : 0;
 
       valid.forEach((r, idx) => {
         if (idx > 0 && r.total === valid[idx - 1].total) {
@@ -2440,7 +2440,7 @@
         } else {
           r.rank = idx + 1;
         }
-        const pct = r.rank / totalValid;
+        const pct = r.rank / totalDenominator;
         if (pct <= goldRatio) r.medal = '🥇 금메달';
         else if (pct <= goldRatio + silverRatio) r.medal = '🥈 은메달';
         else r.medal = '🥉 동메달';
