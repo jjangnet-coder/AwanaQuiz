@@ -865,7 +865,8 @@
       position: fixed;
       inset: 0;
       background: rgba(15, 23, 42, 0.45);
-      z-index: 9999;
+      z-index: 30000;
+      pointer-events: auto;
       justify-content: center;
       align-items: center;
       flex-direction: column;
@@ -2400,10 +2401,14 @@
     function showLoading(text) {
       document.getElementById('loadingText').innerText = text;
       document.getElementById('loadingOverlay').style.display = 'flex';
+      const periodEl = document.getElementById('periodSelect');
+      if (periodEl) periodEl.disabled = true;
     }
 
     function hideLoading() {
       document.getElementById('loadingOverlay').style.display = 'none';
+      const periodEl = document.getElementById('periodSelect');
+      if (periodEl) periodEl.disabled = false;
     }
   </script>
 
