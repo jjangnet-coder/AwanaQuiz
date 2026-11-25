@@ -2644,6 +2644,7 @@
         const ws = XLSX.utils.aoa_to_sheet(aoa);
         ws['!cols'] = colWidths;
         ws['!rows'] = aoa.map((_, idx) => ({ hpt: idx === 0 ? 26 : 22 }));
+        ws['!sheetPr'] = { pageSetUpPr: { fitToPage: true } };
         ws['!pageSetup'] = { orientation: 'landscape', fitToWidth: 1, fitToHeight: 0 };
 
         // 셀 폰트(맑은 고딕), 테두리, 정렬 및 헤더 스타일 적용
