@@ -1850,9 +1850,7 @@
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px;">
           <h3 style="margin: 0; font-size: 1.05rem; color: #1e3a8a;">📋 핸드북별 전체 시상 결과 조회</h3>
           <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
-            <select id="hbAwardFilterSelect" class="hq-form-control" style="width: auto; min-width: 180px;" onchange="renderHandbookAwardsTable()">
-              <option value="ALL">전체 핸드북</option>
-            </select>
+            <select id="hbAwardFilterSelect" class="hq-form-control" style="width: auto; min-width: 180px;" onchange="renderHandbookAwardsTable()"></select>
             <input type="text" id="hbAwardSearchInput" class="hq-form-control" style="width: 200px;" placeholder="이름 또는 교회명 검색..." oninput="renderHandbookAwardsTable()" />
           </div>
         </div>
@@ -1870,10 +1868,10 @@
                 <th>번호</th>
                 <th>교회명</th>
                 <th>이름</th>
-                <th>필기</th>
-                <th>객관(오전)</th>
-                <th>객관/스피드(오후)</th>
-                <th>최종총점</th>
+                <th style="width: 90px;">필기</th>
+                <th style="width: 90px;">객관식(오전)</th>
+                <th style="width: 90px;" id="thHbAwardAfternoon">객관식(오후)</th>
+                <th style="width: 90px;">최종총점</th>
               </tr>
             </thead>
             <tbody id="hbAwardTableBody"></tbody>
@@ -2474,7 +2472,7 @@
 
     function renderHandbookAwardsTab() {
       const sel = document.getElementById('hbAwardFilterSelect');
-      if (sel && sel.options.length <= 1) {
+      if (sel && sel.options.length === 0) {
         OFFICIAL_11_HANDBOOKS.forEach(hb => {
           const opt = document.createElement('option');
           opt.value = hb;
@@ -2484,7 +2482,7 @@
         sel.value = '행글라이더 1학년';
       }
 
-      // 최고득점자 모아보기 (핸드북별 카드 섹션: 동점자 20명 이상도 깔끔하게 표시)
+      // 최고득점자 모아보기 (모든 카드 높이 180px 고정, 내부 스크롤)
       const topContainer = document.getElementById('topScorersSummaryContainer');
       if (topContainer) {
         topContainer.innerHTML = OFFICIAL_11_HANDBOOKS.map(hb => {
@@ -2492,13 +2490,13 @@
           const maxScore = rows.length > 0 ? rows[0].total : 0;
           const bodyHtml = rows.length === 0
             ? '<div style="color:#94a3b8; font-size:0.86rem; padding:8px 0;">집계된 최고득점자 없음</div>'
-            : `<div style="display:flex; flex-wrap:wrap; gap:6px; max-height:160px; overflow-y:auto;">` +
+            : `<div style="display:flex; flex-wrap:wrap; align-content:flex-start; gap:6px; flex:1; overflow-y:auto;">` +
               rows.map(r => `<span style="display:inline-flex; align-items:center; gap:4px; background:#eff6ff; border:1px solid #bfdbfe; color:#1e3a8a; padding:4px 9px; border-radius:6px; font-size:0.83rem;">🏆 <b>${r.name}</b> (${r.church})</span>`).join('') +
               `</div>`;
 
           return `
-            <div style="border:1px solid #e2e8f0; border-radius:10px; padding:12px 14px; background:#fff; min-height:120px;">
-              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; border-bottom:1px solid #f1f5f9; padding-bottom:6px;">
+            <div style="border:1px solid #e2e8f0; border-radius:10px; padding:12px 14px; background:#fff; height:180px; display:flex; flex-direction:column;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; border-bottom:1px solid #f1f5f9; padding-bottom:6px; flex-shrink:0;">
                 <b style="color:#0f172a; font-size:0.95rem;">${hb}</b>
                 <span style="font-size:0.82rem; font-weight:700; color:${rows.length > 0 ? '#16a34a' : '#94a3b8'};">
                   ${rows.length > 0 ? `최고 ${maxScore}점 (${rows.length}명)` : '-'}
@@ -2516,14 +2514,17 @@
     function renderHandbookAwardsTable() {
       const tbody = document.getElementById('hbAwardTableBody');
       if (!tbody) return;
-      const filterHb = document.getElementById('hbAwardFilterSelect')?.value || 'ALL';
+      const filterHb = document.getElementById('hbAwardFilterSelect')?.value || '행글라이더 1학년';
       const query = (document.getElementById('hbAwardSearchInput')?.value || '').trim().toLowerCase();
 
-      const targetHbs = filterHb === 'ALL' ? OFFICIAL_11_HANDBOOKS : [filterHb];
-      let allRows = [];
-      targetHbs.forEach(hb => {
-        allRows = allRows.concat(computeHandbookAwardRows(hb));
-      });
+      // 선택된 핸드북에 따라 오후 컬럼 헤더 동적 변경 (SPARKS: 객관식(오후), T&T: 스피드(오후))
+      const thAfternoon = document.getElementById('thHbAwardAfternoon');
+      if (thAfternoon) {
+        const isSparks = filterHb.includes('행글라이더') || filterHb.includes('윙러너') || filterHb.includes('스카이스토머');
+        thAfternoon.textContent = isSparks ? '객관식(오후)' : '스피드(오후)';
+      }
+
+      let allRows = computeHandbookAwardRows(filterHb);
 
       if (query) {
         allRows = allRows.filter(r =>
