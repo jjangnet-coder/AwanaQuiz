@@ -979,8 +979,9 @@ function handleResetAllScores(ss) {
     const sheet = ss.getSheetByName(name);
     if (!sheet) return;
     const lastRow = sheet.getLastRow();
-    if (lastRow >= 2) {
-      sheet.deleteRows(2, lastRow - 1);
+    const lastCol = sheet.getLastColumn();
+    if (lastRow >= 2 && lastCol >= 1) {
+      sheet.getRange(2, 1, lastRow - 1, lastCol).clearContent();
       clearedCount++;
     }
   });
