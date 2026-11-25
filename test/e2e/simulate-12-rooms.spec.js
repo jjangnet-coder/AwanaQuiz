@@ -182,8 +182,8 @@ test('시험장 실시간 클릭 시뮬레이션', async () => {
   // 각 시험장별 브라우저 창을 1번 모니터에 조금씩 엇갈리게 배치하여 실행
   const browsers = await Promise.all(
     targetRooms.map((_, idx) => {
-      const x = 60 + (idx % 4) * 80;
-      const y = 40 + Math.floor(idx / 4) * 60;
+      const x = -3380 + (idx % 4) * 550;
+      const y = 40 + Math.floor(idx / 4) * 260;
       return chromium.launch({
         headless: false,
         args: [`--window-position=${x},${y}`],
