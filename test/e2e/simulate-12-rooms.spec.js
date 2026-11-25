@@ -80,12 +80,12 @@ async function fillAndSubmitCurrentTab(page) {
       const cls = (await cell.getAttribute('class')) || '';
       if (cls.includes('locked') || cls.includes('vacant')) continue;
 
-      // 실제 클릭 이벤트 발생 (O 또는 X)
-      await cell.click();
+      // 실제 클릭 이벤트 발생 (O 또는 X) - 다중 창 동시 실행 시 포커스/히트테스트 대기 방지
+      await cell.click({ force: true, timeout: 60_000 });
       // 30% 확률로 한 번 더 클릭해 X로 전환
       if (Math.random() < 0.3) {
         await randomDelay(80, 200);
-        await cell.click();
+        await cell.click({ force: true, timeout: 60_000 });
       }
       await randomDelay(100, 350);
     }
@@ -115,6 +115,11 @@ async function fillAndSubmitCurrentTab(page) {
  * 단일 시험장 브라우저에서 로그인 후 교시별(오전 탭 → 오후 탭) 실제 클릭으로 점수 입력 및 제출
  */
 async function simulateRoom(context, room, index) {
+  // 초기 GAS 동시 로그인 요청 분산 (시험장별 0.7초 시차)
+  if (index > 0) {
+    await new Promise((resolve) => setTimeout(resolve, index * 700));
+  }
+
   const page = await context.newPage();
   await page.goto(`${BASE_URL}/index.html`, { waitUntil: 'domcontentloaded' });
 
@@ -123,8 +128,8 @@ async function simulateRoom(context, room, index) {
   await page.fill('#gatewayRoomCode', room.code);
   await page.click('#btnGatewayEnter');
 
-  // 입장 완료 대기 (교실 배지 표시 확인 및 초기 명단 로딩 완료 대기)
-  await expect(page.locator('#currentRoomText')).toHaveText(room.name, { timeout: 15_000 });
+  // 입장 완료 대기 (시험장 배지 표시 확인 및 초기 명단 로딩 완료 대기)
+  await expect(page.locator('#currentRoomText')).toHaveText(room.name, { timeout: 45_000 });
   await waitForLoadingDone(page);
   await dismissModalIfVisible(page);
 
@@ -179,28 +184,51 @@ test('시험장 실시간 클릭 시뮬레이션', async () => {
     : ROOMS.slice(0, ROOM_LIMIT);
   expect(targetRooms.length).toBeGreaterThan(0);
 
-  // 각 시험장별 브라우저 창을 1번 모니터에 조금씩 엇갈리게 배치하여 실행
+  // 각 시험장별 브라우저 창을 1번 모니터(3440×1440)에 4×3 무중첩 바둑판으로 배치 + 절전/GPU 부하 차단
   const browsers = await Promise.all(
     targetRooms.map((_, idx) => {
-      const x = -3380 + (idx % 4) * 550;
-      const y = 40 + Math.floor(idx / 4) * 260;
+      const x = -3430 + (idx % 4) * 855;
+      const y = 10 + Math.floor(idx / 4) * 465;
       return chromium.launch({
         headless: false,
-        args: [`--window-position=${x},${y}`],
+        args: [
+          `--window-position=${x},${y}`,
+          '--window-size=840,450',
+          '--disable-backgrounding-occluded-windows',
+          '--disable-renderer-backgrounding',
+          '--disable-background-timer-throttling',
+          '--disable-gpu',
+          '--disable-extensions',
+        ],
       });
     })
   );
   const roomContexts = await Promise.all(
-    browsers.map((b) => b.newContext({ viewport: { width: 1280, height: 800 } }))
+    browsers.map((b) => b.newContext({ viewport: { width: 820, height: 420 } }))
   );
 
-  const results = await Promise.all(
+  // 1개 시험장 오류 시 나머지 시험장 연쇄 종료 방지
+  const settled = await Promise.allSettled(
     targetRooms.map((room, idx) => simulateRoom(roomContexts[idx], room, idx))
   );
 
-  expect(results).toHaveLength(targetRooms.length);
+  const succeeded = [];
+  const failed = [];
+  settled.forEach((res, idx) => {
+    const roomName = targetRooms[idx].name;
+    if (res.status === 'fulfilled') {
+      succeeded.push(roomName);
+    } else {
+      console.error(`[${roomName}] 시뮬레이션 실패:`, res.reason);
+      failed.push({ roomName, reason: String(res.reason) });
+    }
+  });
+
+  console.log(`시뮬레이션 결과: 성공 ${succeeded.length}개 / 실패 ${failed.length}개`);
 
   // 정리
-  await Promise.all(browsers.map((b) => b.close()));
+  await Promise.all(browsers.map((b) => b.close().catch(() => { })));
+
+  expect(failed, `실패한 시험장: ${JSON.stringify(failed)}`).toHaveLength(0);
 });
 
