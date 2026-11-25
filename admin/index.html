@@ -1833,22 +1833,22 @@
 
     <!-- TAB 5: 핸드북별 시상 · 최고득점자 -->
     <section id="tab-handbook-awards" class="tab-content">
-      <!-- 1. 핸드북별 최고득점자 모아보기 -->
-      <div class="hq-panel" style="margin-bottom: 18px;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px;">
-          <h3 style="margin: 0; font-size: 1.05rem; color: #1e3a8a;">🏆 핸드북별 최고득점자 모아보기</h3>
-          <div style="display: flex; gap: 8px;">
-            <button type="button" class="btn-hq btn-hq-primary" onclick="printTopScorers()">🖨️ 최고득점자 인쇄</button>
-            <button type="button" class="btn-hq" style="background: #16a34a; color: #fff; border-color: #16a34a;" onclick="exportAllHandbooksToExcel()">📥 엑셀 다운로드 (.xlsx)</button>
-          </div>
+      <!-- 서브 탭 네비게이션 -->
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 10px;">
+        <div style="display: flex; gap: 8px;">
+          <button type="button" class="btn-hq btn-hq-primary" id="subTabBtnAllAwards" onclick="switchHandbookAwardSubTab('all')">📋 전체 시상 결과 조회</button>
+          <button type="button" class="btn-hq" id="subTabBtnTopScorers" onclick="switchHandbookAwardSubTab('top')">🏆 최고득점자 모아보기</button>
         </div>
-        <div id="topScorersSummaryContainer" style="overflow-x: auto;"></div>
+        <div style="display: flex; gap: 8px;">
+          <button type="button" class="btn-hq btn-hq-primary" id="btnPrintTopScorers" style="display: none;" onclick="printTopScorers()">🖨️ 최고득점자 인쇄</button>
+          <button type="button" class="btn-hq" style="background: #16a34a; color: #fff; border-color: #16a34a;" onclick="exportAllHandbooksToExcel()">📥 엑셀 다운로드 (.xlsx)</button>
+        </div>
       </div>
 
-      <!-- 2. 핸드북별 전체 시상 결과 조회 -->
-      <div class="hq-panel">
+      <!-- 서브 탭 1: 핸드북별 전체 시상 결과 조회 (기본 선택) -->
+      <div id="subTabAllAwards" class="hq-panel">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px;">
-          <h3 style="margin: 0; font-size: 1.05rem; color: #1e3a8a;">🏅 핸드북별 전체 시상 결과 조회</h3>
+          <h3 style="margin: 0; font-size: 1.05rem; color: #1e3a8a;">📋 핸드북별 전체 시상 결과 조회</h3>
           <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
             <select id="hbAwardFilterSelect" class="hq-form-control" style="width: auto; min-width: 180px;" onchange="renderHandbookAwardsTable()">
               <option value="ALL">전체 핸드북</option>
@@ -1856,7 +1856,7 @@
             <input type="text" id="hbAwardSearchInput" class="hq-form-control" style="width: 200px;" placeholder="이름 또는 교회명 검색..." oninput="renderHandbookAwardsTable()" />
           </div>
         </div>
-        <div class="hq-table-container" style="max-height: 55vh; overflow-y: auto;">
+        <div class="hq-table-container" style="max-height: 62vh; overflow-y: auto;">
           <table class="hq-table" id="hbAwardTable">
             <thead>
               <tr>
@@ -1879,6 +1879,12 @@
             <tbody id="hbAwardTableBody"></tbody>
           </table>
         </div>
+      </div>
+
+      <!-- 서브 탭 2: 핸드북별 최고득점자 모아보기 -->
+      <div id="subTabTopScorers" class="hq-panel" style="display: none;">
+        <h3 style="margin: 0 0 14px; font-size: 1.05rem; color: #1e3a8a;">🏆 핸드북별 최고득점자 모아보기</h3>
+        <div id="topScorersSummaryContainer" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 12px;"></div>
       </div>
     </section>
   </div>
@@ -2390,17 +2396,26 @@
       const goldRatio = Number((HQ_DATA.settings && HQ_DATA.settings['금메달_비율']) || 30) / 100;
       const silverRatio = Number((HQ_DATA.settings && HQ_DATA.settings['은메달_비율']) || 40) / 100;
 
+      // timetable 기반 교실 매핑 (handbook + '_' + team -> room)
+      const teamRoomMap = {};
+      (HQ_DATA.timetable || []).forEach(t => {
+        if (t.handbook && t.team !== undefined && t.room) {
+          teamRoomMap[`${t.handbook}_${t.team}`] = t.room;
+        }
+      });
+
       const rows = participants.map(p => {
         const s = scoresMap[p.id] || {};
         const written = Number(s.written || 0);
         const morning = Number(s.multipleMorning || 0);
         const afternoon = Number(s.multipleAfternoon || 0) + Number(s.speedAfternoon || 0);
         const total = written + morning + afternoon;
-        const hasParticipated = total > 0 || s.written !== undefined || s.multipleMorning !== undefined || s.multipleAfternoon !== undefined || s.speedAfternoon !== undefined;
+        const hasParticipated = total > 0;
+        const room = p.room || teamRoomMap[`${p.handbook}_${p.team}`] || '';
         return {
           id: p.id,
           handbook: p.handbook,
-          room: p.room || '',
+          room,
           grade: p.grade || '',
           team: p.team || '',
           num: p.num || '',
@@ -2447,6 +2462,16 @@
       return rows;
     }
 
+    function switchHandbookAwardSubTab(subKey) {
+      const isAll = subKey === 'all';
+      document.getElementById('subTabAllAwards').style.display = isAll ? 'block' : 'none';
+      document.getElementById('subTabTopScorers').style.display = isAll ? 'none' : 'block';
+      document.getElementById('btnPrintTopScorers').style.display = isAll ? 'none' : 'inline-block';
+
+      document.getElementById('subTabBtnAllAwards').className = isAll ? 'btn-hq btn-hq-primary' : 'btn-hq';
+      document.getElementById('subTabBtnTopScorers').className = isAll ? 'btn-hq' : 'btn-hq btn-hq-primary';
+    }
+
     function renderHandbookAwardsTab() {
       const sel = document.getElementById('hbAwardFilterSelect');
       if (sel && sel.options.length <= 1) {
@@ -2456,24 +2481,33 @@
           opt.textContent = hb;
           sel.appendChild(opt);
         });
+        sel.value = '행글라이더 1학년';
       }
 
-      // 1. 최고득점자 모아보기 렌더링
+      // 최고득점자 모아보기 (핸드북별 카드 섹션: 동점자 20명 이상도 깔끔하게 표시)
       const topContainer = document.getElementById('topScorersSummaryContainer');
       if (topContainer) {
-        let html = '<table class="hq-table"><thead><tr><th>핸드북</th><th>이름</th><th>교회명</th><th>교실</th><th>조</th><th>최종총점</th></tr></thead><tbody>';
-        OFFICIAL_11_HANDBOOKS.forEach(hb => {
+        topContainer.innerHTML = OFFICIAL_11_HANDBOOKS.map(hb => {
           const rows = computeHandbookAwardRows(hb).filter(r => r.isTop);
-          if (rows.length === 0) {
-            html += `<tr><td><b>${hb}</b></td><td colspan="5" style="color:#94a3b8;">집계된 최고득점자 없음</td></tr>`;
-          } else {
-            rows.forEach(r => {
-              html += `<tr><td><b>${hb}</b></td><td>🏆 <b>${r.name}</b></td><td>${r.church}</td><td>${r.room}</td><td>${r.team}조</td><td><b>${r.total}</b></td></tr>`;
-            });
-          }
-        });
-        html += '</tbody></table>';
-        topContainer.innerHTML = html;
+          const maxScore = rows.length > 0 ? rows[0].total : 0;
+          const bodyHtml = rows.length === 0
+            ? '<div style="color:#94a3b8; font-size:0.86rem; padding:8px 0;">집계된 최고득점자 없음</div>'
+            : `<div style="display:flex; flex-wrap:wrap; gap:6px;">` +
+              rows.map(r => `<span style="display:inline-flex; align-items:center; gap:4px; background:#eff6ff; border:1px solid #bfdbfe; color:#1e3a8a; padding:4px 9px; border-radius:6px; font-size:0.83rem;">🏆 <b>${r.name}</b> (${r.church} · ${r.room || '-'} · ${r.team}조)</span>`).join('') +
+              `</div>`;
+
+          return `
+            <div style="border:1px solid #e2e8f0; border-radius:10px; padding:12px 14px; background:#fff;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; border-bottom:1px solid #f1f5f9; padding-bottom:6px;">
+                <b style="color:#0f172a; font-size:0.95rem;">${hb}</b>
+                <span style="font-size:0.82rem; font-weight:700; color:${rows.length > 0 ? '#16a34a' : '#94a3b8'};">
+                  ${rows.length > 0 ? `최고 ${maxScore}점 (${rows.length}명)` : '-'}
+                </span>
+              </div>
+              ${bodyHtml}
+            </div>
+          `;
+        }).join('');
       }
 
       renderHandbookAwardsTable();
