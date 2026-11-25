@@ -2323,6 +2323,8 @@
         }
       } catch (err) {
         showCustomAlert('데이터 로드 실패', '데이터 조회 중 오류가 발생했습니다: ' + err.message, 'danger');
+      } finally {
+        hideHqLoading();
       }
     }
 
