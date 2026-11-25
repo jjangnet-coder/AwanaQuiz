@@ -17,3 +17,5 @@ yarn-error.log*
 *.tmp
 private_raw/
 google-apps-script/setup_test_data.gs
+
+test/e2e/test-results/

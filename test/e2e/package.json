@@ -1,0 +1,13 @@
+{
+  "name": "awana-quiz-e2e",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "test:1room": "set ROOM_LIMIT=1&& playwright test simulate-12-rooms.spec.js --headed",
+    "test:12rooms": "playwright test simulate-12-rooms.spec.js --headed"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.49.0"
+  }
+}
+
