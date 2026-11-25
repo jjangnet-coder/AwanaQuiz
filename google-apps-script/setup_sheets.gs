@@ -98,6 +98,19 @@ function setupAwanaSheets() {
 
   SpreadsheetApp.flush();
   reorderAwanaSheets(ss);   // 7개 기본 시트 공식 순서 자동 재배치
+
+  // 기존에 남아 있는 11개 핸드북 시트 자동 삭제
+  const legacyHandbookSheets = [
+    '행글라이더 1학년', '행글라이더 2학년', '윙러너 1학년', '윙러너 2학년', '스카이스토머 2학년',
+    '어드밴처1권 3학년', '어드밴처1권 4학년', '어드밴처2권 4학년',
+    '챌린지1권 5학년', '챌린지1권 6학년', '챌린지2권 6학년'
+  ];
+  legacyHandbookSheets.forEach(name => {
+    const legacySheet = ss.getSheetByName(name);
+    if (legacySheet && ss.getSheets().length > 1) {
+      ss.deleteSheet(legacySheet);
+    }
+  });
   syncFinalSummaryFromParticipants(ss); // 참가자명단 데이터를 최종집계 시트에 자동 배치
   formatAllSheetsNicely(); // 7개 기본 시트 전체 열너비/정렬 전수 표준화 적용
   Logger.log('✅ [운영용 초기화 완료] 기본 7개 시트가 준비되었으며 명단 동기화가 완료되었습니다.');
@@ -146,7 +159,7 @@ function reorderAwanaSheets(ss) {
 }
 
 /**
- * 참가자명단과 시간표를 기반으로 최종집계 및 11개 핸드북별 시상 시트 초기 연동
+ * 참가자명단과 시간표를 기반으로 최종집계 시트 초기 연동
  */
 function syncFinalSummaryFromParticipants(optionalSs) {
   const ss = optionalSs || SpreadsheetApp.getActiveSpreadsheet();
@@ -206,43 +219,14 @@ function syncFinalSummaryFromParticipants(optionalSs) {
   fSheet.getRange(2, 1, summaryRows.length, 6).setHorizontalAlignment('center');
   fSheet.getRange(2, 9, summaryRows.length, 5).setHorizontalAlignment('right');
 
-  // 3. 11개 공식 핸드북별 시상 시트 동기화
-  getOfficial11HandbooksList().forEach(hb => {
-    const hbSheet = ss.getSheetByName(hb);
-    if (!hbSheet) return;
-
-    if (hbSheet.getLastRow() >= 2) {
-      hbSheet.getRange(2, 1, hbSheet.getLastRow() - 1, 16).clearContent();
-    }
-
-    const hbRows = [];
-    participants.forEach(p => {
-      if (String(p[1]).trim() === hb) {
-        const teamKey = hb + '_' + Number(p[3]);
-        const roomName = teamRoomMap[teamKey] || '';
-        // 컬럼: ID, 핸드북, 교실, 학년, 조, 번호, 교회, 이름, 필기, 객관오전, 객관오후, 스피드, 총점, 석차, 메달, 최고득점상
-        hbRows.push([
-          p[0], p[1], roomName, p[2], p[3], p[4], p[5], p[6],
-          '', '', '', '', 0, '', '', ''
-        ]);
-      }
-    });
-
-    if (hbRows.length > 0) {
-      hbSheet.getRange(2, 1, hbRows.length, 16).setValues(hbRows);
-      hbSheet.getRange(2, 1, hbRows.length, 6).setHorizontalAlignment('center');
-      hbSheet.getRange(2, 9, hbRows.length, 8).setHorizontalAlignment('center');
-    }
-  });
-
   SpreadsheetApp.flush();
-  formatAllSheetsNicely(); // 18개 시트 전체 열너비/정렬 전수 표준화 적용
-  Logger.log('✅ [동기화 완료] 1376명 단원이 최종집계 및 11개 공식 핸드북 시상 시트에 정상 반영되었습니다.');
+  formatAllSheetsNicely(); // 7개 기본 시트 전체 열너비/정렬 전수 표준화 적용
+  Logger.log(`✅ [동기화 완료] ${summaryRows.length}명 단원이 최종집계 시트에 정상 반영되었습니다.`);
 }
 
 /**
  * =========================================================================
- * 18개 전체 시트 탭의 모든 열 너비(px) 및 수평 정렬 전수 표준화 함수
+ * 7개 기본 시트 탭의 모든 열 너비(px) 및 수평 정렬 전수 표준화 함수
  * =========================================================================
  */
 function formatAllSheetsNicely() {
@@ -340,5 +324,5 @@ function formatAllSheetsNicely() {
 
 
   SpreadsheetApp.flush();
-  Logger.log('🎉 [서식 표준화 완료] 18개 모든 시트의 열 너비 및 정렬이 완벽하게 정리되었습니다.');
+  Logger.log('🎉 [서식 표준화 완료] 7개 기본 시트의 열 너비 및 정렬이 완벽하게 정리되었습니다.');
 }
