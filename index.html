@@ -1578,6 +1578,14 @@
         const result = await resp.json();
         if (result.status === 'success') {
           MASTER_DATA.settings = result.data.settings || {};
+          if (MASTER_DATA.settings['대회제목']) {
+            const titleText = String(MASTER_DATA.settings['대회제목']).trim();
+            document.title = titleText + ' - 점수 입력 시스템';
+            const gwTitle = document.querySelector('.gateway-title');
+            if (gwTitle) gwTitle.textContent = titleText;
+            const hdTitle = document.querySelector('.header-title');
+            if (hdTitle) hdTitle.textContent = titleText + ' 점수 입력 시스템';
+          }
           MASTER_DATA.timetable = result.data.timetable || [];
           document.getElementById('gasEndpointInfo').innerText = '구글 스프레드시트 연결 정상';
 

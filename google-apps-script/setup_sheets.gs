@@ -49,7 +49,8 @@ function setupAwanaSheets() {
         ['CODE_티앤티5', 'TT05', '티앤티5 교실 접속 코드'],
         ['CODE_티앤티6', 'TT06', '티앤티6 교실 접속 코드'],
         ['CODE_티앤티7', 'TT07', '티앤티7 교실 접속 코드'],
-        ['ADMIN_PIN', 'AWANA2026', '본부 관리 포털(admin/index.html) 접속 비밀번호']
+        ['ADMIN_PIN', 'AWANA2026', '본부 관리 포털(admin/index.html) 접속 비밀번호'],
+        ['대회제목', '2026-2027 AWANA 성경퀴즈대회', '상단 헤더 및 엑셀 파일명에 표시될 대회 제목']
       ]
     },
     {
@@ -83,20 +84,6 @@ function setupAwanaSheets() {
       initialData: []
     }
   ];
-
-  // 11개 공식 핸드북별 시상 시트 정의 추가
-  const awardHeaders = [
-    '참가자ID', '핸드북', '교실', '학년', '조', '번호', '교회명', '이름',
-    '필기점수', '객관식(오전)', '객관식(오후)', '스피드(오후)', '최종총점', '석차', '메달', '최고득점상'
-  ];
-
-  getOfficial11HandbooksList().forEach(hb => {
-    sheetDefinitions.push({
-      name: hb,
-      headers: awardHeaders,
-      initialData: []
-    });
-  });
 
   const existingSheets = {};
   const currentSheets = ss.getSheets();

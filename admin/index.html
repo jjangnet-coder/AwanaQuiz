@@ -5,6 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>2026-2027 AWANA 성경퀴즈대회 본부 종합 관리 시스템</title>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <style>
     :root {
       --primary: #1e3a8a;
@@ -1610,6 +1611,7 @@
         <button class="hq-tab-btn" onclick="switchHqTab('roster')">👥 선수 관리·이동·결석</button>
         <button class="hq-tab-btn" onclick="switchHqTab('written')">📝 필기시험 채점</button>
         <button class="hq-tab-btn" onclick="switchHqTab('standings')">🖨️ 수상자 명단·인쇄</button>
+        <button class="hq-tab-btn" onclick="switchHqTab('handbook-awards')">🏅 핸드북별 시상</button>
       </nav>
 
       <div class="hq-header-actions">
@@ -1828,6 +1830,57 @@
         <!-- 동적 렌더링 -->
       </div>
     </section>
+
+    <!-- TAB 5: 핸드북별 시상 · 최고득점자 -->
+    <section id="tab-handbook-awards" class="tab-content">
+      <!-- 1. 핸드북별 최고득점자 모아보기 -->
+      <div class="hq-panel" style="margin-bottom: 18px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px;">
+          <h3 style="margin: 0; font-size: 1.05rem; color: #1e3a8a;">🏆 핸드북별 최고득점자 모아보기</h3>
+          <div style="display: flex; gap: 8px;">
+            <button type="button" class="btn-hq btn-hq-primary" onclick="printTopScorers()">🖨️ 최고득점자 인쇄</button>
+            <button type="button" class="btn-hq" style="background: #16a34a; color: #fff; border-color: #16a34a;" onclick="exportAllHandbooksToExcel()">📥 엑셀 다운로드 (.xlsx)</button>
+          </div>
+        </div>
+        <div id="topScorersSummaryContainer" style="overflow-x: auto;"></div>
+      </div>
+
+      <!-- 2. 핸드북별 전체 시상 결과 조회 -->
+      <div class="hq-panel">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px;">
+          <h3 style="margin: 0; font-size: 1.05rem; color: #1e3a8a;">🏅 핸드북별 전체 시상 결과 조회</h3>
+          <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+            <select id="hbAwardFilterSelect" class="hq-form-control" style="width: auto; min-width: 180px;" onchange="renderHandbookAwardsTable()">
+              <option value="ALL">전체 핸드북</option>
+            </select>
+            <input type="text" id="hbAwardSearchInput" class="hq-form-control" style="width: 200px;" placeholder="이름 또는 교회명 검색..." oninput="renderHandbookAwardsTable()" />
+          </div>
+        </div>
+        <div class="hq-table-container" style="max-height: 55vh; overflow-y: auto;">
+          <table class="hq-table" id="hbAwardTable">
+            <thead>
+              <tr>
+                <th>핸드북</th>
+                <th>석차</th>
+                <th>메달</th>
+                <th>최고득점상</th>
+                <th>교실</th>
+                <th>학년</th>
+                <th>조</th>
+                <th>번호</th>
+                <th>교회명</th>
+                <th>이름</th>
+                <th>필기</th>
+                <th>객관(오전)</th>
+                <th>객관/스피드(오후)</th>
+                <th>최종총점</th>
+              </tr>
+            </thead>
+            <tbody id="hbAwardTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
   </div>
 
   <script>
@@ -2022,6 +2075,12 @@
         const result = await resp.json();
         if (result.status === 'success') {
           HQ_DATA.settings = result.data.settings || {};
+          if (HQ_DATA.settings['대회제목']) {
+            const titleText = String(HQ_DATA.settings['대회제목']).trim();
+            document.title = titleText + ' - 본부 관리 포털';
+            const hqTitleEl = document.querySelector('.hq-title');
+            if (hqTitleEl) hqTitleEl.textContent = titleText + ' 본부 관리 포털';
+          }
           HQ_DATA.timetable = result.data.timetable || [];
 
           const expectedPin = HQ_DATA.settings['ADMIN_PIN'] || 'AWANA2026';
@@ -2203,6 +2262,12 @@
         const result = await resp.json();
         if (result.status === 'success') {
           HQ_DATA.settings = result.data.settings || {};
+          if (HQ_DATA.settings['대회제목']) {
+            const titleText = String(HQ_DATA.settings['대회제목']).trim();
+            document.title = titleText + ' - 본부 관리 포털';
+            const hqTitleEl = document.querySelector('.hq-title');
+            if (hqTitleEl) hqTitleEl.textContent = titleText + ' 본부 관리 포털';
+          }
           HQ_DATA.participants = result.data.participants || [];
           HQ_DATA.timetable = result.data.timetable || [];
           HQ_DATA.scores = result.data.scores || {};
@@ -2297,7 +2362,201 @@
         }
       } else if (tabKey === 'standings') {
         renderStandingsView();
+      } else if (tabKey === 'handbook-awards') {
+        renderHandbookAwardsTab();
       }
+    }
+
+    const OFFICIAL_11_HANDBOOKS = [
+      '행글라이더 1학년', '행글라이더 2학년', '윙러너 1학년', '윙러너 2학년', '스카이스토머 2학년',
+      '어드밴처1권 3학년', '어드밴처1권 4학년', '어드밴처2권 4학년',
+      '챌린지1권 5학년', '챌린지1권 6학년', '챌린지2권 6학년'
+    ];
+
+    function computeHandbookAwardRows(handbookName) {
+      const participants = (HQ_DATA.participants || []).filter(p => p.handbook === handbookName);
+      const scoresMap = HQ_DATA.scores || {};
+      const goldRatio = Number((HQ_DATA.settings && HQ_DATA.settings['금메달_비율']) || 30) / 100;
+      const silverRatio = Number((HQ_DATA.settings && HQ_DATA.settings['은메달_비율']) || 40) / 100;
+
+      const rows = participants.map(p => {
+        const s = scoresMap[p.id] || {};
+        const written = Number(s.written || 0);
+        const morning = Number(s.multipleMorning || 0);
+        const afternoon = Number(s.multipleAfternoon || 0) + Number(s.speedAfternoon || 0);
+        const total = written + morning + afternoon;
+        const hasParticipated = total > 0 || s.written !== undefined || s.multipleMorning !== undefined || s.multipleAfternoon !== undefined || s.speedAfternoon !== undefined;
+        return {
+          id: p.id,
+          handbook: p.handbook,
+          room: p.room || '',
+          grade: p.grade || '',
+          team: p.team || '',
+          num: p.num || '',
+          church: p.church || '',
+          name: p.name || '',
+          written,
+          morning,
+          afternoon,
+          total,
+          hasParticipated,
+          rank: '',
+          medal: '',
+          isTop: false
+        };
+      });
+
+      const valid = rows.filter(r => r.hasParticipated).sort((a, b) => b.total - a.total);
+      const totalValid = valid.length;
+      const maxScore = totalValid > 0 ? valid[0].total : 0;
+
+      valid.forEach((r, idx) => {
+        if (idx > 0 && r.total === valid[idx - 1].total) {
+          r.rank = valid[idx - 1].rank;
+        } else {
+          r.rank = idx + 1;
+        }
+        const pct = r.rank / totalValid;
+        if (pct <= goldRatio) r.medal = '🥇 금메달';
+        else if (pct <= goldRatio + silverRatio) r.medal = '🥈 은메달';
+        else r.medal = '🥉 동메달';
+        if (maxScore > 0 && r.total === maxScore) r.isTop = true;
+      });
+
+      // 정렬: 석차순 (미참가는 뒤로) -> 이름 가나다순 -> 교회명 가나다순
+      rows.sort((a, b) => {
+        const ra = a.rank === '' ? 999999 : Number(a.rank);
+        const rb = b.rank === '' ? 999999 : Number(b.rank);
+        if (ra !== rb) return ra - rb;
+        const nameCmp = String(a.name).localeCompare(String(b.name), 'ko');
+        if (nameCmp !== 0) return nameCmp;
+        return String(a.church).localeCompare(String(b.church), 'ko');
+      });
+
+      return rows;
+    }
+
+    function renderHandbookAwardsTab() {
+      const sel = document.getElementById('hbAwardFilterSelect');
+      if (sel && sel.options.length <= 1) {
+        OFFICIAL_11_HANDBOOKS.forEach(hb => {
+          const opt = document.createElement('option');
+          opt.value = hb;
+          opt.textContent = hb;
+          sel.appendChild(opt);
+        });
+      }
+
+      // 1. 최고득점자 모아보기 렌더링
+      const topContainer = document.getElementById('topScorersSummaryContainer');
+      if (topContainer) {
+        let html = '<table class="hq-table"><thead><tr><th>핸드북</th><th>이름</th><th>교회명</th><th>교실</th><th>조</th><th>최종총점</th></tr></thead><tbody>';
+        OFFICIAL_11_HANDBOOKS.forEach(hb => {
+          const rows = computeHandbookAwardRows(hb).filter(r => r.isTop);
+          if (rows.length === 0) {
+            html += `<tr><td><b>${hb}</b></td><td colspan="5" style="color:#94a3b8;">집계된 최고득점자 없음</td></tr>`;
+          } else {
+            rows.forEach(r => {
+              html += `<tr><td><b>${hb}</b></td><td>🏆 <b>${r.name}</b></td><td>${r.church}</td><td>${r.room}</td><td>${r.team}조</td><td><b>${r.total}</b></td></tr>`;
+            });
+          }
+        });
+        html += '</tbody></table>';
+        topContainer.innerHTML = html;
+      }
+
+      renderHandbookAwardsTable();
+    }
+
+    function renderHandbookAwardsTable() {
+      const tbody = document.getElementById('hbAwardTableBody');
+      if (!tbody) return;
+      const filterHb = document.getElementById('hbAwardFilterSelect')?.value || 'ALL';
+      const query = (document.getElementById('hbAwardSearchInput')?.value || '').trim().toLowerCase();
+
+      const targetHbs = filterHb === 'ALL' ? OFFICIAL_11_HANDBOOKS : [filterHb];
+      let allRows = [];
+      targetHbs.forEach(hb => {
+        allRows = allRows.concat(computeHandbookAwardRows(hb));
+      });
+
+      if (query) {
+        allRows = allRows.filter(r =>
+          String(r.name).toLowerCase().includes(query) ||
+          String(r.church).toLowerCase().includes(query) ||
+          String(r.room).toLowerCase().includes(query)
+        );
+      }
+
+      if (allRows.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="14" style="text-align:center; padding:24px; color:#94a3b8;">조회된 데이터가 없습니다.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = allRows.map(r => `
+        <tr>
+          <td>${r.handbook}</td>
+          <td><b>${r.rank || '-'}</b></td>
+          <td>${r.medal || '-'}</td>
+          <td>${r.isTop ? '🏆 최고득점상' : ''}</td>
+          <td>${r.room}</td>
+          <td>${r.grade}</td>
+          <td>${r.team}</td>
+          <td>${r.num}</td>
+          <td>${r.church}</td>
+          <td><b>${r.name}</b></td>
+          <td>${r.written}</td>
+          <td>${r.morning}</td>
+          <td>${r.afternoon}</td>
+          <td><b>${r.total}</b></td>
+        </tr>
+      `).join('');
+    }
+
+    function printTopScorers() {
+      const titleText = (HQ_DATA.settings && HQ_DATA.settings['대회제목']) || '2026-2027 AWANA 성경퀴즈대회';
+      const content = document.getElementById('topScorersSummaryContainer').innerHTML;
+      const win = window.open('', '_blank', 'width=900,height=700');
+      win.document.write(`
+        <html><head><title>${titleText} - 핸드북별 최고득점자</title>
+        <style>
+          body { font-family: 'Malgun Gothic', sans-serif; padding: 24px; }
+          h2 { text-align: center; margin-bottom: 18px; }
+          table { width: 100%; border-collapse: collapse; font-size: 13px; }
+          th, td { border: 1px solid #cbd5e1; padding: 8px 10px; text-align: center; }
+          th { background: #f1f5f9; }
+        </style></head><body>
+        <h2>🏆 ${titleText} - 핸드북별 최고득점자</h2>
+        ${content}
+        <script>window.onload = function() { window.print(); };<\/script>
+        </body></html>
+      `);
+      win.document.close();
+    }
+
+    function exportAllHandbooksToExcel() {
+      if (typeof XLSX === 'undefined') {
+        alert('엑셀 라이브러리를 불러오지 못했습니다. 새로고침 후 다시 시도해주세요.');
+        return;
+      }
+      const wb = XLSX.utils.book_new();
+      const headers = ['참가자ID', '핸드북', '교실', '학년', '조', '번호', '교회명', '이름', '필기점수', '객관식(오전)', '객관/스피드(오후)', '최종총점', '석차', '메달', '최고득점상'];
+
+      OFFICIAL_11_HANDBOOKS.forEach(hb => {
+        const rows = computeHandbookAwardRows(hb);
+        const aoa = [headers];
+        rows.forEach(r => {
+          aoa.push([
+            r.id, r.handbook, r.room, r.grade, r.team, r.num, r.church, r.name,
+            r.written, r.morning, r.afternoon, r.total, r.rank || '', r.medal || '', r.isTop ? '🏆 최고득점상' : ''
+          ]);
+        });
+        const ws = XLSX.utils.aoa_to_sheet(aoa);
+        XLSX.utils.book_append_sheet(wb, ws, hb.substring(0, 31));
+      });
+
+      const titleText = String((HQ_DATA.settings && HQ_DATA.settings['대회제목']) || '2026-2027 AWANA 성경퀴즈대회').trim();
+      XLSX.writeFile(wb, `${titleText}_종합결과.xlsx`);
     }
 
     /**
