@@ -1862,7 +1862,6 @@
                 <th>핸드북</th>
                 <th>석차</th>
                 <th>메달</th>
-                <th>최고득점상</th>
                 <th>교실</th>
                 <th>학년</th>
                 <th>조</th>
@@ -2536,7 +2535,7 @@
       }
 
       if (allRows.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="15" style="text-align:center; padding:24px; color:#94a3b8;">조회된 데이터가 없습니다.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="14" style="text-align:center; padding:24px; color:#94a3b8;">조회된 데이터가 없습니다.</td></tr>';
         return;
       }
 
@@ -2546,7 +2545,6 @@
           <td>${r.handbook}</td>
           <td><b>${r.rank || '-'}</b></td>
           <td>${r.medal || '-'}</td>
-          <td>${r.isTop ? '🏆 최고득점상' : ''}</td>
           <td>${r.room}</td>
           <td>${r.grade}</td>
           <td>${r.team}</td>
