@@ -265,6 +265,11 @@ function doPost(e) {
     const payload = JSON.parse(rawPostData);
 
     const ss = SpreadsheetApp.getActiveSpreadsheet();
+
+    // [시험 결과 전체 초기화]: 설정/참가자명단/시간표는 보존하고 점수·로그·집계·시상 시트만 2행부터 초기화
+    if (payload.action === 'resetAllScores') {
+      return handleResetAllScores(ss);
+    }
     const finalSheet = ss.getSheetByName('최종집계');
     if (!finalSheet) {
       throw new Error("'최종집계' 시트를 찾을 수 없습니다.");
@@ -945,6 +950,45 @@ function updateHandBookAwards(ss) {
     // 5. 시트에 단 1회의 setValues로 일괄 저장
     hbSheet.getRange(2, 1, hbData.length, 16).setValues(hbData);
   });
+}
+
+/**
+ * 시험 결과 전체 초기화 (설정, 참가자명단, 시간표 보존 / 로그, 최종집계, 11개 핸드북 시상 시트 2행부터 삭제)
+ */
+function handleResetAllScores(ss) {
+  const targetSheets = [
+    '객관식_로그',
+    '스피드_로그',
+    '필기_로그',
+    '최종집계',
+    '행글라이더 1학년',
+    '행글라이더 2학년',
+    '윙러너 1학년',
+    '윙러너 2학년',
+    '스카이스토머 2학년',
+    '어드밴처1권 3학년',
+    '어드밴처1권 4학년',
+    '어드밴처2권 4학년',
+    '챌린지1권 5학년',
+    '챌린지1권 6학년',
+    '챌린지2권 6학년'
+  ];
+
+  let clearedCount = 0;
+  targetSheets.forEach((name) => {
+    const sheet = ss.getSheetByName(name);
+    if (!sheet) return;
+    const lastRow = sheet.getLastRow();
+    if (lastRow >= 2) {
+      sheet.deleteRows(2, lastRow - 1);
+      clearedCount++;
+    }
+  });
+
+  return ContentService.createTextOutput(JSON.stringify({
+    status: 'success',
+    message: `시험 결과 초기화가 완료되었습니다. (${clearedCount}개 시트 초기화)`
+  })).setMimeType(ContentService.MimeType.JSON);
 }
 
 

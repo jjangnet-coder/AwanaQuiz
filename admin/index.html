@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -112,7 +113,7 @@
     .hq-tab-btn.active {
       background: #ffffff;
       color: var(--primary);
-      box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
     }
 
     .hq-header-actions {
@@ -178,8 +179,15 @@
     }
 
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(3px); }
-      to { opacity: 1; transform: translateY(0); }
+      from {
+        opacity: 0;
+        transform: translateY(3px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     /* 상단 요약 위젯 카드 (Zero-Scroll 1화면 피팅) */
@@ -195,7 +203,7 @@
       border: 1px solid #e2e8f0;
       border-radius: 10px;
       padding: 8px 12px;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
       position: relative;
       overflow: hidden;
       display: flex;
@@ -212,10 +220,21 @@
       width: 4px;
     }
 
-    .metric-card.theme-total::before { background: #64748b; }
-    .metric-card.theme-written::before { background: #6366f1; }
-    .metric-card.theme-morning::before { background: #f59e0b; }
-    .metric-card.theme-afternoon::before { background: #10b981; }
+    .metric-card.theme-total::before {
+      background: #64748b;
+    }
+
+    .metric-card.theme-written::before {
+      background: #6366f1;
+    }
+
+    .metric-card.theme-morning::before {
+      background: #f59e0b;
+    }
+
+    .metric-card.theme-afternoon::before {
+      background: #10b981;
+    }
 
     .metric-header {
       display: flex;
@@ -268,9 +287,17 @@
       transition: width 0.4s ease;
     }
 
-    .bar-written { background: linear-gradient(90deg, #6366f1, #818cf8); }
-    .bar-morning { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
-    .bar-afternoon { background: linear-gradient(90deg, #10b981, #34d399); }
+    .bar-written {
+      background: linear-gradient(90deg, #6366f1, #818cf8);
+    }
+
+    .bar-morning {
+      background: linear-gradient(90deg, #f59e0b, #fbbf24);
+    }
+
+    .bar-afternoon {
+      background: linear-gradient(90deg, #10b981, #34d399);
+    }
 
     /* 필터 컨트롤 바 */
     .filter-bar {
@@ -291,7 +318,8 @@
       gap: 8px;
     }
 
-    .filter-select, .filter-input {
+    .filter-select,
+    .filter-input {
       padding: 7px 12px;
       border-radius: 8px;
       border: 1px solid var(--border-color);
@@ -300,7 +328,8 @@
       background: #ffffff;
     }
 
-    .filter-select:focus, .filter-input:focus {
+    .filter-select:focus,
+    .filter-input:focus {
       border-color: var(--primary-light);
       box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
     }
@@ -362,14 +391,46 @@
       font-weight: 700;
     }
 
-    .badge-done { background: #dcfce7; color: #15803d; }
-    .badge-partial { background: #fef3c7; color: #b45309; }
-    .badge-pending { background: #f1f5f9; color: #64748b; }
-    .badge-absent { background: #fee2e2; color: #b91c1c; }
+    .badge-done {
+      background: #dcfce7;
+      color: #15803d;
+    }
 
-    .badge-gold { background: #fef3c7; color: #92400e; font-weight: 800; border: 1px solid #fde68a; }
-    .badge-silver { background: #f1f5f9; color: #475569; font-weight: 800; border: 1px solid #cbd5e1; }
-    .badge-bronze { background: #ffedd5; color: #9a3412; font-weight: 800; border: 1px solid #fed7aa; }
+    .badge-partial {
+      background: #fef3c7;
+      color: #b45309;
+    }
+
+    .badge-pending {
+      background: #f1f5f9;
+      color: #64748b;
+    }
+
+    .badge-absent {
+      background: #fee2e2;
+      color: #b91c1c;
+    }
+
+    .badge-gold {
+      background: #fef3c7;
+      color: #92400e;
+      font-weight: 800;
+      border: 1px solid #fde68a;
+    }
+
+    .badge-silver {
+      background: #f1f5f9;
+      color: #475569;
+      font-weight: 800;
+      border: 1px solid #cbd5e1;
+    }
+
+    .badge-bronze {
+      background: #ffedd5;
+      color: #9a3412;
+      font-weight: 800;
+      border: 1px solid #fed7aa;
+    }
 
     /* 대시보드 관제 매트릭스 그리드 (시험장 개수에 영향받지 않는 표준 고정 규격) */
     .monitor-grid {
@@ -418,8 +479,13 @@
       gap: 5px;
     }
 
-    .room-badge-title.sparks { color: #c2410c; }
-    .room-badge-title.tnt { color: #1d4ed8; }
+    .room-badge-title.sparks {
+      color: #c2410c;
+    }
+
+    .room-badge-title.tnt {
+      color: #1d4ed8;
+    }
 
     /* 1~4교시 / 5~7교시 쾌적한 2줄 그리드 */
     .room-period-cards {
@@ -468,13 +534,17 @@
       border-radius: 50%;
       background: #cbd5e1;
     }
-    .indicator-dot.active { background: #10b981; }
+
+    .indicator-dot.active {
+      background: #10b981;
+    }
 
     /* 3대 세션 완전 일치 상태 */
     .period-card-item.state-full {
       background: #ecfdf5;
       border-color: #a7f3d0;
     }
+
     .period-card-item.state-full .status-badge-chip {
       background: #d1fae5;
       color: #065f46;
@@ -484,6 +554,7 @@
       background: #fffbeb;
       border-color: #fde68a;
     }
+
     .period-card-item.state-partial .status-badge-chip {
       background: #fef3c7;
       color: #92400e;
@@ -493,6 +564,7 @@
       background: #f8fafc;
       border-color: #f1f5f9;
     }
+
     .period-card-item.state-empty .status-badge-chip {
       background: #f1f5f9;
       color: #94a3b8;
@@ -531,6 +603,7 @@
       border-right: 1px solid #e2e8f0;
       white-space: nowrap;
     }
+
     .written-table th:last-child {
       border-right: none;
     }
@@ -542,14 +615,18 @@
 
     /* 홀수/짝수 행 확실한 구분 색상 (Zebra Striping) */
     .written-table tbody tr:nth-child(even) {
-      background-color: #f1f5f9; /* 확실하게 구분되는 소프트 슬레이트 */
+      background-color: #f1f5f9;
+      /* 확실하게 구분되는 소프트 슬레이트 */
     }
+
     .written-table tbody tr:nth-child(odd) {
-      background-color: #ffffff; /* 순백색 */
+      background-color: #ffffff;
+      /* 순백색 */
     }
 
     .written-table tbody tr:hover {
-      background-color: #bae6fd !important; /* 호버 시 산뜻한 스카이블루 */
+      background-color: #bae6fd !important;
+      /* 호버 시 산뜻한 스카이블루 */
     }
 
     .written-table td {
@@ -561,6 +638,7 @@
       text-overflow: ellipsis;
       vertical-align: middle;
     }
+
     .written-table td:last-child {
       border-right: none;
     }
@@ -615,10 +693,13 @@
     }
 
     @keyframes pulseSaveBtn {
-      0%, 100% {
+
+      0%,
+      100% {
         transform: scale(1);
         box-shadow: 0 0 10px rgba(249, 115, 22, 0.4);
       }
+
       50% {
         transform: scale(1.03);
         box-shadow: 0 0 16px rgba(249, 115, 22, 0.7);
@@ -654,13 +735,25 @@
     }
 
     @keyframes modalBackdropFadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
     }
 
     @keyframes modalScaleUp {
-      from { opacity: 0; transform: scale(0.95); }
-      to { opacity: 1; transform: scale(1); }
+      from {
+        opacity: 0;
+        transform: scale(0.95);
+      }
+
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
     }
 
     .custom-modal-card::before {
@@ -673,10 +766,21 @@
       background: #3b82f6;
     }
 
-    .custom-modal-card.theme-danger::before { background: linear-gradient(90deg, #ef4444, #dc2626); }
-    .custom-modal-card.theme-warn::before { background: linear-gradient(90deg, #f59e0b, #d97706); }
-    .custom-modal-card.theme-submit::before { background: linear-gradient(90deg, #2563eb, #4f46e5); }
-    .custom-modal-card.theme-success::before { background: linear-gradient(90deg, #10b981, #059669); }
+    .custom-modal-card.theme-danger::before {
+      background: linear-gradient(90deg, #ef4444, #dc2626);
+    }
+
+    .custom-modal-card.theme-warn::before {
+      background: linear-gradient(90deg, #f59e0b, #d97706);
+    }
+
+    .custom-modal-card.theme-submit::before {
+      background: linear-gradient(90deg, #2563eb, #4f46e5);
+    }
+
+    .custom-modal-card.theme-success::before {
+      background: linear-gradient(90deg, #10b981, #059669);
+    }
 
     .modal-icon-badge {
       width: 56px;
@@ -690,9 +794,24 @@
       transition: all 0.2s ease;
     }
 
-    .badge-type-info { background: #eff6ff; color: #1d4ed8; box-shadow: 0 0 0 6px rgba(59, 130, 246, 0.12); }
-    .badge-type-submit { background: #eef2ff; color: #3730a3; box-shadow: 0 0 0 6px rgba(79, 70, 229, 0.14); }
-    .badge-type-warn { background: #fffbeb; color: #b45309; box-shadow: 0 0 0 6px rgba(245, 158, 11, 0.14); }
+    .badge-type-info {
+      background: #eff6ff;
+      color: #1d4ed8;
+      box-shadow: 0 0 0 6px rgba(59, 130, 246, 0.12);
+    }
+
+    .badge-type-submit {
+      background: #eef2ff;
+      color: #3730a3;
+      box-shadow: 0 0 0 6px rgba(79, 70, 229, 0.14);
+    }
+
+    .badge-type-warn {
+      background: #fffbeb;
+      color: #b45309;
+      box-shadow: 0 0 0 6px rgba(245, 158, 11, 0.14);
+    }
+
     .badge-type-danger {
       background: #fef2f2;
       color: #b91c1c;
@@ -701,12 +820,24 @@
     }
 
     @keyframes pulseDanger {
-      0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.35); }
-      70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+      0% {
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.35);
+      }
+
+      70% {
+        box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+      }
+
+      100% {
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+      }
     }
 
-    .badge-type-success { background: #ecfdf5; color: #047857; box-shadow: 0 0 0 6px rgba(16, 185, 129, 0.14); }
+    .badge-type-success {
+      background: #ecfdf5;
+      color: #047857;
+      box-shadow: 0 0 0 6px rgba(16, 185, 129, 0.14);
+    }
 
     .modal-title {
       font-size: 1.25rem;
@@ -715,8 +846,14 @@
       margin-bottom: 12px;
       letter-spacing: -0.02em;
     }
-    .modal-title.title-danger { color: #991b1b; }
-    .modal-title.title-submit { color: #1e3a8a; }
+
+    .modal-title.title-danger {
+      color: #991b1b;
+    }
+
+    .modal-title.title-submit {
+      color: #1e3a8a;
+    }
 
     .modal-message {
       font-size: 0.94rem;
@@ -738,8 +875,18 @@
       line-height: 1.55;
       text-align: left;
     }
-    .callout-danger { background: #fff5f5; border-color: #fecaca; color: #991b1b; }
-    .callout-submit { background: #f0f7ff; border-color: #bfdbfe; color: #1e40af; }
+
+    .callout-danger {
+      background: #fff5f5;
+      border-color: #fecaca;
+      color: #991b1b;
+    }
+
+    .callout-submit {
+      background: #f0f7ff;
+      border-color: #bfdbfe;
+      color: #1e40af;
+    }
 
     .modal-actions {
       display: flex;
@@ -761,14 +908,44 @@
       align-items: center;
     }
 
-    .modal-btn-confirm { background-color: #2563eb; color: white; }
-    .modal-btn-confirm:hover { background-color: #1d4ed8; }
-    .modal-btn-submit { background-color: #1d4ed8; color: white; font-weight: 800; }
-    .modal-btn-submit:hover { background-color: #1e40af; }
-    .modal-btn-danger { background-color: #ef4444; color: white; }
-    .modal-btn-danger:hover { background-color: #dc2626; }
-    .modal-btn-cancel { background-color: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
-    .modal-btn-cancel:hover { background-color: #e2e8f0; color: #0f172a; }
+    .modal-btn-confirm {
+      background-color: #2563eb;
+      color: white;
+    }
+
+    .modal-btn-confirm:hover {
+      background-color: #1d4ed8;
+    }
+
+    .modal-btn-submit {
+      background-color: #1d4ed8;
+      color: white;
+      font-weight: 800;
+    }
+
+    .modal-btn-submit:hover {
+      background-color: #1e40af;
+    }
+
+    .modal-btn-danger {
+      background-color: #ef4444;
+      color: white;
+    }
+
+    .modal-btn-danger:hover {
+      background-color: #dc2626;
+    }
+
+    .modal-btn-cancel {
+      background-color: #f1f5f9;
+      color: #475569;
+      border: 1px solid #cbd5e1;
+    }
+
+    .modal-btn-cancel:hover {
+      background-color: #e2e8f0;
+      color: #0f172a;
+    }
 
     /* 본부 일반 모달 (정보수정/이동) */
     .hq-modal-overlay {
@@ -838,7 +1015,7 @@
       border-radius: 8px;
       padding: 24px;
       margin-bottom: 24px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
     }
 
     .print-page-header {
@@ -911,9 +1088,20 @@
       border: 1.5px solid #000000;
     }
 
-    .badge-bronze-print { background: #9a3412; color: #ffffff; }
-    .badge-silver-print { background: #334155; color: #ffffff; }
-    .badge-gold-print { background: #000000; color: #ffffff; }
+    .badge-bronze-print {
+      background: #9a3412;
+      color: #ffffff;
+    }
+
+    .badge-silver-print {
+      background: #334155;
+      color: #ffffff;
+    }
+
+    .badge-gold-print {
+      background: #000000;
+      color: #ffffff;
+    }
 
     .medal-count-label {
       font-size: 0.95rem;
@@ -1089,7 +1277,8 @@
         margin: 8mm 10mm 8mm 10mm;
       }
 
-      html, body {
+      html,
+      body {
         background: #ffffff !important;
         margin: 0 !important;
         padding: 0 !important;
@@ -1099,15 +1288,15 @@
       }
 
       /* 인쇄 대상(#standingsPrintContainer)을 제외한 모든 UI 완전 소멸 */
-      .hq-header, 
-      .filter-bar, 
-      .hq-nav-tabs, 
-      .btn-hq, 
-      .hq-modal-overlay, 
-      .custom-modal-overlay, 
-      #tab-monitor, 
-      #tab-roster, 
-      #tab-written, 
+      .hq-header,
+      .filter-bar,
+      .hq-nav-tabs,
+      .btn-hq,
+      .hq-modal-overlay,
+      .custom-modal-overlay,
+      #tab-monitor,
+      #tab-roster,
+      #tab-written,
       .no-print {
         display: none !important;
       }
@@ -1174,9 +1363,11 @@
       .medal-section-bronze {
         border-top: 5pt solid #000000 !important;
       }
+
       .medal-section-silver {
         border-top: 5pt solid #475569 !important;
       }
+
       .medal-section-gold {
         border-top: 6pt solid #000000 !important;
         background: #fafafa !important;
@@ -1188,9 +1379,20 @@
         border: 1.5pt solid #000000 !important;
       }
 
-      .badge-bronze-print { background: #9a3412 !important; color: #ffffff !important; }
-      .badge-silver-print { background: #334155 !important; color: #ffffff !important; }
-      .badge-gold-print { background: #000000 !important; color: #ffffff !important; }
+      .badge-bronze-print {
+        background: #9a3412 !important;
+        color: #ffffff !important;
+      }
+
+      .badge-silver-print {
+        background: #334155 !important;
+        color: #ffffff !important;
+      }
+
+      .badge-gold-print {
+        background: #000000 !important;
+        color: #ffffff !important;
+      }
 
       .awardee-card-item {
         border: 1.5pt solid #000000 !important;
@@ -1256,7 +1458,30 @@
     }
   </style>
 </head>
+
 <body>
+
+  <!-- 시험 결과 초기화 확인 모달 -->
+  <div class="hq-modal-overlay" id="resetScoresModalOverlay" style="display: none;">
+    <div class="hq-modal-card" style="max-width: 420px; text-align: center;">
+      <div style="font-size: 2.2rem; margin-bottom: 8px;">⚠️</div>
+      <h3 style="margin: 0 0 8px; color: #dc2626; font-size: 1.15rem;">시험 결과 전체 초기화</h3>
+      <p style="font-size: 0.88rem; color: #475569; line-height: 1.5; margin-bottom: 14px;">
+        <b>참가자명단, 시간표, 설정</b>은 보존되며,<br>
+        <b>필기·오전·오후 점수 및 집계/시상 결과</b>가 모두 삭제됩니다.<br>
+        실행하려면 본부 관리자 PIN을 입력하세요.
+      </p>
+      <input type="password" id="resetScoresPinInput" class="hq-form-control" placeholder="본부 관리자 PIN 입력"
+        style="text-align: center; margin-bottom: 8px;" />
+      <div id="resetScoresPinError" style="color: #dc2626; font-size: 0.82rem; margin-bottom: 10px; display: none;">
+        PIN 번호가 일치하지 않습니다.
+      </div>
+      <div style="display: flex; gap: 8px; justify-content: center; margin-top: 10px;">
+        <button type="button" class="btn-hq" onclick="closeResetScoresModal()">취소</button>
+        <button type="button" class="btn-hq btn-hq-danger" id="btnConfirmResetScores" onclick="executeResetAllScores()">초기화 실행</button>
+      </div>
+    </div>
+  </div>
 
   <!-- 본부 보안 PIN 로그인 모달 -->
   <div class="hq-modal-overlay" id="adminPinModalOverlay" style="display: flex;">
@@ -1267,11 +1492,14 @@
         본부 관리자 전용 포털입니다.<br>구글 시트에 설정된 관리자 PIN을 입력하세요.
       </div>
       <div class="hq-form-group" style="text-align: center;">
-        <input type="password" id="adminPinInput" class="hq-form-control" placeholder="본부 PIN 번호 입력" style="text-align: center; font-size: 1.2rem; letter-spacing: 4px; width: 180px; margin: 0 auto;" />
-        <div id="adminPinError" style="color: #dc2626; font-size: 0.82rem; margin-top: 6px; display: none;">PIN 번호가 일치하지 않습니다.</div>
+        <input type="password" id="adminPinInput" class="hq-form-control" placeholder="본부 PIN 번호 입력"
+          style="text-align: center; font-size: 1.2rem; letter-spacing: 4px; width: 180px; margin: 0 auto;" />
+        <div id="adminPinError" style="color: #dc2626; font-size: 0.82rem; margin-top: 6px; display: none;">PIN 번호가 일치하지
+          않습니다.</div>
       </div>
       <div style="margin-top: 18px;">
-        <button type="button" class="btn-hq btn-hq-primary" onclick="verifyAdminPin()" style="width: 100%; justify-content: center; padding: 10px;">
+        <button type="button" class="btn-hq btn-hq-primary" onclick="verifyAdminPin()"
+          style="width: 100%; justify-content: center; padding: 10px;">
           본부 포털 입장
         </button>
       </div>
@@ -1319,7 +1547,8 @@
   <div class="hq-modal-overlay" id="transferModalOverlay">
     <div class="hq-modal-card">
       <div class="hq-modal-title">선수 시험장/조 긴급 이동</div>
-      <div style="font-size: 0.84rem; color: #64748b; margin-bottom: 14px; background: #fffbeb; padding: 10px; border-radius: 8px; border: 1px solid #fef3c7; line-height: 1.5;">
+      <div
+        style="font-size: 0.84rem; color: #64748b; margin-bottom: 14px; background: #fffbeb; padding: 10px; border-radius: 8px; border: 1px solid #fef3c7; line-height: 1.5;">
         ⚠️ <b>현장 좌석 규칙 안내:</b><br>
         • 이미 좌석이 공지되었으므로, <b>원래 있던 번호는 공석(결번)으로 유지</b>됩니다.<br>
         • 이동할 대상 조의 <b>비어있는 번호</b>를 선택하거나, <b>마지막 번호 + 1</b>로 배정할 수 있습니다.
@@ -1343,10 +1572,13 @@
         <select id="transferTargetTeam" class="hq-form-control" onchange="updateTransferSeatOptions()"></select>
       </div>
 
-      <div class="hq-form-group" style="background: #f0fdf4; border: 1px solid #bbf7d0; padding: 12px; border-radius: 8px;">
+      <div class="hq-form-group"
+        style="background: #f0fdf4; border: 1px solid #bbf7d0; padding: 12px; border-radius: 8px;">
         <label style="color: #166534; margin-bottom: 6px;">배정할 번호 선택 (비어있는 번호만 표시)</label>
-        <select id="transferTargetNum" class="hq-form-control" style="font-weight: 800; font-size: 0.95rem;" onchange="previewNewAssignedNumber()"></select>
-        <div id="transferNewNumPreview" style="font-size: 0.86rem; font-weight: 700; color: #15803d; margin-top: 6px;">조를 선택하면 사용 가능한 빈 번호가 나옵니다.</div>
+        <select id="transferTargetNum" class="hq-form-control" style="font-weight: 800; font-size: 0.95rem;"
+          onchange="previewNewAssignedNumber()"></select>
+        <div id="transferNewNumPreview" style="font-size: 0.86rem; font-weight: 700; color: #15803d; margin-top: 6px;">
+          조를 선택하면 사용 가능한 빈 번호가 나옵니다.</div>
       </div>
 
       <div class="hq-modal-actions">
@@ -1375,6 +1607,7 @@
       <div class="hq-header-actions">
         <span id="hqStaffBadge" style="font-size: 0.85rem; font-weight: 700; color: #475569;">본부 운영실</span>
         <button class="btn-hq" id="btnHqRefresh" onclick="refreshHqDataManual()">🔄 새로고침</button>
+        <button class="btn-hq btn-hq-danger" id="btnResetAllScores" onclick="openResetScoresModal()">🗑️ 시험 결과 초기화</button>
         <button class="btn-hq btn-hq-danger" onclick="logoutAdmin()">🔒 로그아웃</button>
       </div>
     </header>
@@ -1443,10 +1676,13 @@
       <div class="filter-bar" style="padding: 6px 14px; margin-bottom: 6px;">
         <div class="filter-group" style="gap: 12px; align-items: center;">
           <span style="font-weight: 800; font-size: 0.95rem; color: #0f172a;">📡 교실별 교시 진행 현황 관제</span>
-          <div style="display: inline-flex; align-items: center; gap: 6px; background: #f1f5f9; padding: 2px 8px; border-radius: 6px; font-size: 0.78rem;">
+          <div
+            style="display: inline-flex; align-items: center; gap: 6px; background: #f1f5f9; padding: 2px 8px; border-radius: 6px; font-size: 0.78rem;">
             <span id="livePollingIndicator">🟢 실시간 자동 갱신 (30초)</span>
-            <button type="button" id="btnTogglePolling" class="btn-hq" style="padding: 1px 6px; font-size: 0.72rem; height: auto;" onclick="toggleAutoPolling()">일시정지</button>
-            <span id="lastUpdatedText" style="color: #64748b; font-size: 0.78rem; margin-left: 4px; display: inline-flex; align-items: center; gap: 4px;">-</span>
+            <button type="button" id="btnTogglePolling" class="btn-hq"
+              style="padding: 1px 6px; font-size: 0.72rem; height: auto;" onclick="toggleAutoPolling()">일시정지</button>
+            <span id="lastUpdatedText"
+              style="color: #64748b; font-size: 0.78rem; margin-left: 4px; display: inline-flex; align-items: center; gap: 4px;">-</span>
           </div>
         </div>
         <div class="filter-group">
@@ -1463,7 +1699,8 @@
     <section id="tab-roster" class="tab-content">
       <div class="filter-bar">
         <div class="filter-group">
-          <input type="text" id="rosterSearchInput" class="filter-input" placeholder="이름, 교회명, ID 검색..." oninput="filterRosterTable()" style="width: 220px;" />
+          <input type="text" id="rosterSearchInput" class="filter-input" placeholder="이름, 교회명, ID 검색..."
+            oninput="filterRosterTable()" style="width: 220px;" />
           <select id="rosterHandbookFilter" class="filter-select" onchange="filterRosterTable()">
             <option value="">전체 핸드북</option>
           </select>
@@ -1498,7 +1735,9 @@
             </tr>
           </thead>
           <tbody id="rosterTableBody">
-            <tr><td colspan="10" style="padding: 30px;">선수 명단을 불러오는 중...</td></tr>
+            <tr>
+              <td colspan="10" style="padding: 30px;">선수 명단을 불러오는 중...</td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -1509,13 +1748,16 @@
       <div class="filter-bar" style="padding: 6px 12px; margin-bottom: 6px;">
         <div class="filter-group" style="gap: 8px; align-items: center;">
           <label style="font-weight: 800; font-size: 0.88rem; color: #0f172a;">채점 대상:</label>
-          <select id="writtenHandbookSelect" class="filter-select" onchange="handleWrittenHandbookSelectChange()" style="padding: 4px 8px; font-size: 0.86rem;">
+          <select id="writtenHandbookSelect" class="filter-select" onchange="handleWrittenHandbookSelectChange()"
+            style="padding: 4px 8px; font-size: 0.86rem;">
             <option value="">핸드북 선택</option>
           </select>
-          <select id="writtenTeamSelect" class="filter-select" onchange="handleWrittenTeamSelectChange()" style="padding: 4px 8px; font-size: 0.86rem;">
+          <select id="writtenTeamSelect" class="filter-select" onchange="handleWrittenTeamSelectChange()"
+            style="padding: 4px 8px; font-size: 0.86rem;">
             <option value="">조 선택</option>
           </select>
-          <div id="writtenProgressSummary" style="display: none; align-items: center; gap: 6px; margin-left: 8px; font-size: 0.82rem; font-weight: 700;">
+          <div id="writtenProgressSummary"
+            style="display: none; align-items: center; gap: 6px; margin-left: 8px; font-size: 0.82rem; font-weight: 700;">
             <!-- 동적 집계 뱃지 -->
           </div>
         </div>
@@ -1523,7 +1765,8 @@
           <span style="font-size: 0.78rem; color: #64748b; font-weight: 600;">
             * <b>0~150점 (10점 단위)</b> | Enter/↓키 고속 이동
           </span>
-          <button id="btnSaveWrittenBatch" class="btn-hq btn-hq-primary btn-written-save" onclick="saveWrittenScoresBatch()" style="padding: 6px 14px; font-size: 0.84rem;">
+          <button id="btnSaveWrittenBatch" class="btn-hq btn-hq-primary btn-written-save"
+            onclick="saveWrittenScoresBatch()" style="padding: 6px 14px; font-size: 0.84rem;">
             💾 해당 조 필기점수 저장 및 시상표 갱신
           </button>
         </div>
@@ -1542,7 +1785,11 @@
             </tr>
           </thead>
           <tbody id="writtenTableBody">
-            <tr><td colspan="6" style="padding: 40px; color: #64748b; justify-content: center; width: 100%;">상단에서 <b>핸드북</b>과 <b>조</b>를 선택해 주세요.</td></tr>
+            <tr>
+              <td colspan="6" style="padding: 40px; color: #64748b; justify-content: center; width: 100%;">상단에서
+                <b>핸드북</b>과 <b>조</b>를 선택해 주세요.
+              </td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -1785,6 +2032,51 @@
       } catch (err) {
         errEl.innerText = '서버 통신 오류: ' + err.message;
         errEl.style.display = 'block';
+      }
+    }
+
+    function openResetScoresModal() {
+      document.getElementById('resetScoresPinInput').value = '';
+      document.getElementById('resetScoresPinError').style.display = 'none';
+      document.getElementById('resetScoresModalOverlay').style.display = 'flex';
+      document.getElementById('resetScoresPinInput').focus();
+    }
+
+    function closeResetScoresModal() {
+      document.getElementById('resetScoresModalOverlay').style.display = 'none';
+    }
+
+    async function executeResetAllScores() {
+      const inputPin = document.getElementById('resetScoresPinInput').value.trim();
+      const expectedPin = String((HQ_DATA.settings && HQ_DATA.settings.ADMIN_PIN) || 'AWANA2026');
+      if (inputPin !== expectedPin) {
+        document.getElementById('resetScoresPinError').style.display = 'block';
+        return;
+      }
+
+      const btn = document.getElementById('btnConfirmResetScores');
+      btn.disabled = true;
+      btn.textContent = '초기화 중...';
+
+      try {
+        const res = await fetch(GAS_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ action: 'resetAllScores' })
+        });
+        const data = await res.json();
+        if (data.status === 'success') {
+          closeResetScoresModal();
+          alert(data.message || '시험 결과가 초기화되었습니다.');
+          await initAdminPortal();
+        } else {
+          alert('초기화 실패: ' + (data.message || '알 수 없는 오류'));
+        }
+      } catch (err) {
+        alert('초기화 요청 중 오류가 발생했습니다: ' + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '초기화 실행';
       }
     }
 
@@ -2254,8 +2546,8 @@
 
         if (search) {
           const match = (p.name && p.name.toLowerCase().includes(search)) ||
-                        (p.church && p.church.toLowerCase().includes(search)) ||
-                        (p.id && p.id.toLowerCase().includes(search));
+            (p.church && p.church.toLowerCase().includes(search)) ||
+            (p.id && p.id.toLowerCase().includes(search));
           if (!match) return false;
         }
         return true;
@@ -2468,7 +2760,7 @@
       HQ_DATA.participants.forEach(p => {
         if (p.handbook === targetHb && p.team) teams.add(p.team);
       });
-      Array.from(teams).sort((a,b) => a-b).forEach(t => {
+      Array.from(teams).sort((a, b) => a - b).forEach(t => {
         const opt = document.createElement('option');
         opt.value = t; opt.innerText = `${t}조`;
         teamSelect.appendChild(opt);
@@ -2811,7 +3103,7 @@
       HQ_DATA.participants.forEach(p => {
         if (p.handbook === hb && p.team) teams.add(p.team);
       });
-      Array.from(teams).sort((a,b) => a-b).forEach(t => {
+      Array.from(teams).sort((a, b) => a - b).forEach(t => {
         const opt = document.createElement('option');
         opt.value = t; opt.innerText = `${t}조`;
         teamSelect.appendChild(opt);
@@ -2911,7 +3203,7 @@
 
       setTimeout(() => {
         const firstUnfilled = document.querySelector('.input-written-score.is-unfilled:not([disabled])') ||
-                              document.querySelector('.input-written-score:not([disabled])');
+          document.querySelector('.input-written-score:not([disabled])');
         if (firstUnfilled) firstUnfilled.focus();
       }, 50);
     }
@@ -2921,7 +3213,7 @@
     function updateWrittenProgressLive() {
       const inputs = document.querySelectorAll('.input-written-score:not([disabled])');
       const progressEl = document.getElementById('writtenProgressSummary');
-      
+
       syncWrittenSaveButtonState();
 
       if (!progressEl || inputs.length === 0) return;
@@ -3120,7 +3412,7 @@
           const sa = sc.speedAfternoon || 0;
           const total = w + mm + ma + sa;
           return { id: s.id, total: total, speed: sa };
-        }).sort((a,b) => b.total - a.total);
+        }).sort((a, b) => b.total - a.total);
 
         const totalCount = scoredStudents.length;
         const goldCount = Math.round(totalCount * 0.3);
@@ -3422,4 +3714,5 @@
     }
   </script>
 </body>
+
 </html>
