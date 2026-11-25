@@ -247,7 +247,7 @@
       border: 1px solid var(--border-color);
       height: calc(100vh - 135px);
       min-height: 460px;
-      overflow-y: auto;
+      overflow-y: hidden;
       overflow-x: auto;
       box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
     }
@@ -297,13 +297,8 @@
       font-weight: 700;
       vertical-align: middle;
       white-space: nowrap;
-      height: var(--row-h, 31px) !important;
-      line-height: var(--row-h, 31px) !important;
+      line-height: 1.1;
       overflow: hidden;
-    }
-
-    tbody tr {
-      height: var(--row-h, 31px) !important;
     }
 
     tbody tr:nth-child(even) {
@@ -365,8 +360,7 @@
     /* 채점 셀 인터랙션 */
     .quiz-cell {
       width: 44px;
-      height: var(--row-h, 31px) !important;
-      line-height: var(--row-h, 31px) !important;
+      line-height: 1.1;
       box-sizing: border-box;
       cursor: pointer;
       font-size: 1.08rem;
@@ -2040,16 +2034,38 @@
       });
 
       tbody.innerHTML = rowsHtml;
+      applyScoringTableHeight();
+    }
 
-      // 고정 패널 높이에 맞춰 행 높이 동적 자동 분배 (최소 31px ~ 최대 54px)
+    function applyScoringTableHeight() {
       const tableContainer = document.querySelector('.table-container');
-      if (tableContainer && DISPLAY_SLOTS.length > 0) {
-        const theadH = document.querySelector('#scoringTable thead')?.offsetHeight || 42;
-        const availH = tableContainer.clientHeight - theadH - 4;
-        const calcH = Math.max(31, Math.min(54, Math.floor(availH / DISPLAY_SLOTS.length)));
-        document.documentElement.style.setProperty('--row-h', `${calcH}px`);
+      const tableEl = document.getElementById('scoringTable');
+      if (!tableContainer || !tableEl || !DISPLAY_SLOTS || DISPLAY_SLOTS.length === 0) return;
+
+      const theadH = tableEl.querySelector('thead')?.offsetHeight || 42;
+      const availH = tableContainer.clientHeight - theadH;
+      const perRow = availH / DISPLAY_SLOTS.length;
+      const rows = tableEl.querySelectorAll('tbody tr');
+
+      if (perRow >= 24 && perRow <= 54) {
+        // 일반 조(15~25명): 브라우저 네이티브 table height:100%로 1px 오차 없이 정확히 1/N 분배 (세로 스크롤 0%)
+        tableContainer.style.overflowY = 'hidden';
+        tableEl.style.height = '100%';
+        rows.forEach(tr => { tr.style.height = ''; });
+      } else if (perRow > 54) {
+        // 소규모 조: 과도한 행 확장 방지 (상한 54px)
+        tableContainer.style.overflowY = 'hidden';
+        tableEl.style.height = 'auto';
+        rows.forEach(tr => { tr.style.height = '54px'; });
+      } else {
+        // 초소형 창 폴백: 최소 24px 유지 + 스크롤 허용
+        tableContainer.style.overflowY = 'auto';
+        tableEl.style.height = 'auto';
+        rows.forEach(tr => { tr.style.height = '24px'; });
       }
     }
+
+    window.addEventListener('resize', applyScoringTableHeight);
 
     /**
      * =========================================================================
