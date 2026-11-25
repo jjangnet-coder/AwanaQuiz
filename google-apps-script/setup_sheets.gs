@@ -20,12 +20,12 @@ function setupAwanaSheets() {
         ['금메달_비율', 30, '금메달 수여 비율 (30%)'],
         ['은메달_비율', 40, '은메달 수여 비율 (40%)'],
         ['동메달_비율', 30, '동메달 수여 비율 (30%)'],
-        ['CODE_스팍스1', 'SP01', '스팍스1 교실 접속 코드 (URL 파라미터 ?code=SP01 또는 팝업 입력)'],
+        ['CODE_스팍스1', 'SP01', '스팍스1 교실 접속 코드'],
         ['CODE_스팍스2', 'SP02', '스팍스2 교실 접속 코드'],
         ['CODE_스팍스3', 'SP03', '스팍스3 교실 접속 코드'],
         ['CODE_스팍스4', 'SP04', '스팍스4 교실 접속 코드'],
         ['CODE_스팍스5', 'SP05', '스팍스5 교실 접속 코드'],
-        ['CODE_티앤티1', 'TT01', '티앤티1 교실 접속 코드 (URL 파라미터 ?code=TT01 또는 팝업 입력)'],
+        ['CODE_티앤티1', 'TT01', '티앤티1 교실 접속 코드'],
         ['CODE_티앤티2', 'TT02', '티앤티2 교실 접속 코드'],
         ['CODE_티앤티3', 'TT03', '티앤티3 교실 접속 코드'],
         ['CODE_티앤티4', 'TT04', '티앤티4 교실 접속 코드'],
@@ -33,7 +33,7 @@ function setupAwanaSheets() {
         ['CODE_티앤티6', 'TT06', '티앤티6 교실 접속 코드'],
         ['CODE_티앤티7', 'TT07', '티앤티7 교실 접속 코드'],
         ['ADMIN_PIN', 'AWANA2026', '본부 관리 포털(admin/index.html) 접속 비밀번호'],
-        ['대회제목', '2026-2027 AWANA 성경퀴즈대회', '상단 헤더 및 엑셀 파일명에 표시될 대회 제목']
+        ['대회제목', '2026 AWANA 성경퀴즈대회', '상단 헤더 및 엑셀 파일명에 표시될 대회 제목']
       ]
     },
     {
@@ -97,10 +97,10 @@ function setupAwanaSheets() {
   });
 
   SpreadsheetApp.flush();
-  reorderAwanaSheets(ss);   // 18개 시트 공식 순서 자동 재배치
-  syncFinalSummaryFromParticipants(ss); // 참가자명단 데이터를 최종집계 및 11개 시상 탭에 100% 자동 배치
-  formatAllSheetsNicely(); // 18개 시트 전체 열너비/정렬 전수 표준화 적용
-  Logger.log('✅ [운영용 초기화 완료] 기본 7개 시트 및 11개 공식 핸드북 시상 시트가 준비되었으며 명단 동기화가 완료되었습니다.');
+  reorderAwanaSheets(ss);   // 7개 기본 시트 공식 순서 자동 재배치
+  syncFinalSummaryFromParticipants(ss); // 참가자명단 데이터를 최종집계 시트에 자동 배치
+  formatAllSheetsNicely(); // 7개 기본 시트 전체 열너비/정렬 전수 표준화 적용
+  Logger.log('✅ [운영용 초기화 완료] 기본 7개 시트가 준비되었으며 명단 동기화가 완료되었습니다.');
 }
 
 /**
@@ -110,12 +110,12 @@ function reorderSheetsOnly() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   reorderAwanaSheets(ss);
   SpreadsheetApp.flush();
-  Logger.log('🎉 [탭 순서 정렬 완료] 18개 시트 탭이 공식 순서대로 재배치되었습니다.');
+  Logger.log('🎉 [탭 순서 정렬 완료] 7개 기본 시트 탭이 공식 순서대로 재배치되었습니다.');
 }
 
 /**
- * 18개 전체 시트 탭을 사용자가 지정한 공식 순서대로 물리적 위치 재배치
- * 순서: 설정 -> 참가자명단 -> 시간표 -> 객관식_로그 -> 스피드_로그 -> 필기_로그 -> 최종집계 -> 11개 핸드북
+ * 7개 전체 시트 탭을 사용자가 지정한 공식 순서대로 물리적 위치 재배치
+ * 순서: 설정 -> 참가자명단 -> 시간표 -> 객관식_로그 -> 스피드_로그 -> 필기_로그 -> 최종집계
  */
 function reorderAwanaSheets(ss) {
   const desiredOrder = [
@@ -126,7 +126,7 @@ function reorderAwanaSheets(ss) {
     '스피드_로그',
     '필기_로그',
     '최종집계'
-  ].concat(getOfficial11HandbooksList());
+  ];
 
   let currentPosition = 1;
   desiredOrder.forEach(name => {
@@ -248,11 +248,11 @@ function syncFinalSummaryFromParticipants(optionalSs) {
 function formatAllSheetsNicely() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
 
-  // 1. '설정' (A: 160px, B: 90px, C: 320px)
+  // 1. '설정' (A: 160px, B: 260px, C: 320px)
   const sSheet = ss.getSheetByName('설정') || ss.getSheetByName('대회설정');
   if (sSheet) {
     sSheet.setColumnWidth(1, 160);
-    sSheet.setColumnWidth(2, 90);
+    sSheet.setColumnWidth(2, 260);
     sSheet.setColumnWidth(3, 320);
     if (sSheet.getLastRow() >= 1) {
       sSheet.getRange(1, 1, sSheet.getLastRow(), 2).setHorizontalAlignment('center');
