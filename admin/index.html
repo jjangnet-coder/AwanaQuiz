@@ -1607,6 +1607,40 @@
       overflow-y: hidden !important;
     }
 
+    /* 단원 관리 · 핸드북별 결과 탭 풀높이 통일 (화면 하단 빈 여백 0%) */
+    #tab-participants.active,
+    #tab-handbook-awards.active {
+      display: flex !important;
+      flex-direction: column;
+      height: calc(100vh - 82px) !important;
+      overflow: hidden !important;
+    }
+
+    #tab-participants .filter-bar {
+      flex-shrink: 0;
+    }
+
+    #tab-participants .hq-table-container {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+    }
+
+    #tab-participants .hq-table thead th,
+    #tab-handbook-awards .hq-table thead th {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+    }
+
+    @media print {
+      #tab-handbook-awards.active,
+      #tab-participants.active {
+        height: auto !important;
+        overflow: visible !important;
+      }
+    }
+
     /* 단원 관리 테이블 고스트 행 버튼 & 소프트 배지 */
     .btn-row-ghost {
       padding: 4px 10px;
@@ -2229,15 +2263,15 @@
       </div>
 
       <!-- 서브 탭 1: 핸드북별 전체 시상 결과 조회 (기본 선택) -->
-      <div id="subTabAllAwards" class="hq-panel">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px;">
+      <div id="subTabAllAwards" class="hq-panel" style="display: flex; flex-direction: column; flex: 1; min-height: 0;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px; flex-shrink: 0;">
           <h3 style="margin: 0; font-size: 1.05rem; color: #1e3a8a;">📋 핸드북별 전체 시상 결과 조회</h3>
           <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
             <select id="hbAwardFilterSelect" class="hq-form-control" style="width: auto; min-width: 180px;" onchange="renderHandbookAwardsTable()"></select>
             <input type="text" id="hbAwardSearchInput" class="hq-form-control" style="width: 200px;" placeholder="이름 또는 교회명 검색..." oninput="renderHandbookAwardsTable()" />
           </div>
         </div>
-        <div class="hq-table-container" style="max-height: 62vh; overflow-y: auto;">
+        <div class="hq-table-container" style="flex: 1; min-height: 0; overflow-y: auto;">
           <table class="hq-table" id="hbAwardTable">
             <thead>
               <tr>
@@ -2263,9 +2297,9 @@
       </div>
 
       <!-- 서브 탭 2: 핸드북별 최고득점자 모아보기 -->
-      <div id="subTabTopScorers" class="hq-panel" style="display: none;">
-        <h3 style="margin: 0 0 14px; font-size: 1.05rem; color: #1e3a8a;">🏆 핸드북별 최고득점자 모아보기</h3>
-        <div id="topScorersSummaryContainer" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 12px;"></div>
+      <div id="subTabTopScorers" class="hq-panel" style="display: none; flex-direction: column; flex: 1; min-height: 0;">
+        <h3 style="margin: 0 0 12px; font-size: 1.05rem; color: #1e3a8a; flex-shrink: 0;">🏆 핸드북별 최고득점자 모아보기</h3>
+        <div id="topScorersSummaryContainer" style="flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); grid-template-rows: repeat(3, minmax(0, 1fr)); gap: 12px;"></div>
       </div>
     </section>
   </div>
@@ -2865,8 +2899,8 @@
 
     function switchHandbookAwardSubTab(subKey) {
       const isAll = subKey === 'all';
-      document.getElementById('subTabAllAwards').style.display = isAll ? 'block' : 'none';
-      document.getElementById('subTabTopScorers').style.display = isAll ? 'none' : 'block';
+      document.getElementById('subTabAllAwards').style.display = isAll ? 'flex' : 'none';
+      document.getElementById('subTabTopScorers').style.display = isAll ? 'none' : 'flex';
       document.getElementById('btnPrintTopScorers').style.display = isAll ? 'none' : 'inline-block';
 
       document.getElementById('subTabBtnAllAwards').className = isAll ? 'btn-hq btn-hq-primary' : 'btn-hq';
@@ -2885,7 +2919,7 @@
         sel.value = '행글라이더 1학년';
       }
 
-      // 최고득점자 모아보기 (모든 카드 높이 180px 고정, 내부 스크롤)
+      // 최고득점자 모아보기 (4×3 풀높이 균등 분배, 동점자 많을 때만 카드 내부 스크롤)
       const topContainer = document.getElementById('topScorersSummaryContainer');
       if (topContainer) {
         topContainer.innerHTML = OFFICIAL_11_HANDBOOKS.map(hb => {
@@ -2893,12 +2927,12 @@
           const maxScore = rows.length > 0 ? rows[0].total : 0;
           const bodyHtml = rows.length === 0
             ? '<div style="color:#94a3b8; font-size:0.86rem; padding:8px 0;">아직 집계된 점수가 없습니다</div>'
-            : `<div style="display:flex; flex-wrap:wrap; align-content:flex-start; gap:6px; flex:1; overflow-y:auto;">` +
+            : `<div style="display:flex; flex-wrap:wrap; align-content:flex-start; gap:6px; flex:1; min-height:0; overflow-y:auto;">` +
               rows.map(r => `<span style="display:inline-flex; align-items:center; gap:5px; background:#f8fafc; border:1px solid #e2e8f0; color:#0f172a; padding:4px 10px; border-radius:8px; font-size:0.83rem;">🏆 <b style="color:#0f172a;">${r.name}</b> <span style="color:#64748b;">(${r.church})</span></span>`).join('') +
               `</div>`;
 
           return `
-            <div style="border:1px solid #e2e8f0; border-radius:10px; padding:12px 14px; background:#fff; height:180px; display:flex; flex-direction:column;">
+            <div style="border:1px solid #e2e8f0; border-radius:12px; padding:12px 14px; background:#fff; height:100%; min-height:0; display:flex; flex-direction:column;">
               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; border-bottom:1px solid #f1f5f9; padding-bottom:6px; flex-shrink:0;">
                 <b style="color:#0f172a; font-size:0.95rem;">${hb}</b>
                 <span style="font-size:0.82rem; font-weight:700; color:${rows.length > 0 ? '#16a34a' : '#94a3b8'};">
