@@ -670,9 +670,10 @@
       /* 순백색 */
     }
 
-    .written-table tbody tr:hover {
+    .written-table tbody tr:hover,
+    .written-table tbody tr:hover td {
       background-color: #bae6fd !important;
-      /* 호버 시 산뜻한 스카이블루 */
+      /* 호버 시 필기 점수 열 포함 행 전체 산뜻한 스카이블루 */
     }
 
     .written-table td {
@@ -687,6 +688,7 @@
 
     .written-table td:last-child {
       border-right: none;
+      background-color: #f8faff;
     }
 
     /* 필기 입력 인풋 */
@@ -4052,7 +4054,7 @@
           <td style="width: 28%;" title="${s.church}">${s.church}</td>
           <td style="width: 20%;"><b>${s.name}</b></td>
           <td style="width: 12%;">${isAbsent ? '<span class="badge-status badge-absent" style="padding: 1px 4px; font-size: 0.72rem;">결석</span>' : '<span class="badge-status badge-done" style="padding: 1px 4px; font-size: 0.72rem;">응시</span>'}</td>
-          <td style="width: 18%; background: #f8faff;">
+          <td style="width: 18%;">
             <input type="number" 
                    step="10" 
                    min="0" 
