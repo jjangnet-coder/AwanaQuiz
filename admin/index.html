@@ -4,34 +4,41 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>2026-2027 AWANA 성경퀴즈대회 본부 종합 관리 시스템</title>
+  <title>2026 AWANA 성경퀴즈대회 - 본부 관리 포털</title>
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
   <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
   <style>
     :root {
-      --primary: #1e3a8a;
-      --primary-light: #3b82f6;
-      --primary-dark: #172554;
-      --bg-body: #f8fafc;
+      --primary: #1e293b;
+      --primary-light: #2563eb;
+      --primary-dark: #0f172a;
+      --bg-body: #f1f5f9;
       --bg-card: #ffffff;
       --border-color: #cbd5e1;
       --border-light: #e2e8f0;
       --text-main: #0f172a;
       --text-muted: #64748b;
       --danger: #dc2626;
-      --success: #10b981;
-      --warning: #f59e0b;
+      --success: #059669;
+      --warning: #d97706;
       --gold: #b45309;
       --silver: #475569;
       --bronze: #9a3412;
-      --sparks-theme: #ea580c;
-      --tnt-theme: #2563eb;
+      --sparks-theme: #e11d48;
+      --tnt-theme: #059669;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
     }
 
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Pretendard", "Segoe UI", Roboto, "Malgun Gothic", sans-serif;
+      font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Malgun Gothic", sans-serif;
     }
 
     body {
@@ -46,61 +53,62 @@
       margin: 0 auto;
     }
 
-    /* 상단 본부 헤더 */
+    /* 상단 본부 헤더 (딥 슬레이트 프로 관제 바) */
     .hq-header {
-      background: #ffffff;
+      background: #0f172a;
       border-radius: 14px;
-      border: 1px solid var(--border-color);
-      padding: 14px 22px;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+      border: 1px solid #1e293b;
+      padding: 12px 20px;
+      box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.25);
       margin-bottom: 16px;
       display: flex;
       flex-wrap: wrap;
       align-items: center;
       justify-content: space-between;
-      gap: 14px;
+      gap: 12px;
     }
 
     .hq-title-group {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
     }
 
     .hq-title {
-      font-size: 1.28rem;
+      font-size: 1.15rem;
       font-weight: 800;
-      color: #0f172a;
-      letter-spacing: -0.4px;
+      color: #ffffff;
+      letter-spacing: -0.02em;
     }
 
     .badge-hq-pill {
-      font-size: 0.78rem;
-      padding: 4px 10px;
-      border-radius: 20px;
-      font-weight: 800;
-      background: #1e3a8a;
-      color: #ffffff;
+      font-size: 0.72rem;
+      padding: 3px 9px;
+      border-radius: 999px;
+      font-weight: 700;
+      background: rgba(255, 255, 255, 0.12);
+      color: #e2e8f0;
+      border: 1px solid rgba(255, 255, 255, 0.15);
       letter-spacing: 0.5px;
     }
 
     .hq-nav-tabs {
       display: flex;
-      gap: 6px;
-      background: #f1f5f9;
+      gap: 4px;
+      background: rgba(255, 255, 255, 0.08);
       padding: 4px;
       border-radius: 10px;
     }
 
     .hq-tab-btn {
-      padding: 8px 16px;
-      border-radius: 8px;
-      font-size: 0.88rem;
-      font-weight: 700;
+      padding: 7px 14px;
+      border-radius: 7px;
+      font-size: 0.85rem;
+      font-weight: 600;
       cursor: pointer;
       border: none;
       background: transparent;
-      color: var(--text-muted);
+      color: #cbd5e1;
       transition: all 0.15s ease;
       display: inline-flex;
       align-items: center;
@@ -108,19 +116,55 @@
     }
 
     .hq-tab-btn:hover {
-      color: var(--text-main);
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.08);
     }
 
     .hq-tab-btn.active {
       background: #ffffff;
-      color: var(--primary);
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
+      color: #0f172a;
+      font-weight: 700;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
     }
 
     .hq-header-actions {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
+    }
+
+    .btn-hq-dark-ghost {
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      background: rgba(255, 255, 255, 0.06);
+      color: #e2e8f0;
+      transition: all 0.15s ease;
+    }
+
+    .btn-hq-dark-ghost:hover {
+      background: rgba(255, 255, 255, 0.14);
+      color: #ffffff;
+    }
+
+    .btn-hq-dark-danger {
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid rgba(248, 113, 113, 0.35);
+      background: rgba(220, 38, 38, 0.16);
+      color: #fca5a5;
+      transition: all 0.15s ease;
+    }
+
+    .btn-hq-dark-danger:hover {
+      background: rgba(220, 38, 38, 0.32);
+      color: #ffffff;
     }
 
     .btn-hq {
@@ -261,11 +305,12 @@
     }
 
     .metric-value {
-      font-size: 1.2rem;
-      font-weight: 900;
+      font-size: 1.25rem;
+      font-weight: 800;
       color: #0f172a;
       letter-spacing: -0.4px;
       line-height: 1.15;
+      font-variant-numeric: tabular-nums;
     }
 
     .metric-subtext {
@@ -481,11 +526,11 @@
     }
 
     .room-badge-title.sparks {
-      color: #c2410c;
+      color: #be123c;
     }
 
     .room-badge-title.tnt {
-      color: #1d4ed8;
+      color: #047857;
     }
 
     /* 1~4교시 / 5~7교시 쾌적한 2줄 그리드 */
@@ -1298,6 +1343,7 @@
       #tab-monitor,
       #tab-roster,
       #tab-written,
+      #tab-handbook-awards,
       .no-print {
         display: none !important;
       }
@@ -1499,10 +1545,9 @@
   <!-- 본부 보안 PIN 로그인 모달 -->
   <div class="hq-modal-overlay" id="adminPinModalOverlay" style="display: flex;">
     <div class="hq-modal-card" style="text-align: center; max-width: 400px;">
-      <div style="font-size: 2.2rem; margin-bottom: 10px;">🔐</div>
-      <div class="hq-modal-title">AWANA 본부 관리 시스템</div>
+      <div class="hq-modal-title">본부 관리 포털</div>
       <div style="font-size: 0.88rem; color: #64748b; margin-bottom: 18px;">
-        본부 관리자 전용 포털입니다.<br>구글 시트에 설정된 관리자 PIN을 입력하세요.
+        본부 관리자 전용 포털입니다.<br>관리자 PIN 번호를 입력해 주세요.
       </div>
       <div class="hq-form-group" style="text-align: center;">
         <input type="password" id="adminPinInput" class="hq-form-control" placeholder="본부 PIN 번호 입력"
@@ -1605,49 +1650,47 @@
     <!-- 상단 헤더 -->
     <header class="hq-header">
       <div class="hq-title-group">
-        <div class="hq-title">2026-2027 AWANA 성경퀴즈대회 본부 관리 포털</div>
+        <div class="hq-title">2026 AWANA 성경퀴즈대회 본부 관리 포털</div>
         <span class="badge-hq-pill">HQ ADMIN</span>
       </div>
 
-      <!-- 4대 탭 메뉴 -->
+      <!-- 5대 탭 메뉴 -->
       <nav class="hq-nav-tabs">
-        <button class="hq-tab-btn active" onclick="switchHqTab('monitor')">📊 종합 관제</button>
-        <button class="hq-tab-btn" onclick="switchHqTab('roster')">👥 선수 관리·이동·결석</button>
-        <button class="hq-tab-btn" onclick="switchHqTab('written')">📝 필기시험 채점</button>
-        <button class="hq-tab-btn" onclick="switchHqTab('standings')">🖨️ 수상자 명단·인쇄</button>
-        <button class="hq-tab-btn" onclick="switchHqTab('handbook-awards')">🏅 핸드북별 시상</button>
+        <button class="hq-tab-btn active" onclick="switchHqTab('monitor')">대시보드</button>
+        <button class="hq-tab-btn" onclick="switchHqTab('roster')">단원 관리</button>
+        <button class="hq-tab-btn" onclick="switchHqTab('written')">필기 채점</button>
+        <button class="hq-tab-btn" onclick="switchHqTab('standings')">시상 명단·인쇄</button>
+        <button class="hq-tab-btn" onclick="switchHqTab('handbook-awards')">핸드북별 결과</button>
       </nav>
 
       <div class="hq-header-actions">
-        <span id="hqStaffBadge" style="font-size: 0.85rem; font-weight: 700; color: #475569;">본부 운영실</span>
-        <button class="btn-hq" id="btnHqRefresh" onclick="refreshHqDataManual()">🔄 새로고침</button>
-        <button class="btn-hq btn-hq-danger" id="btnResetAllScores" onclick="openResetScoresModal()">🗑️ 시험 결과 초기화</button>
-        <button class="btn-hq btn-hq-danger" onclick="logoutAdmin()">🔒 로그아웃</button>
+        <button class="btn-hq-dark-ghost" id="btnHqRefresh" onclick="refreshHqDataManual()">새로고침</button>
+        <button class="btn-hq-dark-danger" id="btnResetAllScores" onclick="openResetScoresModal()">대회 점수 초기화</button>
+        <button class="btn-hq-dark-ghost" onclick="logoutAdmin()">로그아웃</button>
       </div>
     </header>
 
-    <!-- TAB 1: 종합 관제 대시보드 (Mission Control) -->
+    <!-- TAB 1: 대시보드 -->
     <section id="tab-monitor" class="tab-content active">
       <!-- 4대 메트릭 요약 카드 -->
       <div class="metrics-summary-grid">
         <div class="metric-card theme-total">
           <div class="metric-header">
-            <span class="metric-label">전체 등록 선수</span>
-            <span class="metric-icon">👥</span>
+            <span class="metric-label">전체 등록 단원</span>
           </div>
           <div class="metric-value-row">
             <span class="metric-value" id="summaryTotalStudents">0</span>
             <span class="metric-subtext">명 출전</span>
           </div>
-          <div style="font-size: 0.78rem; color: #64748b; margin-top: 10px;">
-            결석: <b id="summaryAbsentStudents" style="color: #dc2626;">0</b>명
+          <div style="font-size: 0.78rem; color: #64748b; margin-top: 8px;">
+            결석 <b id="summaryAbsentStudents" style="color: #dc2626;">0</b>명
           </div>
         </div>
 
         <div class="metric-card theme-written">
           <div class="metric-header">
-            <span class="metric-label">📝 필기시험 채점</span>
-            <span class="metric-icon" id="writtenPercentIcon">⏳</span>
+            <span class="metric-label">필기 채점</span>
+            <span class="metric-icon" id="writtenPercentIcon"></span>
           </div>
           <div class="metric-value-row">
             <span class="metric-value" id="summaryWrittenPercent">0%</span>
@@ -1660,8 +1703,8 @@
 
         <div class="metric-card theme-morning">
           <div class="metric-header">
-            <span class="metric-label">☀️ 오전 객관식 세션</span>
-            <span class="metric-icon" id="morningPercentIcon">⏳</span>
+            <span class="metric-label">오전 객관식</span>
+            <span class="metric-icon" id="morningPercentIcon"></span>
           </div>
           <div class="metric-value-row">
             <span class="metric-value" id="summaryMorningPercent">0%</span>
@@ -1674,8 +1717,8 @@
 
         <div class="metric-card theme-afternoon">
           <div class="metric-header">
-            <span class="metric-label">🌙 오후 세션 (객관식/스피드)</span>
-            <span class="metric-icon" id="afternoonPercentIcon">⏳</span>
+            <span class="metric-label">오후 퀴즈 (객관식·스피드)</span>
+            <span class="metric-icon" id="afternoonPercentIcon"></span>
           </div>
           <div class="metric-value-row">
             <span class="metric-value" id="summaryAfternoonPercent">0%</span>
@@ -1689,10 +1732,10 @@
 
       <div class="filter-bar" style="padding: 6px 14px; margin-bottom: 6px;">
         <div class="filter-group" style="gap: 12px; align-items: center;">
-          <span style="font-weight: 800; font-size: 0.95rem; color: #0f172a;">📡 교실별 교시 진행 현황 관제</span>
+          <span style="font-weight: 800; font-size: 0.95rem; color: #0f172a;">시험장별 실시간 진행 현황</span>
           <div
             style="display: inline-flex; align-items: center; gap: 6px; background: #f1f5f9; padding: 2px 8px; border-radius: 6px; font-size: 0.78rem;">
-            <span id="livePollingIndicator">🟢 실시간 자동 갱신 (30초)</span>
+            <span id="livePollingIndicator">자동 갱신 중 (30초)</span>
             <button type="button" id="btnTogglePolling" class="btn-hq"
               style="padding: 1px 6px; font-size: 0.72rem; height: auto;" onclick="toggleAutoPolling()">일시정지</button>
             <span id="lastUpdatedText"
@@ -1781,7 +1824,7 @@
           </span>
           <button id="btnSaveWrittenBatch" class="btn-hq btn-hq-primary btn-written-save"
             onclick="saveWrittenScoresBatch()" style="padding: 6px 14px; font-size: 0.84rem;">
-            💾 해당 조 필기점수 저장 및 시상표 갱신
+            필기점수 저장
           </button>
         </div>
       </div>
@@ -2513,7 +2556,7 @@
           const rows = computeHandbookAwardRows(hb).filter(r => r.isTop);
           const maxScore = rows.length > 0 ? rows[0].total : 0;
           const bodyHtml = rows.length === 0
-            ? '<div style="color:#94a3b8; font-size:0.86rem; padding:8px 0;">집계된 최고득점자 없음</div>'
+            ? '<div style="color:#94a3b8; font-size:0.86rem; padding:8px 0;">아직 집계된 점수가 없습니다</div>'
             : `<div style="display:flex; flex-wrap:wrap; align-content:flex-start; gap:6px; flex:1; overflow-y:auto;">` +
               rows.map(r => `<span style="display:inline-flex; align-items:center; gap:4px; background:#eff6ff; border:1px solid #bfdbfe; color:#1e3a8a; padding:4px 9px; border-radius:6px; font-size:0.83rem;">🏆 <b>${r.name}</b> (${r.church})</span>`).join('') +
               `</div>`;
@@ -2584,7 +2627,7 @@
     }
 
     function printTopScorers() {
-      const titleText = (HQ_DATA.settings && HQ_DATA.settings['대회제목']) || '2026-2027 AWANA 성경퀴즈대회';
+      const titleText = (HQ_DATA.settings && HQ_DATA.settings['대회제목']) || '2026 AWANA 성경퀴즈대회';
       const content = document.getElementById('topScorersSummaryContainer').innerHTML;
       const win = window.open('', '_blank', 'width=900,height=700');
       win.document.write(`
@@ -2596,10 +2639,6 @@
           th, td { border: 1px solid #cbd5e1; padding: 8px 10px; text-align: center; }
           th { background: #f1f5f9; }
         </style></head><body>
-  <div id="hqLoadingOverlay" style="position:fixed; inset:0; background:rgba(15,23,42,0.45); z-index:30000; pointer-events:auto; display:none; justify-content:center; align-items:center; flex-direction:column; gap:12px; color:#fff; font-weight:700; font-size:1rem;">
-    <div style="width:38px; height:38px; border:4px solid rgba(255,255,255,0.3); border-top-color:#fff; border-radius:50%; animation:spin 0.8s linear infinite;"></div>
-    <div id="hqLoadingText">본부 데이터를 불러오는 중입니다...</div>
-  </div>
         <h2>🏆 ${titleText} - 핸드북별 최고득점자</h2>
         ${content}
         <script>window.onload = function() { window.print(); };<\/script>
@@ -2610,7 +2649,7 @@
 
     async function exportAllHandbooksToExcel() {
       if (typeof ExcelJS === 'undefined') {
-        alert('엑셀 라이브러리를 불러오지 못했습니다. 새로고침 후 다시 시도해주세요.');
+        showCustomAlert('라이브러리 로드 오류', '엑셀 라이브러리를 불러오지 못했습니다. 새로고침 후 다시 시도해 주세요.', 'warn');
         return;
       }
 
@@ -2835,10 +2874,10 @@
         card.innerHTML = `
           <div class="room-monitor-header">
             <span class="room-badge-title ${isSparks ? 'sparks' : 'tnt'}">
-              📍 ${room}
+              ${room}
             </span>
-            <span style="font-size: 0.8rem; font-weight: 700; color: #64748b;">
-              ${isSparks ? 'SPARKS 시험장' : 'T&T 시험장'} (${actualPeriods.length}개 교시)
+            <span style="font-size: 0.78rem; font-weight: 700; color: #64748b; font-variant-numeric: tabular-nums;">
+              ${isSparks ? 'SPARKS' : 'T&T'} · ${actualPeriods.length}교시
             </span>
           </div>
           <div class="room-period-cards">
@@ -3445,10 +3484,10 @@
       const isDirty = checkUnsavedWrittenScores();
       if (isDirty) {
         btn.classList.add('is-dirty');
-        btn.innerHTML = '💾 변경된 필기점수 저장하기 *';
+        btn.innerHTML = '변경된 필기점수 저장 *';
       } else {
         btn.classList.remove('is-dirty');
-        btn.innerHTML = '💾 해당 조 필기점수 저장 및 시상표 갱신';
+        btn.innerHTML = '필기점수 저장';
       }
     }
 
@@ -3786,7 +3825,7 @@
               markWrittenScoresClean();
               showCustomAlert(
                 '저장 완료',
-                `🎉 [${hb} ${team}조] 필기점수 저장 및 시상표 실시간 갱신이 완료되었습니다!`,
+                `[${hb} ${team}조] 필기점수가 저장되었습니다.`,
                 'success'
               );
               loadWrittenScoringList();
@@ -3916,7 +3955,7 @@
         return `
           <div class="print-award-page" style="padding: 10px 14px;">
             <div class="print-page-header" style="margin-bottom: 12px; padding-bottom: 8px;">
-              <div class="print-page-title" style="font-size: 18pt;">2026-2027 AWANA 성경퀴즈대회 메달 반출 종합 집계표</div>
+              <div class="print-page-title" style="font-size: 18pt;">${(HQ_DATA.settings && HQ_DATA.settings['대회제목']) || '2026 AWANA 성경퀴즈대회'} 메달 반출 종합 집계표</div>
               <div class="print-page-subtitle" style="font-size: 11.5pt;">본부 메달 총괄 불출 및 시험장별 배분 현황표</div>
             </div>
 
@@ -3976,7 +4015,7 @@
         return `
           <div class="print-award-page" style="padding: 14px 18px;">
             <div class="print-page-header" style="margin-bottom: 16px; padding-bottom: 10px;">
-              <div class="print-page-title" style="font-size: 18pt;">2026-2027 AWANA 성경퀴즈대회 [${room}] 시험장 메달 현황</div>
+              <div class="print-page-title" style="font-size: 18pt;">${(HQ_DATA.settings && HQ_DATA.settings['대회제목']) || '2026 AWANA 성경퀴즈대회'} [${room}] 시험장 메달 현황</div>
               <div class="print-page-subtitle" style="font-size: 12pt;">시험장 운영 핸드북별 메달 배분 요약서</div>
             </div>
 
@@ -4117,7 +4156,7 @@
 
           pageDiv.innerHTML = `
             <div class="print-page-header">
-              <div class="print-page-title">2026-2027 AWANA 성경퀴즈대회 공식 시상 명단</div>
+              <div class="print-page-title">${(HQ_DATA.settings && HQ_DATA.settings['대회제목']) || '2026 AWANA 성경퀴즈대회'} 공식 시상 명단</div>
               <div class="print-page-subtitle">
                 📍 <b>[${room}] 시험장</b> &nbsp;|&nbsp; 📘 <b>${hb}</b> &nbsp;|&nbsp; 수상자 총 <b>${totalAwardees}명</b> (동 ${bronzeList.length}명 / 은 ${silverList.length}명 / 금 ${goldList.length}명)
               </div>

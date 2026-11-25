@@ -4,23 +4,25 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>2026-2027 AWANA 성경퀴즈대회 점수 입력 시스템</title>
+  <title>2026 AWANA 성경퀴즈대회 - 시험장 점수 입력</title>
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
   <style>
     :root {
-      --primary: #1d4ed8;
-      --primary-dark: #1e40af;
-      --bg-body: #f8fafc;
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --bg-body: #f1f5f9;
       --bg-card: #ffffff;
       --border-color: #cbd5e1;
+      --border-light: #e2e8f0;
       --text-main: #0f172a;
       --text-muted: #64748b;
-      --correct-color: #15803d;
-      --wrong-color: #b91c1c;
+      --correct-color: #059669;
+      --wrong-color: #e11d48;
       --locked-bg: #e2e8f0;
-      --header-bg: #f1f5f9;
+      --header-bg: #f8fafc;
       --unsaved-color: #ea580c;
       --unsaved-ready-color: #c2410c;
-      --saved-color: #16a34a;
+      --saved-color: #059669;
       --vacant-bg: #f1f5f9;
       --vacant-text: #94a3b8;
     }
@@ -29,7 +31,7 @@
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Pretendard", "Segoe UI", Roboto, "Malgun Gothic", sans-serif;
+      font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Malgun Gothic", sans-serif;
     }
 
     body {
@@ -182,12 +184,15 @@
     }
 
     .btn-secondary {
-      background-color: #64748b;
-      color: white;
+      background-color: #ffffff;
+      color: #334155;
+      border: 1px solid var(--border-color);
     }
 
     .btn-secondary:hover {
-      background-color: #475569;
+      background-color: #f8fafc;
+      border-color: #94a3b8;
+      color: #0f172a;
     }
 
     /* 서브 바 */
@@ -363,9 +368,14 @@
       line-height: 31px !important;
       box-sizing: border-box;
       cursor: pointer;
-      font-size: 1.1rem;
-      font-weight: 900;
-      transition: background-color 0.1s, border-color 0.15s;
+      font-size: 1.05rem;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      transition: background-color 0.12s ease, transform 0.08s ease, border-color 0.15s ease;
+    }
+
+    .quiz-cell:active:not(.locked):not(.vacant) {
+      transform: scale(0.95);
     }
 
     .quiz-cell:hover:not(.locked):not(.vacant) {
@@ -374,23 +384,29 @@
 
     .quiz-cell.val-o {
       color: var(--correct-color);
-      background-color: #dcfce7 !important;
+      background-color: #ecfdf5 !important;
     }
 
     .quiz-cell.val-x {
       color: var(--wrong-color);
-      background-color: #fee2e2 !important;
+      background-color: #fff1f2 !important;
     }
 
     .quiz-cell.locked {
-      background-color: var(--locked-bg) !important;
+      background: repeating-linear-gradient(
+        -45deg,
+        #f1f5f9,
+        #f1f5f9 4px,
+        #e2e8f0 4px,
+        #e2e8f0 8px
+      ) !important;
       cursor: not-allowed;
-      opacity: 0.55;
+      opacity: 0.75;
     }
 
     .quiz-cell.locked::after {
-      content: "✕";
-      font-size: 0.7rem;
+      content: "·";
+      font-size: 0.9rem;
       color: #94a3b8;
     }
 
@@ -420,6 +436,7 @@
     .summary-cell {
       font-weight: 800;
       font-size: 0.85rem;
+      font-variant-numeric: tabular-nums;
     }
 
     .summary-o {
@@ -746,14 +763,26 @@
 
     .gateway-card {
       background: #ffffff;
-      border-radius: 14px;
+      border-radius: 16px;
       box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
       width: 90%;
       max-width: 440px;
-      padding: 30px 24px;
+      padding: 32px 26px 26px;
       text-align: center;
       animation: modalScaleUp 0.2s ease-out;
       border: 1px solid #e2e8f0;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .gateway-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 5px;
+      background: linear-gradient(90deg, #e11d48, #059669);
     }
 
     .gateway-icon {
@@ -904,14 +933,13 @@
   <!-- 최초 중앙 게이트웨이 인증 모달 (입장 전) -->
   <div class="gateway-modal-overlay" id="gatewayModalOverlay">
     <div class="gateway-card">
-      <div class="gateway-icon">🏆</div>
-      <div class="gateway-title">2026-2027 AWANA 성경퀴즈대회</div>
-      <div class="gateway-subtitle">점수기록관 시험장(교실) 입장 인증</div>
+      <div class="gateway-title">2026 AWANA 성경퀴즈대회</div>
+      <div class="gateway-subtitle">시험장 점수기록관 입장</div>
 
       <div class="gateway-form-group">
-        <label for="gatewayRoomSelect">담당 시험장(교실) 선택</label>
+        <label for="gatewayRoomSelect">담당 시험장</label>
         <select id="gatewayRoomSelect" class="gateway-select">
-          <option value="">교실을 선택하세요</option>
+          <option value="">시험장을 선택하세요</option>
           <optgroup label="SPARKS 시험장">
             <option value="스팍스1">스팍스1</option>
             <option value="스팍스2">스팍스2</option>
@@ -932,13 +960,13 @@
       </div>
 
       <div class="gateway-form-group">
-        <label for="gatewayRoomCode">교실 접속 코드</label>
-        <input type="text" id="gatewayRoomCode" class="gateway-input" placeholder="본부 발급 접속 코드 (예: SP01)" autocomplete="off" />
+        <label for="gatewayRoomCode">접속 코드</label>
+        <input type="text" id="gatewayRoomCode" class="gateway-input" placeholder="접속 코드 입력 (예: SP01)" autocomplete="off" />
         <div id="gatewayErrorMsg" class="gateway-error">접속 코드가 일치하지 않습니다. 다시 확인해 주세요.</div>
       </div>
 
       <button type="button" class="btn-gateway-enter" id="btnGatewayEnter" onclick="processGatewayLogin()">
-        🔓 교실 입장하기
+        시험장 입장
       </button>
     </div>
   </div>
@@ -968,24 +996,24 @@
     <!-- 상단 컨트롤 헤더 바 -->
     <header class="header-bar">
       <div class="header-title-group">
-        <div class="header-title">2026-2027 AWANA 성경퀴즈대회 점수 입력 시스템</div>
+        <div class="header-title">2026 AWANA 성경퀴즈대회</div>
         <span class="badge-club" id="clubBadge">SPARKS</span>
       </div>
 
       <div class="controls-row">
         <div class="control-item">
-          <label for="recorderName">점수기록관:</label>
+          <label for="recorderName">점수기록관</label>
           <input type="text" id="recorderName" placeholder="성함 입력" style="width: 100px;" />
         </div>
 
         <div class="control-item" id="roomControlWrapper">
-          <label>교실:</label>
+          <label>시험장</label>
           <div class="room-lock-badge-group" id="roomLockBadgeGroup">
             <span class="badge-locked-room" id="badgeLockedRoom">
-              📍 <span id="currentRoomText">-</span> 🔒
+              <span id="currentRoomText">-</span>
             </span>
-            <button type="button" class="btn-change-room" id="btnChangeRoom" onclick="requestRoomChange()" title="현재 교실에서 로그아웃하고 첫 화면으로 돌아갑니다.">
-              🔓 로그아웃
+            <button type="button" class="btn-change-room" id="btnChangeRoom" onclick="requestRoomChange()" title="현재 시험장에서 나가고 시험장 선택 화면으로 돌아갑니다.">
+              시험장 변경
             </button>
           </div>
           <!-- 하위 호환 및 내부 값 참조용 hidden select -->
@@ -1026,19 +1054,19 @@
 
         <!-- 동적 제출 버튼 -->
         <button class="btn btn-submit" id="btnSubmit" onclick="saveCurrentSheet()" disabled>
-          📤 점수 제출
+          점수 전송
         </button>
 
         <button class="btn btn-secondary" onclick="handleManualRefresh()">
-          🔄 새로고침
+          새로고침
         </button>
       </div>
     </header>
 
-    <!-- 서브 바 (세션 탭 + 교실 안내) -->
+    <!-- 서브 바 (세션 탭 + 시험장 안내) -->
     <div class="sub-bar" id="subBarArea" style="display: none;">
       <div class="session-tabs" id="sessionTabs">
-        <button class="tab-btn active" id="tabMorning" onclick="switchSession('morning')">객관식 (오전)</button>
+        <button class="tab-btn active" id="tabMorning" onclick="switchSession('morning')">객관식(오전)</button>
         <button class="tab-btn" id="tabAfternoon" onclick="switchSession('afternoon')">오후 세션</button>
       </div>
 
@@ -1070,7 +1098,7 @@
         <tbody id="tableBody">
           <tr>
             <td colspan="18" style="padding: 40px; color: var(--text-muted); font-size: 0.95rem;">
-              상단에서 <b>교시</b>를 선택하면 해당 교시의 선수 명단이 나타납니다.
+              상단에서 <b>교시</b>를 선택하면 해당 교시의 단원 명단이 나타납니다.
             </td>
           </tr>
         </tbody>
@@ -1080,10 +1108,10 @@
     <!-- 하단 상태 바 -->
     <footer class="footer-bar">
       <div>
-        <span id="storageStatus">2026-2027 AWANA Bible Quiz</span>
+        <span id="storageStatus">2026 AWANA 성경퀴즈대회</span>
       </div>
       <div>
-        <span id="gasEndpointInfo">구글 스프레드시트 연결 대기 중</span>
+        <span id="gasEndpointInfo">서버 연결 대기 중</span>
       </div>
     </footer>
   </div>
@@ -1572,7 +1600,7 @@
      * =========================================================================
      */
     async function fetchMasterData(isManual = false) {
-      showLoading('시스템 환경 및 시간표를 불러오는 중...');
+      showLoading('대회 정보와 시간표를 불러오는 중입니다...');
       try {
         const resp = await fetch(`${GAS_URL}?action=init`, { method: 'GET' });
         const result = await resp.json();
@@ -1580,14 +1608,16 @@
           MASTER_DATA.settings = result.data.settings || {};
           if (MASTER_DATA.settings['대회제목']) {
             const titleText = String(MASTER_DATA.settings['대회제목']).trim();
-            document.title = titleText + ' - 점수 입력 시스템';
+            document.title = titleText + ' - 시험장 점수 입력';
             const gwTitle = document.querySelector('.gateway-title');
             if (gwTitle) gwTitle.textContent = titleText;
             const hdTitle = document.querySelector('.header-title');
-            if (hdTitle) hdTitle.textContent = titleText + ' 점수 입력 시스템';
+            if (hdTitle) hdTitle.textContent = titleText;
+            const footerTitle = document.getElementById('storageStatus');
+            if (footerTitle) footerTitle.textContent = titleText;
           }
           MASTER_DATA.timetable = result.data.timetable || [];
-          document.getElementById('gasEndpointInfo').innerText = '구글 스프레드시트 연결 정상';
+          document.getElementById('gasEndpointInfo').innerText = '서버 연결됨';
 
           // 마스터 로드 완료 후 게이트웨이 인증 상태 점검
           checkGatewayAuth();
@@ -1596,7 +1626,7 @@
         }
 
         if (isManual) {
-          showCustomAlert('새로고침 완료', '시스템 시간표 및 설정을 최신 상태로 동기화했습니다.', 'success');
+          showCustomAlert('새로고침 완료', '최신 시간표와 설정을 불러왔습니다.', 'success');
         }
       } catch (err) {
         console.error('마스터 로드 오류:', err);
@@ -1744,29 +1774,30 @@
         }
       }
 
-      // 클럽 판별
+      // 클럽 판별 (AWANA 공식 브랜드 컬러: SPARKS 빨강, T&T 초록)
       const isSparks = CURRENT_GRADE === 1 || CURRENT_GRADE === 2;
       clubBadge.innerText = isSparks ? 'SPARKS' : 'T&T';
       clubBadge.style.display = 'inline-block';
-      clubBadge.style.backgroundColor = isSparks ? '#fef3c7' : '#e0e7ff';
-      clubBadge.style.color = isSparks ? '#b45309' : '#3730a3';
+      clubBadge.style.backgroundColor = isSparks ? '#fff1f2' : '#ecfdf5';
+      clubBadge.style.color = isSparks ? '#be123c' : '#047857';
+      clubBadge.style.border = isSparks ? '1px solid #fecdd3' : '1px solid #a7f3d0';
 
       // 안내바 표출
       subBarArea.style.display = 'flex';
       const vacantCount = DISPLAY_SLOTS.filter(sl => sl.isVacant).length;
       const vacantNote = vacantCount > 0 ? ` (출석 ${CURRENT_STUDENTS.length}명 / 공석 ${vacantCount}명)` : ` (${CURRENT_STUDENTS.length}명)`;
       document.getElementById('roomInfoText').innerText =
-        `📌 [${CURRENT_ROOM} / ${CURRENT_PERIOD}교시] ${CURRENT_HANDBOOK} · ${CURRENT_TEAM}조${vacantNote}`;
+        `[${CURRENT_ROOM} · ${CURRENT_PERIOD}교시] ${CURRENT_HANDBOOK} · ${CURRENT_TEAM}조${vacantNote}`;
 
       // 세션 탭 구성
       const tabMorning = document.getElementById('tabMorning');
       const tabAfternoon = document.getElementById('tabAfternoon');
 
-      tabMorning.innerText = '객관식 (오전)';
+      tabMorning.innerText = '객관식(오전)';
       if (isSparks) {
-        tabAfternoon.innerText = '객관식 (오후)';
+        tabAfternoon.innerText = '객관식(오후)';
       } else {
-        tabAfternoon.innerText = '스피드 퀴즈 (오후)';
+        tabAfternoon.innerText = '스피드 퀴즈(오후)';
       }
 
       btnSubmit.disabled = false;
@@ -1792,25 +1823,20 @@
       SUBMIT_LIFECYCLE_STATE = state;
 
       if (state === 'empty') {
-        // 1단계: 미입력 대기 상태 (파란색)
         btnSubmit.className = 'btn btn-submit';
-        btnSubmit.innerHTML = `📤 ${CURRENT_PERIOD}교시 점수 제출`;
+        btnSubmit.innerHTML = `${CURRENT_PERIOD}교시 점수 전송`;
       } else if (state === 'in_progress') {
-        // 2단계 (A): 채점 중 / 누락 있음 (주황색)
         btnSubmit.className = 'btn btn-submit state-unsaved-progress';
-        btnSubmit.innerHTML = `📤 ${CURRENT_PERIOD}교시 점수 제출 (작성 중)`;
+        btnSubmit.innerHTML = `${CURRENT_PERIOD}교시 점수 전송 (작성 중)`;
       } else if (state === 'ready') {
-        // 2단계 (B): 전원 채점 완료 / 미제출 (진한 주황색 + 주의 펄스)
         btnSubmit.className = 'btn btn-submit state-unsaved-ready';
-        btnSubmit.innerHTML = `📤 ${CURRENT_PERIOD}교시 점수 최종 제출 (완료)`;
+        btnSubmit.innerHTML = `${CURRENT_PERIOD}교시 점수 확정·전송`;
       } else if (state === 'ready_modified') {
-        // 2단계 (C): 제출 완료 후 점수 수정됨 (주황색 강조)
         btnSubmit.className = 'btn btn-submit state-unsaved-ready';
-        btnSubmit.innerHTML = `📤 ${CURRENT_PERIOD}교시 점수 최종 제출 (수정됨)`;
+        btnSubmit.innerHTML = `${CURRENT_PERIOD}교시 수정 점수 재전송`;
       } else if (state === 'saved') {
-        // 3단계: 제출 완료 (녹색)
         btnSubmit.className = 'btn btn-submit state-saved';
-        btnSubmit.innerHTML = `✅ ${CURRENT_PERIOD}교시 제출 완료`;
+        btnSubmit.innerHTML = `${CURRENT_PERIOD}교시 전송 완료`;
       }
     }
 
@@ -2302,16 +2328,16 @@
           </div>
         </div>
         <div style="font-size: 0.88rem; color: #64748b; margin-top: 4px;">
-          채점 결과를 중앙 서버로 안전하게 제출하시겠습니까?<br>
-          <span style="font-size: 0.82rem; color: #2563eb;">* 제출 완료 후에도 언제든 점수를 수정하여 재제출할 수 있습니다.</span>
+          입력한 점수를 본부로 전송하시겠습니까?<br>
+          <span style="font-size: 0.82rem; color: #2563eb;">* 전송 완료 후에도 점수를 수정하여 다시 전송할 수 있습니다.</span>
         </div>
       `;
 
       showCustomConfirm(
-        '점수 최종 제출 확인',
+        '점수 전송 확인',
         confirmContent,
         async () => {
-          showLoading('중앙 시스템에 점수를 안전하게 저장하고 있습니다...');
+          showLoading('본부 집계에 점수를 저장하는 중입니다...');
           try {
             const resp = await fetch(GAS_URL, {
               method: 'POST',
@@ -2342,12 +2368,12 @@
                 MASTER_DATA.submittedAnswers[logKey] = [...(r.answers || [])];
               });
 
-              updateSubmitButtonState('saved'); // ✅ 3단계: 제출 완료 녹색 버튼
+              updateSubmitButtonState('saved');
               showCustomAlert(
-                '제출 완료',
+                '전송 완료',
                 `<div class="modal-callout-box" style="background:#ecfdf5; border-color:#a7f3d0; color:#065f46; text-align:center;">
-                   🎉 <b>[${CURRENT_ROOM} / ${CURRENT_PERIOD}교시] 채점이 성공적으로 제출되었습니다!</b><br>
-                   구글 시트(최종집계 및 공식 시상표)에 실시간으로 반영되었습니다.
+                   <b>[${CURRENT_ROOM} · ${CURRENT_PERIOD}교시] 점수가 정상 전송되었습니다.</b><br>
+                   본부 최종 집계에 실시간으로 반영되었습니다.
                  </div>`,
                 'success'
               );
