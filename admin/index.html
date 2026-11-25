@@ -1318,12 +1318,12 @@
     }
 
     /* =========================================================================
-       🌌 풀스크린 딥 옵시디언 다크 테마 (5개 탭 전체 통일 · 인쇄용지 제외)
+       ✨ Stripe / Toss 스타일 풀스크린 소프트 라이트 (Soft Editorial Light)
        ========================================================================= */
     body {
-      background: radial-gradient(circle at top right, #1e293b 0%, #0b1120 45%, #070b14 100%) !important;
-      color: #f8fafc !important;
-      padding: 12px 16px !important;
+      background: #f4f6f9 !important;
+      color: #111827 !important;
+      padding: 14px 20px !important;
     }
 
     .container {
@@ -1331,257 +1331,312 @@
     }
 
     .hq-header {
-      background: rgba(15, 23, 42, 0.85) !important;
+      background: rgba(255, 255, 255, 0.94) !important;
       backdrop-filter: blur(12px);
-      border: 1px solid rgba(148, 163, 184, 0.18) !important;
-      margin-bottom: 12px !important;
+      border: 1px solid rgba(15, 23, 42, 0.07) !important;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04), 0 4px 12px -4px rgba(15, 23, 42, 0.05) !important;
+      border-radius: 14px !important;
+      padding: 10px 18px !important;
+      margin-bottom: 14px !important;
     }
 
+    .hq-title {
+      color: #0f172a !important;
+      font-size: 1.12rem !important;
+      font-weight: 800 !important;
+      letter-spacing: -0.025em !important;
+    }
+
+    .badge-hq-pill {
+      background: #f1f5f9 !important;
+      color: #475569 !important;
+      border: 1px solid #e2e8f0 !important;
+    }
+
+    .hq-nav-tabs {
+      background: #f1f5f9 !important;
+      padding: 4px !important;
+      border-radius: 10px !important;
+    }
+
+    .hq-tab-btn {
+      color: #64748b !important;
+      font-weight: 600 !important;
+    }
+
+    .hq-tab-btn:hover {
+      color: #0f172a !important;
+      background: rgba(255, 255, 255, 0.6) !important;
+    }
+
+    .hq-tab-btn.active {
+      background: #ffffff !important;
+      color: #0f172a !important;
+      font-weight: 700 !important;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08) !important;
+    }
+
+    .btn-hq-dark-ghost {
+      background: #ffffff !important;
+      color: #334155 !important;
+      border: 1px solid #e2e8f0 !important;
+    }
+
+    .btn-hq-dark-ghost:hover {
+      background: #f8fafc !important;
+      border-color: #cbd5e1 !important;
+      color: #0f172a !important;
+    }
+
+    .btn-hq-dark-danger {
+      background: #fff1f2 !important;
+      color: #e11d48 !important;
+      border: 1px solid #fecdd3 !important;
+    }
+
+    .btn-hq-dark-danger:hover {
+      background: #ffe4e6 !important;
+      color: #be123c !important;
+    }
+
+    /* 탭 공통 패널 */
     .tab-content {
-      background: rgba(17, 24, 39, 0.78) !important;
-      border: 1px solid rgba(148, 163, 184, 0.16) !important;
-      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35) !important;
-      color: #f8fafc !important;
-      padding: 16px 20px !important;
+      background: #ffffff !important;
+      border: 1px solid rgba(15, 23, 42, 0.06) !important;
+      border-radius: 16px !important;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03), 0 6px 20px -6px rgba(15, 23, 42, 0.05) !important;
+      padding: 18px 20px !important;
     }
 
+    /* 대시보드는 3중 박스 탈출 — 캔버스 위에 카드 직접 배치 */
     #tab-monitor.active {
       display: flex !important;
       flex-direction: column;
       min-height: calc(100vh - 96px);
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+      padding: 0 !important;
     }
 
     .metrics-summary-grid {
-      gap: 12px !important;
-      margin-bottom: 12px !important;
+      gap: 14px !important;
+      margin-bottom: 14px !important;
     }
 
     .metric-card {
-      background: rgba(30, 41, 59, 0.65) !important;
-      border: 1px solid rgba(148, 163, 184, 0.18) !important;
-      padding: 12px 16px !important;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+      background: #ffffff !important;
+      border: 1px solid rgba(15, 23, 42, 0.06) !important;
+      border-radius: 16px !important;
+      padding: 16px 20px !important;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03), 0 6px 20px -6px rgba(15, 23, 42, 0.05) !important;
+      flex-direction: row !important;
+      align-items: center !important;
+      justify-content: space-between !important;
     }
 
-    .metric-label, .metric-subtext {
-      color: #94a3b8 !important;
+    .metric-card::before {
+      display: none !important;
+    }
+
+    .metric-label {
+      font-size: 0.82rem !important;
+      font-weight: 600 !important;
+      color: #64748b !important;
+      margin-bottom: 4px !important;
     }
 
     .metric-value {
-      color: #ffffff !important;
-      font-size: 1.45rem !important;
+      font-size: 1.95rem !important;
+      font-weight: 800 !important;
+      color: #0f172a !important;
+      letter-spacing: -0.03em !important;
+      font-variant-numeric: tabular-nums !important;
     }
 
-    .metric-progress-track {
-      background: rgba(15, 23, 42, 0.8) !important;
-      height: 6px !important;
+    .metric-subtext {
+      font-size: 0.82rem !important;
+      color: #64748b !important;
     }
 
-    .filter-bar {
-      border-bottom: 1px solid rgba(148, 163, 184, 0.16) !important;
-      color: #e2e8f0 !important;
+    .metric-ring-wrap {
+      width: 52px;
+      height: 52px;
+      flex-shrink: 0;
     }
 
-    .filter-bar span, .filter-bar label {
-      color: #e2e8f0 !important;
-    }
-
-    #overallSubmitStats {
-      color: #38bdf8 !important;
+    .dashboard-status-strip {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 16px !important;
+      margin-bottom: 12px !important;
+      background: #ffffff;
+      border: 1px solid rgba(15, 23, 42, 0.06);
+      border-radius: 12px;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
     }
 
     .monitor-grid {
       flex: 1;
       gap: 14px !important;
+      margin-top: 0 !important;
       align-content: stretch;
     }
 
     .room-monitor-card {
-      background: rgba(15, 23, 42, 0.78) !important;
-      border: 1px solid rgba(148, 163, 184, 0.18) !important;
-      border-radius: 14px !important;
+      background: #ffffff !important;
+      border: 1px solid rgba(15, 23, 42, 0.06) !important;
+      border-radius: 16px !important;
       padding: 14px 16px !important;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03), 0 6px 18px -6px rgba(15, 23, 42, 0.05) !important;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.28) !important;
+      border-top: 1px solid rgba(15, 23, 42, 0.06) !important;
     }
 
-    .room-monitor-card.theme-sparks {
-      border-top: 3px solid #f43f5e !important;
-      box-shadow: 0 -2px 14px rgba(244, 63, 94, 0.15), 0 6px 18px rgba(0, 0, 0, 0.28) !important;
-    }
-
-    .room-monitor-card.theme-tnt {
-      border-top: 3px solid #10b981 !important;
-      box-shadow: 0 -2px 14px rgba(16, 185, 129, 0.15), 0 6px 18px rgba(0, 0, 0, 0.28) !important;
+    .room-monitor-card:hover {
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08) !important;
+      transform: translateY(-1px);
     }
 
     .room-monitor-header {
-      border-bottom: 1px solid rgba(148, 163, 184, 0.14) !important;
+      border-bottom: 1px solid #f1f5f9 !important;
       padding-bottom: 8px !important;
       margin-bottom: 10px !important;
     }
 
-    .room-badge-title.sparks {
-      color: #fb7185 !important;
-      font-size: 1.05rem !important;
+    .room-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      display: inline-block;
     }
 
-    .room-badge-title.tnt {
-      color: #34d399 !important;
-      font-size: 1.05rem !important;
+    .room-dot.sparks { background: #e11d48; }
+    .room-dot.tnt { background: #059669; }
+
+    .room-badge-title {
+      color: #0f172a !important;
+      font-size: 1rem !important;
+      font-weight: 800 !important;
+      gap: 7px !important;
+    }
+
+    .room-club-pill {
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .room-club-pill.sparks {
+      background: #fff1f2;
+      color: #be123c;
+    }
+
+    .room-club-pill.tnt {
+      background: #ecfdf5;
+      color: #047857;
     }
 
     .room-period-cards {
       flex: 1;
       align-content: center;
-      gap: 8px !important;
+      gap: 7px !important;
     }
 
     .period-card-item {
-      background: rgba(30, 41, 59, 0.7) !important;
-      border: 1px solid rgba(148, 163, 184, 0.14) !important;
-      padding: 8px 4px !important;
-      border-radius: 8px !important;
+      background: #f8fafc !important;
+      border: 1px solid #eef2f6 !important;
+      border-radius: 10px !important;
+      padding: 8px 6px !important;
     }
 
     .period-card-item .period-num {
-      color: #cbd5e1 !important;
-      font-size: 0.78rem !important;
-    }
-
-    .period-card-item.state-empty .status-badge-chip {
-      background: rgba(15, 23, 42, 0.6) !important;
-      color: #64748b !important;
+      color: #334155 !important;
+      font-size: 0.76rem !important;
+      font-weight: 700 !important;
+      margin-bottom: 4px !important;
     }
 
     .period-card-item.state-partial {
-      background: rgba(245, 158, 11, 0.14) !important;
-      border-color: rgba(245, 158, 11, 0.45) !important;
-    }
-
-    .period-card-item.state-partial .status-badge-chip {
-      background: rgba(245, 158, 11, 0.25) !important;
-      color: #fbbf24 !important;
+      background: #fffbeb !important;
+      border-color: #fde68a !important;
     }
 
     .period-card-item.state-full {
-      background: rgba(16, 185, 129, 0.16) !important;
-      border-color: rgba(16, 185, 129, 0.5) !important;
+      background: #ecfdf5 !important;
+      border-color: #a7f3d0 !important;
     }
 
-    .period-card-item.state-full .status-badge-chip {
-      background: rgba(16, 185, 129, 0.25) !important;
-      color: #34d399 !important;
+    /* 3분할 미니 세그먼트 바 (필기 | 오전 | 오후) */
+    .session-seg-bar {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 3px;
+      margin-top: 5px;
     }
 
-    /* 다크 테마 공통 테이블·입력·버튼·모달 */
-    .hq-table-container, .written-table-container {
-      background: #0f172a !important;
-      border: 1px solid rgba(148, 163, 184, 0.22) !important;
+    .session-seg {
+      height: 5px;
+      border-radius: 999px;
+      background: #e2e8f0;
     }
 
+    .session-seg.done-w { background: #6366f1; }
+    .session-seg.done-m { background: #f59e0b; }
+    .session-seg.done-a { background: #10b981; }
+
+    /* 필기 채점 풀높이 고정 패널 */
     .written-table-container {
       height: calc(100vh - 175px) !important;
+      border: 1px solid #e2e8f0 !important;
+      border-radius: 12px !important;
     }
 
-    .hq-table th, .written-table th {
-      background: #1e293b !important;
-      color: #e2e8f0 !important;
-      border-color: rgba(148, 163, 184, 0.18) !important;
+    /* 단원 관리 테이블 고스트 행 버튼 & 소프트 배지 */
+    .btn-row-ghost {
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid #e2e8f0;
+      background: #ffffff;
+      color: #334155;
+      transition: all 0.12s ease;
     }
 
-    .hq-table td, .written-table td {
-      color: #f1f5f9 !important;
-      border-color: rgba(148, 163, 184, 0.12) !important;
+    .btn-row-ghost:hover {
+      background: #f8fafc;
+      border-color: #94a3b8;
+      color: #0f172a;
     }
 
-    .hq-table tr:hover {
-      background-color: rgba(51, 65, 85, 0.45) !important;
+    .btn-row-ghost-danger {
+      color: #dc2626;
+      border-color: #fecdd3;
+      background: #fff1f2;
     }
 
-    .written-table tbody tr:nth-child(odd) {
-      background-color: #0f172a !important;
+    .btn-row-ghost-danger:hover {
+      background: #ffe4e6;
+      border-color: #fda4af;
     }
 
-    .written-table tbody tr:nth-child(even) {
-      background-color: #162033 !important;
+    .badge-done {
+      background: #ecfdf5 !important;
+      color: #047857 !important;
+      border: 1px solid #a7f3d0;
     }
 
-    .written-table tbody tr:hover {
-      background-color: rgba(37, 99, 235, 0.22) !important;
-    }
-
-    .input-written-score, .filter-select, .filter-input, .hq-form-control {
-      background: #1e293b !important;
-      color: #f8fafc !important;
-      border-color: #475569 !important;
-    }
-
-    .input-written-score.is-unfilled {
-      border-color: #f59e0b !important;
-      background: rgba(245, 158, 11, 0.15) !important;
-    }
-
-    .btn-hq {
-      background: #1e293b !important;
-      color: #e2e8f0 !important;
-      border-color: #475569 !important;
-    }
-
-    .btn-hq:hover {
-      background: #334155 !important;
-      color: #ffffff !important;
-    }
-
-    .btn-hq-primary {
-      background: #2563eb !important;
-      border-color: #2563eb !important;
-      color: #ffffff !important;
-    }
-
-    .btn-hq-primary:hover {
-      background: #1d4ed8 !important;
-    }
-
-    .btn-hq-danger {
-      background: rgba(220, 38, 38, 0.2) !important;
-      color: #fca5a5 !important;
-      border-color: rgba(248, 113, 113, 0.4) !important;
-    }
-
-    .hq-modal-card, .custom-modal-card {
-      background: #0f172a !important;
-      color: #f8fafc !important;
-      border: 1px solid rgba(148, 163, 184, 0.25) !important;
-    }
-
-    .hq-modal-title, .modal-title {
-      color: #ffffff !important;
-    }
-
-    .modal-message, .hq-form-group label {
-      color: #cbd5e1 !important;
-    }
-
-    .modal-callout-box {
-      background: #1e293b !important;
-      border-color: #334155 !important;
-      color: #e2e8f0 !important;
-    }
-
-    #tab-handbook-awards h3 {
-      color: #e2e8f0 !important;
-    }
-
-    #topScorersSummaryContainer > div {
-      background: rgba(15, 23, 42, 0.85) !important;
-      border-color: rgba(148, 163, 184, 0.2) !important;
-    }
-
-    #topScorersSummaryContainer b {
-      color: #f8fafc !important;
+    .badge-absent {
+      background: #fff1f2 !important;
+      color: #be123c !important;
+      border: 1px solid #fecdd3;
     }
 
     @media print {
@@ -1939,65 +1994,69 @@
 
     <!-- TAB 1: 대시보드 -->
     <section id="tab-monitor" class="tab-content active">
-      <!-- 4대 메트릭 요약 카드 -->
+      <!-- 4대 메트릭 요약 카드 (SVG 원형 도넛 링 포함) -->
       <div class="metrics-summary-grid">
         <div class="metric-card theme-total">
-          <div class="metric-header">
-            <span class="metric-label">전체 등록 단원</span>
+          <div>
+            <div class="metric-label">전체 등록 단원</div>
+            <div class="metric-value-row">
+              <span class="metric-value" id="summaryTotalStudents">0</span>
+              <span class="metric-subtext">명 출전</span>
+            </div>
+            <div style="font-size: 0.78rem; color: #64748b; margin-top: 4px;">
+              결석 <b id="summaryAbsentStudents" style="color: #e11d48;">0</b>명
+            </div>
           </div>
-          <div class="metric-value-row">
-            <span class="metric-value" id="summaryTotalStudents">0</span>
-            <span class="metric-subtext">명 출전</span>
-          </div>
-          <div style="font-size: 0.78rem; color: #64748b; margin-top: 8px;">
-            결석 <b id="summaryAbsentStudents" style="color: #dc2626;">0</b>명
-          </div>
+          <div class="metric-ring-wrap" style="display:flex; align-items:center; justify-content:center; background:#f1f5f9; border-radius:50%; color:#475569; font-weight:800; font-size:0.85rem;">ALL</div>
         </div>
 
         <div class="metric-card theme-written">
-          <div class="metric-header">
-            <span class="metric-label">필기 채점</span>
-            <span class="metric-icon" id="writtenPercentIcon"></span>
+          <div>
+            <div class="metric-label">필기 채점</div>
+            <div class="metric-value-row">
+              <span class="metric-value" id="summaryWrittenPercent">0%</span>
+              <span class="metric-subtext"><span id="summaryWrittenCount">0</span>명 입력</span>
+            </div>
           </div>
-          <div class="metric-value-row">
-            <span class="metric-value" id="summaryWrittenPercent">0%</span>
-            <span class="metric-subtext"><span id="summaryWrittenCount">0</span>명 입력</span>
-          </div>
-          <div class="metric-progress-track">
-            <div class="metric-progress-bar bar-written" id="barWritten" style="width: 0%;"></div>
-          </div>
+          <svg class="metric-ring-wrap" viewBox="0 0 36 36">
+            <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#e2e8f0" stroke-width="3.2" />
+            <path id="ringWritten" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#6366f1" stroke-width="3.2" stroke-linecap="round" stroke-dasharray="0, 100" />
+          </svg>
+          <div id="barWritten" style="display:none;"></div>
         </div>
 
         <div class="metric-card theme-morning">
-          <div class="metric-header">
-            <span class="metric-label">오전 객관식</span>
-            <span class="metric-icon" id="morningPercentIcon"></span>
+          <div>
+            <div class="metric-label">오전 객관식</div>
+            <div class="metric-value-row">
+              <span class="metric-value" id="summaryMorningPercent">0%</span>
+              <span class="metric-subtext"><span id="summaryMorningCount">0</span>명 제출</span>
+            </div>
           </div>
-          <div class="metric-value-row">
-            <span class="metric-value" id="summaryMorningPercent">0%</span>
-            <span class="metric-subtext"><span id="summaryMorningCount">0</span>명 제출</span>
-          </div>
-          <div class="metric-progress-track">
-            <div class="metric-progress-bar bar-morning" id="barMorning" style="width: 0%;"></div>
-          </div>
+          <svg class="metric-ring-wrap" viewBox="0 0 36 36">
+            <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#e2e8f0" stroke-width="3.2" />
+            <path id="ringMorning" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#f59e0b" stroke-width="3.2" stroke-linecap="round" stroke-dasharray="0, 100" />
+          </svg>
+          <div id="barMorning" style="display:none;"></div>
         </div>
 
         <div class="metric-card theme-afternoon">
-          <div class="metric-header">
-            <span class="metric-label">오후 퀴즈 (객관식·스피드)</span>
-            <span class="metric-icon" id="afternoonPercentIcon"></span>
+          <div>
+            <div class="metric-label">오후 퀴즈 (객관식·스피드)</div>
+            <div class="metric-value-row">
+              <span class="metric-value" id="summaryAfternoonPercent">0%</span>
+              <span class="metric-subtext"><span id="summaryAfternoonCount">0</span>명 제출</span>
+            </div>
           </div>
-          <div class="metric-value-row">
-            <span class="metric-value" id="summaryAfternoonPercent">0%</span>
-            <span class="metric-subtext"><span id="summaryAfternoonCount">0</span>명 제출</span>
-          </div>
-          <div class="metric-progress-track">
-            <div class="metric-progress-bar bar-afternoon" id="barAfternoon" style="width: 0%;"></div>
-          </div>
+          <svg class="metric-ring-wrap" viewBox="0 0 36 36">
+            <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#e2e8f0" stroke-width="3.2" />
+            <path id="ringAfternoon" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#10b981" stroke-width="3.2" stroke-linecap="round" stroke-dasharray="0, 100" />
+          </svg>
+          <div id="barAfternoon" style="display:none;"></div>
         </div>
       </div>
 
-      <div class="filter-bar" style="padding: 6px 14px; margin-bottom: 6px;">
+      <div class="dashboard-status-strip">
         <div class="filter-group" style="gap: 12px; align-items: center;">
           <span style="font-weight: 800; font-size: 0.95rem; color: #0f172a;">시험장별 실시간 진행 현황</span>
           <div
@@ -2825,7 +2884,7 @@
           const bodyHtml = rows.length === 0
             ? '<div style="color:#94a3b8; font-size:0.86rem; padding:8px 0;">아직 집계된 점수가 없습니다</div>'
             : `<div style="display:flex; flex-wrap:wrap; align-content:flex-start; gap:6px; flex:1; overflow-y:auto;">` +
-              rows.map(r => `<span style="display:inline-flex; align-items:center; gap:4px; background:#eff6ff; border:1px solid #bfdbfe; color:#1e3a8a; padding:4px 9px; border-radius:6px; font-size:0.83rem;">🏆 <b>${r.name}</b> (${r.church})</span>`).join('') +
+              rows.map(r => `<span style="display:inline-flex; align-items:center; gap:5px; background:#f8fafc; border:1px solid #e2e8f0; color:#0f172a; padding:4px 10px; border-radius:8px; font-size:0.83rem;">🏆 <b style="color:#0f172a;">${r.name}</b> <span style="color:#64748b;">(${r.church})</span></span>`).join('') +
               `</div>`;
 
           return `
@@ -3035,15 +3094,18 @@
 
       document.getElementById('summaryWrittenPercent').innerText = `${writtenPct}%`;
       document.getElementById('summaryWrittenCount').innerText = writtenDoneCount.toLocaleString();
-      document.getElementById('barWritten').style.width = `${writtenPct}%`;
+      const ringW = document.getElementById('ringWritten');
+      if (ringW) ringW.setAttribute('stroke-dasharray', `${writtenPct}, 100`);
 
       document.getElementById('summaryMorningPercent').innerText = `${morningPct}%`;
       document.getElementById('summaryMorningCount').innerText = morningDoneCount.toLocaleString();
-      document.getElementById('barMorning').style.width = `${morningPct}%`;
+      const ringM = document.getElementById('ringMorning');
+      if (ringM) ringM.setAttribute('stroke-dasharray', `${morningPct}, 100`);
 
       document.getElementById('summaryAfternoonPercent').innerText = `${afternoonPct}%`;
       document.getElementById('summaryAfternoonCount').innerText = afternoonDoneCount.toLocaleString();
-      document.getElementById('barAfternoon').style.width = `${afternoonPct}%`;
+      const ringA = document.getElementById('ringAfternoon');
+      if (ringA) ringA.setAttribute('stroke-dasharray', `${afternoonPct}, 100`);
 
       // 2. 교실별 × 교시별 3대 세션 완전 일치 매트릭스 계산 (실제 시간표에 등록된 교시만 동적 반영)
       let totalSlots = 0;
@@ -3129,10 +3191,10 @@
             <div class="period-card-item ${stateClass}" title="${tooltip}">
               <div class="period-num">${period}교시</div>
               <div class="status-badge-chip">${statusChipText}</div>
-              <div class="session-indicator-dots">
-                <span class="indicator-dot ${hasWritten ? 'active' : ''}" title="필기"></span>
-                <span class="indicator-dot ${hasMorning ? 'active' : ''}" title="오전"></span>
-                <span class="indicator-dot ${hasAfternoon ? 'active' : ''}" title="오후"></span>
+              <div class="session-seg-bar">
+                <span class="session-seg ${hasWritten ? 'done-w' : ''}" title="필기"></span>
+                <span class="session-seg ${hasMorning ? 'done-m' : ''}" title="오전"></span>
+                <span class="session-seg ${hasAfternoon ? 'done-a' : ''}" title="오후"></span>
               </div>
             </div>
           `;
@@ -3141,9 +3203,9 @@
         card.innerHTML = `
           <div class="room-monitor-header">
             <span class="room-badge-title ${isSparks ? 'sparks' : 'tnt'}">
-              ${room}
+              <span class="room-dot ${isSparks ? 'sparks' : 'tnt'}"></span>${room}
             </span>
-            <span style="font-size: 0.78rem; font-weight: 700; color: #64748b; font-variant-numeric: tabular-nums;">
+            <span class="room-club-pill ${isSparks ? 'sparks' : 'tnt'}">
               ${isSparks ? 'SPARKS' : 'T&T'} · ${actualPeriods.length}교시
             </span>
           </div>
@@ -3312,14 +3374,14 @@
           <td><b>${p.name}</b></td>
           <td class="no-strike">
             <span class="badge-status ${isAbsent ? 'badge-absent' : 'badge-done'}">
-              ${isAbsent ? '❌ 결석(불참)' : '✅ 정상 출석'}
+              ${isAbsent ? '결석' : '출석'}
             </span>
           </td>
           <td class="no-strike">
-            <button class="btn-hq" style="padding: 3px 8px; font-size: 0.78rem;" onclick="openEditStudentModal('${p.id}')">✏️ 수정</button>
-            <button class="btn-hq btn-hq-primary" style="padding: 3px 8px; font-size: 0.78rem;" onclick="openTransferModal('${p.id}')">🔀 긴급이동</button>
-            <button class="btn-hq ${isAbsent ? 'btn-hq-primary' : 'btn-hq-danger'}" style="padding: 3px 8px; font-size: 0.78rem;" onclick="toggleAbsentStatus('${p.id}', ${!isAbsent})">
-              ${isAbsent ? '출석 복원' : '결석 처리'}
+            <button class="btn-row-ghost" onclick="openEditStudentModal('${p.id}')">수정</button>
+            <button class="btn-row-ghost" onclick="openTransferModal('${p.id}')">이동</button>
+            <button class="btn-row-ghost ${isAbsent ? '' : 'btn-row-ghost-danger'}" onclick="toggleAbsentStatus('${p.id}', ${!isAbsent})">
+              ${isAbsent ? '출석 복원' : '결석'}
             </button>
           </td>
         `;
@@ -3908,7 +3970,7 @@
           <td style="width: 28%; height: ${calculatedRowHeight}px;" title="${s.church}">${s.church}</td>
           <td style="width: 20%; height: ${calculatedRowHeight}px;"><b>${s.name}</b></td>
           <td style="width: 12%; height: ${calculatedRowHeight}px;">${isAbsent ? '<span class="badge-status badge-absent" style="padding: 1px 4px; font-size: 0.72rem;">결석</span>' : '<span class="badge-status badge-done" style="padding: 1px 4px; font-size: 0.72rem;">응시</span>'}</td>
-          <td style="width: 18%; height: ${calculatedRowHeight}px; background: #e0e7ff;">
+          <td style="width: 18%; height: ${calculatedRowHeight}px; background: #f8faff;">
             <input type="number" 
                    step="10" 
                    min="0" 
