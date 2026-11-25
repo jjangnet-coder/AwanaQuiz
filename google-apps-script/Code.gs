@@ -266,7 +266,7 @@ function doPost(e) {
 
     const ss = SpreadsheetApp.getActiveSpreadsheet();
 
-    // [시험 결과 전체 초기화]: 설정/참가자명단/시간표는 보존하고 점수·로그·집계·시상 시트만 2행부터 초기화
+    // [시험 결과 전체 초기화]: 설정/참가자명단/시간표는 보존하고 점수·로그·집계 시트만 2행부터 초기화
     if (payload.action === 'resetAllScores') {
       return handleResetAllScores(ss);
     }
@@ -635,18 +635,6 @@ function doPost(e) {
     // 변경사항 즉시 시트에 반영
     SpreadsheetApp.flush();
 
-    // [초고속 핀포인트 시상 시트 동기화]
-    // 11개 시트 전수를 매번 무식하게 돌지 않고, 지금 점수가 제출된 딱 그 1개 핸드북만 0.2초 만에 초고속 갱신!
-    try {
-      if (payload.handbook) {
-        updateSingleHandbookAward(ss, payload.handbook);
-      } else {
-        updateHandBookAwards(ss);
-      }
-    } catch (awardErr) {
-      Logger.log('시상 시트 갱신 중 경고: ' + awardErr.toString());
-    }
-
     return ContentService.createTextOutput(JSON.stringify({
       status: 'success',
       type: type,
@@ -953,7 +941,7 @@ function updateHandBookAwards(ss) {
 }
 
 /**
- * 시험 결과 전체 초기화 (설정, 참가자명단, 시간표 보존 / 로그, 최종집계, 11개 핸드북 시상 시트 2행부터 삭제)
+ * 시험 결과 전체 초기화 (설정, 참가자명단, 시간표 보존 / 로그, 최종집계 2행부터 내용 삭제)
  */
 function handleResetAllScores(ss) {
   const targetSheets = [
