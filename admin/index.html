@@ -2093,7 +2093,7 @@
         if (data.status === 'success') {
           progressText.textContent = '2/2 단계: 본부 관리 포털 화면 갱신 중...';
           progressBar.style.width = '85%';
-          await initAdminPortal();
+          await refreshHqDataManual();
 
           progressBar.style.width = '100%';
           progressBar.style.background = '#16a34a';
