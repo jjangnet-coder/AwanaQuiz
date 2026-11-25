@@ -2139,8 +2139,17 @@
       btn.textContent = '초기화 중...';
       progressBox.style.display = 'block';
       progressText.style.color = '#1e40af';
-      progressText.textContent = '1/2 단계: 구글 시트 점수 및 로그 초기화 중...';
-      progressBar.style.width = '45%';
+      let fakePct = 15;
+      let elapsedSec = 0;
+      progressText.textContent = '1/2 단계: 구글 시트 점수 및 로그 초기화 중... (0초 경과)';
+      progressBar.style.width = fakePct + '%';
+
+      const progressTimer = setInterval(() => {
+        elapsedSec += 0.5;
+        if (fakePct < 75) fakePct = Math.min(75, fakePct + 4);
+        progressBar.style.width = fakePct + '%';
+        progressText.textContent = `1/2 단계: 구글 시트 점수 및 로그 초기화 중... (${Math.floor(elapsedSec)}초 경과)`;
+      }, 500);
 
       try {
         const res = await fetch(GAS_URL, {
@@ -2148,6 +2157,7 @@
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
           body: JSON.stringify({ action: 'resetAllScores' })
         });
+        clearInterval(progressTimer);
         const data = await res.json();
         if (data.status === 'success') {
           progressText.textContent = '2/2 단계: 본부 관리 포털 화면 갱신 중...';
@@ -2169,6 +2179,7 @@
           btn.textContent = '초기화 실행';
         }
       } catch (err) {
+        clearInterval(progressTimer);
         progressText.style.color = '#dc2626';
         progressText.textContent = '❌ 오류 발생: ' + err.message;
         btn.disabled = false;

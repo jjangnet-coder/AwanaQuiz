@@ -963,6 +963,11 @@ function handleResetAllScores(ss) {
     }
   });
 
+  // 최종집계 시트에 참가자 명단(점수 0/빈값) 즉시 복구
+  if (typeof syncFinalSummaryFromParticipants === 'function') {
+    syncFinalSummaryFromParticipants(ss);
+  }
+
   return ContentService.createTextOutput(JSON.stringify({
     status: 'success',
     message: `시험 결과 초기화가 완료되었습니다. (${clearedCount}개 시트 초기화)`
