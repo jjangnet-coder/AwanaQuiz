@@ -1612,14 +1612,79 @@
       margin-bottom: 2px !important;
     }
 
+    .period-card-item.state-stage1 {
+      background: #eff6ff !important;
+      border-color: #93c5fd !important;
+    }
+
+    .period-card-item.state-stage1 .status-badge-chip {
+      color: #1d4ed8 !important;
+    }
+
+    .period-card-item.state-stage2,
     .period-card-item.state-partial {
       background: #fffbeb !important;
-      border-color: #fde68a !important;
+      border-color: #fcd34d !important;
+    }
+
+    .period-card-item.state-stage2 .status-badge-chip,
+    .period-card-item.state-partial .status-badge-chip {
+      color: #b45309 !important;
     }
 
     .period-card-item.state-full {
       background: #ecfdf5 !important;
-      border-color: #a7f3d0 !important;
+      border-color: #34d399 !important;
+    }
+
+    .period-card-item.state-full .status-badge-chip {
+      color: #047857 !important;
+    }
+
+    /* 시험장 외곽 카드 4단계 시각적 구분 (대기 / 1단계 / 2단계 / 전체 완료) */
+    .room-monitor-card.room-stage-1 {
+      border: 1.5px solid #93c5fd !important;
+      background: linear-gradient(180deg, #f8fbff 0%, #ffffff 32%) !important;
+    }
+
+    .room-monitor-card.room-stage-2 {
+      border: 1.5px solid #fcd34d !important;
+      background: linear-gradient(180deg, #fffdf5 0%, #ffffff 32%) !important;
+    }
+
+    .room-monitor-card.room-stage-3 {
+      border: 1.5px solid #34d399 !important;
+      background: linear-gradient(180deg, #f0fdf4 0%, #ffffff 36%) !important;
+      box-shadow: 0 2px 10px rgba(16, 185, 129, 0.14) !important;
+    }
+
+    .room-stage-pill {
+      font-size: 0.7rem;
+      font-weight: 800;
+      padding: 2px 7px;
+      border-radius: 999px;
+      margin-left: 4px;
+      white-space: nowrap;
+    }
+
+    .room-stage-pill.stage-0 {
+      background: #f1f5f9;
+      color: #64748b;
+    }
+
+    .room-stage-pill.stage-1 {
+      background: #dbeafe;
+      color: #1d4ed8;
+    }
+
+    .room-stage-pill.stage-2 {
+      background: #fef3c7;
+      color: #b45309;
+    }
+
+    .room-stage-pill.stage-3 {
+      background: #d1fae5;
+      color: #047857;
     }
 
     /* 3분할 미니 세그먼트 바 (필기 | 오전 | 오후) */
@@ -2131,7 +2196,7 @@
 <body>
   <div id="hqLoadingOverlay" style="position:fixed; inset:0; background:rgba(15,23,42,0.45); z-index:30000; pointer-events:auto; display:none; justify-content:center; align-items:center; flex-direction:column; gap:12px; color:#fff; font-weight:700; font-size:1rem;">
     <div style="width:38px; height:38px; border:4px solid rgba(255,255,255,0.3); border-top-color:#fff; border-radius:50%; animation:spin 0.8s linear infinite;"></div>
-    <div id="hqLoadingText">본부 데이터를 불러오는 중입니다...</div>
+    <div id="hqLoadingText" style="word-break: keep-all; text-align: center; line-height: 1.5; max-width: 90vw;">본부 데이터를 불러오는 중입니다...</div>
   </div>
 
   <!-- 시험 결과 초기화 확인 모달 -->
@@ -3761,6 +3826,9 @@
         totalSlots += actualPeriods.length;
 
         let periodCardsHtml = '';
+        let roomMinCompleted = actualPeriods.length > 0 ? 3 : 0;
+        let roomAnyProgress = false;
+
         actualPeriods.forEach(period => {
           const tt = HQ_DATA.timetable.find(t => t.room === room && Number(t.period) === period);
 
@@ -3795,20 +3863,25 @@
           const completedCount = (hasWritten ? 1 : 0) + (hasMorning ? 1 : 0) + (hasAfternoon ? 1 : 0);
           const inProgressCount = (isWrittenProgress ? 1 : 0) + (isMorningProgress ? 1 : 0) + (isAfternoonProgress ? 1 : 0);
 
+          if (completedCount < roomMinCompleted) roomMinCompleted = completedCount;
+          if (completedCount > 0 || inProgressCount > 0) roomAnyProgress = true;
+
           let stateClass = 'state-empty';
-          let statusChipText = '- 대기 중';
+          let statusChipText = '대기';
 
           if (completedCount === 3) {
             stateClass = 'state-full';
-            statusChipText = '✓ 전원 완료';
+            statusChipText = '✓ 전체 완료';
             fullCompletedSlots++;
-          } else if (completedCount > 0 || inProgressCount > 0) {
-            stateClass = 'state-partial';
-            if (completedCount > 0) {
-              statusChipText = `${completedCount}개 완료`;
-            } else {
-              statusChipText = '진행 중';
-            }
+          } else if (completedCount === 2) {
+            stateClass = 'state-stage2';
+            statusChipText = '2단계 완료';
+          } else if (completedCount === 1) {
+            stateClass = 'state-stage1';
+            statusChipText = '1단계 완료';
+          } else if (inProgressCount > 0) {
+            stateClass = 'state-stage1';
+            statusChipText = '진행 중';
           }
 
           // 툴팁 텍스트 구성: 대기 / 진행 중(X/Y명) / 완료(전원 완료)
@@ -3834,10 +3907,26 @@
           `;
         });
 
+        // 시험장 전체 4단계 상태 판정 (대기 / 1단계 완료 / 2단계 완료 / 전체 완료)
+        let roomStage = 0;
+        let roomStageLabel = '대기';
+        if (roomMinCompleted === 3) {
+          roomStage = 3;
+          roomStageLabel = '✓ 전체 완료';
+        } else if (roomMinCompleted === 2) {
+          roomStage = 2;
+          roomStageLabel = '2단계 완료';
+        } else if (roomMinCompleted === 1 || roomAnyProgress) {
+          roomStage = 1;
+          roomStageLabel = '1단계 완료';
+        }
+        card.classList.add(`room-stage-${roomStage}`);
+
         card.innerHTML = `
           <div class="room-monitor-header">
             <span class="room-badge-title ${isSparks ? 'sparks' : 'tnt'}">
               <span class="room-dot ${isSparks ? 'sparks' : 'tnt'}"></span>${room}
+              <span class="room-stage-pill stage-${roomStage}">${roomStageLabel}</span>
             </span>
             <span class="room-club-pill ${isSparks ? 'sparks' : 'tnt'}">
               ${isSparks ? 'SPARKS' : 'T&T'} · ${actualPeriods.length}교시
@@ -4757,13 +4846,7 @@
          </div>
          입력하신 필기점수를 본부 집계에 즉시 저장하시겠습니까?`,
         async () => {
-          showCustomLoading(
-            '필기시험 점수 저장 중',
-            `<div style="padding: 10px 0;">
-               [<b>${hb} ${team}조</b>] ${records.length}명의 필기점수를 저장하고 있습니다...<br>
-               <span style="font-size: 0.82rem; color: #94a3b8;">(본부 집계 반영 중)</span>
-             </div>`
-          );
+          showHqLoading(`[${hb} ${team}조] 필기점수를 저장하는 중입니다...`);
 
           try {
             const payload = {
@@ -4782,9 +4865,9 @@
               try {
                 if (attempt > 0) {
                   const waitMs = BASE_DELAYS[attempt - 1] + Math.floor(Math.random() * 1500);
-                  const msgEl = document.getElementById('modalMessage');
-                  if (msgEl) {
-                    msgEl.innerHTML = `<div style="padding: 10px 0;">[<b>${hb} ${team}조</b>] 서버 혼잡 — 자동 재시도 중 (${attempt}/${MAX_RETRIES})...</div>`;
+                  const textEl = document.getElementById('hqLoadingText');
+                  if (textEl) {
+                    textEl.innerText = `[${hb} ${team}조] 서버 혼잡 — 자동 재시도 중 (${attempt}/${MAX_RETRIES})...`;
                   }
                   await new Promise(resolve => setTimeout(resolve, waitMs));
                 }
@@ -4830,6 +4913,8 @@
             }
           } catch (err) {
             showCustomAlert('통신 오류', err.message, 'danger');
+          } finally {
+            hideHqLoading();
           }
         },
         null,

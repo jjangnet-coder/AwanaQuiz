@@ -270,19 +270,18 @@ async function simulateHqWrittenScoring(adminPin) {
         await page.selectOption('#writtenTeamSelect', team);
         await randomDelay(120, 220);
 
-        const inputIds = await page
-          .locator('.input-written-score:not([disabled])')
-          .evaluateAll((els) => els.map((el) => el.id).filter(Boolean));
-
-        if (inputIds.length === 0) continue;
-
-        // 눈으로 볼 수 있는 속도로 각 단원 필기점수(50~150점, 10점 단위) 입력
-        for (const id of inputIds) {
-          const score = (Math.floor(Math.random() * 11) + 5) * 10; // 50~150점
-          const inp = page.locator(`#${id}`);
-          await inp.fill(String(score));
-          await randomDelay(20, 45);
-        }
+        // 브라우저 내부에서 고속 입력 (1번 모니터에서 조별로 채워지는 모습 확인 + 속도 2배 이상 향상)
+        const filledCount = await page.evaluate(() => {
+          const inputs = Array.from(document.querySelectorAll('.input-written-score:not([disabled])'));
+          inputs.forEach((el) => {
+            const score = (Math.floor(Math.random() * 11) + 5) * 10; // 50~150점
+            el.value = String(score);
+            el.dispatchEvent(new Event('input', { bubbles: true }));
+          });
+          return inputs.length;
+        });
+        if (filledCount === 0) continue;
+        await randomDelay(100, 160);
 
         // 필기점수 저장 버튼 클릭 → 확인 모달 클릭
         await page.locator('#btnSaveWrittenBatch').click({ force: true });
@@ -290,10 +289,12 @@ async function simulateHqWrittenScoring(adminPin) {
 
         // 저장 완료 모달 대기 (최대 120초, 자동 재시도 포함)
         await page.waitForFunction(() => {
+          const loading = document.getElementById('hqLoadingOverlay');
+          const loadingHidden = !loading || window.getComputedStyle(loading).display === 'none';
           const overlay = document.getElementById('customModalOverlay');
           const visible = overlay && window.getComputedStyle(overlay).display !== 'none';
           const title = document.getElementById('modalTitle')?.textContent || '';
-          return visible && (title.includes('저장 완료') || title.includes('실패') || title.includes('오류'));
+          return loadingHidden && visible && (title.includes('저장 완료') || title.includes('실패') || title.includes('오류'));
         }, undefined, { timeout: 120_000 });
 
         const title = await page.locator('#modalTitle').textContent().catch(() => '');
@@ -304,7 +305,7 @@ async function simulateHqWrittenScoring(adminPin) {
 
         await dismissModalIfVisible(page);
         totalSavedTeams++;
-        console.log(`📝 [필기 채점] ${hb} ${team}조 저장 완료 (${inputIds.length}명 / 누적 ${totalSavedTeams}조)`);
+        console.log(`📝 [필기 채점] ${hb} ${team}조 저장 완료 (${filledCount}명 / 누적 ${totalSavedTeams}조)`);
       }
     }
 
