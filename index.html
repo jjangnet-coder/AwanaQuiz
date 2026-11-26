@@ -2467,14 +2467,54 @@
         async () => {
           showLoading('본부 집계에 점수를 저장하는 중입니다...');
           try {
-            const resp = await fetch(GAS_URL, {
-              method: 'POST',
-              headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-              body: JSON.stringify(payload)
-            });
-            const result = await resp.json();
+            const MAX_RETRIES = 4;
+            const BASE_DELAYS = [1500, 3000, 5000, 7500];
+            let result = null;
+            let lastErr = null;
 
-            if (result.status === 'success') {
+            for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+              try {
+                if (attempt > 0) {
+                  const waitMs = BASE_DELAYS[attempt - 1] + Math.floor(Math.random() * 1500);
+                  const loadingEl = document.getElementById('loadingText');
+                  if (loadingEl) {
+                    loadingEl.innerText = `서버 혼잡 — 자동 재시도 중 (${attempt}/${MAX_RETRIES})...`;
+                  }
+                  await new Promise(resolve => setTimeout(resolve, waitMs));
+                  if (loadingEl) {
+                    loadingEl.innerText = `본부 집계에 점수를 저장하는 중입니다... (재시도 ${attempt}/${MAX_RETRIES})`;
+                  }
+                }
+
+                const resp = await fetch(GAS_URL, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                  body: JSON.stringify(payload)
+                });
+                result = await resp.json();
+
+                if (result && result.status === 'success') {
+                  lastErr = null;
+                  break;
+                }
+
+                const msg = (result && result.message) ? String(result.message) : '알 수 없는 서버 오류';
+                const isRetryable = msg.includes('잠금') || msg.includes('혼잡') || msg.toLowerCase().includes('lock') || msg.toLowerCase().includes('timeout');
+                lastErr = new Error(msg);
+                if (!isRetryable || attempt === MAX_RETRIES) {
+                  throw lastErr;
+                }
+              } catch (innerErr) {
+                lastErr = innerErr;
+                const errMsg = String(innerErr && innerErr.message ? innerErr.message : innerErr);
+                const isRetryableErr = errMsg.includes('잠금') || errMsg.includes('혼잡') || errMsg.includes('Failed to fetch') || errMsg.includes('NetworkError') || errMsg.includes('Load failed') || errMsg.toLowerCase().includes('timeout');
+                if (!isRetryableErr || attempt === MAX_RETRIES) {
+                  throw innerErr;
+                }
+              }
+            }
+
+            if (result && result.status === 'success') {
               // 세션 메모리 캐시에 방금 제출한 O/X 답안과 완료 상태 영구 보존
               const sessionKey = getSessionKey();
               const answersCopy = {};

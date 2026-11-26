@@ -301,6 +301,30 @@ function doPost(e) {
       }
     }
 
+    // [락 점유 시간 최적화] 변경된 단원 구간(minRow ~ maxRow)만 부분 읽기·쓰기
+    function updateFinalScoreColumnPartial(scoreColIndex, records) {
+      const targetUpdates = [];
+      let minRow = Infinity;
+      let maxRow = -1;
+      records.forEach(r => {
+        const rowNum = idToRowMap[r.id];
+        if (rowNum && rowNum >= 2 && rowNum <= finalLastRow) {
+          targetUpdates.push({ rowNum: rowNum, score: Number(r.score) });
+          if (rowNum < minRow) minRow = rowNum;
+          if (rowNum > maxRow) maxRow = rowNum;
+        }
+      });
+      if (targetUpdates.length === 0) return;
+
+      const spanCount = maxRow - minRow + 1;
+      const range = finalSheet.getRange(minRow, scoreColIndex, spanCount, 1);
+      const values = range.getValues();
+      targetUpdates.forEach(u => {
+        values[u.rowNum - minRow][0] = u.score;
+      });
+      range.setValues(values);
+    }
+
     // 1. 객관식 점수 저장 처리
     if (type === 'multiple') {
       const logSheet = ss.getSheetByName('객관식_로그');
@@ -308,13 +332,6 @@ function doPost(e) {
 
       const logRows = [];
       const scoreColIndex = payload.session === '오전' ? 10 : 11; // 교실 열 추가로 10열: '객관식(오전)', 11열: '객관식(오후)'
-
-      // [배치 최적화] 최종집계 점수 컬럼 전체를 메모리로 1회 읽기
-      const totalRowsCount = finalLastRow - 1;
-      let scoreColumnValues = [];
-      if (totalRowsCount > 0) {
-        scoreColumnValues = finalSheet.getRange(2, scoreColIndex, totalRowsCount, 1).getValues();
-      }
 
       payload.records.forEach(r => {
         // 감사 로그 행 생성
@@ -337,26 +354,13 @@ function doPost(e) {
           Number(r.score),
           payload.recorder || ''
         ]);
-
-        // 메모리 상에서 점수 치환 (0.0001초 소요)
-        const rowNum = idToRowMap[r.id];
-        if (rowNum && rowNum >= 2 && (rowNum - 2) < scoreColumnValues.length) {
-          scoreColumnValues[rowNum - 2][0] = Number(r.score);
-        }
       });
 
-      // [배치 최적화] 메모리에서 바뀐 점수 컬럼 전체를 단 1회의 setValues로 시트에 쓰기
-      if (scoreColumnValues.length > 0) {
-        finalSheet.getRange(2, scoreColIndex, scoreColumnValues.length, 1).setValues(scoreColumnValues);
-      }
-
+      // 변경 구간만 최소 범위 쓰기 + 로그 단 1회 append
+      updateFinalScoreColumnPartial(scoreColIndex, payload.records);
       if (logRows.length > 0) {
         const startRow = logSheet.getLastRow() + 1;
         logSheet.getRange(startRow, 1, logRows.length, 18).setValues(logRows);
-        // [정렬 서식 일원화] 1~16열 가운데 정렬, 17열(총점) 우측 정렬, 18열(기록관명) 가운데 정렬
-        logSheet.getRange(startRow, 1, logRows.length, 16).setHorizontalAlignment('center');
-        logSheet.getRange(startRow, 17, logRows.length, 1).setHorizontalAlignment('right');
-        logSheet.getRange(startRow, 18, logRows.length, 1).setHorizontalAlignment('center');
       }
 
     // 2. 스피드 퀴즈 점수 저장 처리 (T&T 오후 전용)
@@ -366,13 +370,6 @@ function doPost(e) {
 
       const logRows = [];
       const scoreColIndex = 12; // 교실 열 추가로 12열: '스피드(오후)'
-
-      // [배치 최적화] 최종집계 점수 컬럼 전체를 메모리로 1회 읽기
-      const totalRowsCount = finalLastRow - 1;
-      let scoreColumnValues = [];
-      if (totalRowsCount > 0) {
-        scoreColumnValues = finalSheet.getRange(2, scoreColIndex, totalRowsCount, 1).getValues();
-      }
 
       payload.records.forEach(r => {
         // 감사 로그 행 생성
@@ -394,26 +391,12 @@ function doPost(e) {
           Number(r.score),
           payload.recorder || ''
         ]);
-
-        // 메모리 상에서 점수 치환 (0.0001초 소요)
-        const rowNum = idToRowMap[r.id];
-        if (rowNum && rowNum >= 2 && (rowNum - 2) < scoreColumnValues.length) {
-          scoreColumnValues[rowNum - 2][0] = Number(r.score);
-        }
       });
 
-      // [배치 최적화] 단 1회의 setValues로 시트에 쓰기
-      if (scoreColumnValues.length > 0) {
-        finalSheet.getRange(2, scoreColIndex, scoreColumnValues.length, 1).setValues(scoreColumnValues);
-      }
-
+      updateFinalScoreColumnPartial(scoreColIndex, payload.records);
       if (logRows.length > 0) {
         const startRow = logSheet.getLastRow() + 1;
         logSheet.getRange(startRow, 1, logRows.length, 19).setValues(logRows);
-        // [정렬 서식 일원화] 1~17열 가운데 정렬, 18열(총점) 우측 정렬, 19열(기록관명) 가운데 정렬
-        logSheet.getRange(startRow, 1, logRows.length, 17).setHorizontalAlignment('center');
-        logSheet.getRange(startRow, 18, logRows.length, 1).setHorizontalAlignment('right');
-        logSheet.getRange(startRow, 19, logRows.length, 1).setHorizontalAlignment('center');
       }
 
     // 3. 필기 점수 저장 처리 (본부 입력)
@@ -423,13 +406,6 @@ function doPost(e) {
 
       const logRows = [];
       const scoreColIndex = 9; // 교실 열 추가로 9열: '필기점수'
-
-      // [배치 최적화] 최종집계 점수 컬럼 전체를 메모리로 1회 읽기
-      const totalRowsCount = finalLastRow - 1;
-      let scoreColumnValues = [];
-      if (totalRowsCount > 0) {
-        scoreColumnValues = finalSheet.getRange(2, scoreColIndex, totalRowsCount, 1).getValues();
-      }
 
       payload.records.forEach(r => {
         // 감사 로그 행 생성
@@ -442,26 +418,12 @@ function doPost(e) {
           Number(r.score),
           payload.recorder || ''
         ]);
-
-        // 메모리 상에서 점수 치환 (0.0001초 소요)
-        const rowNum = idToRowMap[r.id];
-        if (rowNum && rowNum >= 2 && (rowNum - 2) < scoreColumnValues.length) {
-          scoreColumnValues[rowNum - 2][0] = Number(r.score);
-        }
       });
 
-      // [배치 최적화] 단 1회의 setValues로 시트에 쓰기
-      if (scoreColumnValues.length > 0) {
-        finalSheet.getRange(2, scoreColIndex, scoreColumnValues.length, 1).setValues(scoreColumnValues);
-      }
-
+      updateFinalScoreColumnPartial(scoreColIndex, payload.records);
       if (logRows.length > 0) {
         const startRow = logSheet.getLastRow() + 1;
         logSheet.getRange(startRow, 1, logRows.length, 7).setValues(logRows);
-        // [정렬 서식 일원화] 1~5열 가운데 정렬, 6열(필기점수) 우측 정렬, 7열(본부입력자) 가운데 정렬
-        logSheet.getRange(startRow, 1, logRows.length, 5).setHorizontalAlignment('center');
-        logSheet.getRange(startRow, 6, logRows.length, 1).setHorizontalAlignment('right');
-        logSheet.getRange(startRow, 7, logRows.length, 1).setHorizontalAlignment('center');
       }
 
     // 4. [선수 정보 수정 및 결석 상태 토글 처리 (HQ Admin)]

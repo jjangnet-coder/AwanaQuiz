@@ -81,34 +81,55 @@ async function fillAndSubmitCurrentTab(page, roomName = '', period = '', session
       const cls = (await cell.getAttribute('class')) || '';
       if (cls.includes('locked') || cls.includes('vacant')) continue;
 
-      // 실제 클릭 이벤트 발생 (O 또는 X) - 다중 창 동시 실행 시 포커스/히트테스트 대기 방지
+      // 실제 클릭 이벤트 발생 (O 또는 X) - 고속 모드 (기존 대비 10배 빠른 클릭)
       await cell.click({ force: true, timeout: 60_000 });
       // 30% 확률로 한 번 더 클릭해 X로 전환
       if (Math.random() < 0.3) {
-        await randomDelay(80, 200);
+        await randomDelay(8, 20);
         await cell.click({ force: true, timeout: 60_000 });
       }
-      await randomDelay(100, 350);
+      await randomDelay(10, 35);
     }
   }
 
-  // 제출 버튼 활성화 시 클릭
+  // 제출 버튼 활성화 시 클릭 및 실제 저장 성공 엄격 검증
   const submitBtn = page.locator('#btnSubmit');
   if (await submitBtn.isEnabled()) {
     await submitBtn.click({ force: true });
     await dismissModalIfVisible(page);
 
-    // 저장 완료 대기: 제출 버튼이 저장 완료(.state-saved) 또는 비활성화될 때까지 대기 (최대 20초)
+    // 저장 완료 대기 (자동 재시도 포함 최대 90초, 로딩 종료 + 결과 모달 또는 .state-saved 확인)
     await page.waitForFunction(() => {
+      const loading = document.getElementById('loadingOverlay');
+      const loadingHidden = !loading || window.getComputedStyle(loading).display === 'none';
+      const modal = document.getElementById('customModalOverlay');
+      const modalVisible = modal && window.getComputedStyle(modal).display !== 'none';
       const btn = document.getElementById('btnSubmit');
-      if (!btn) return true;
-      return btn.disabled || btn.classList.contains('state-saved');
-    }, { timeout: 20_000 }).catch(() => { });
+      const saved = btn && (btn.disabled || btn.classList.contains('state-saved'));
+      return loadingHidden && (modalVisible || saved);
+    }, { timeout: 90_000 });
 
-    // 저장 완료 안내 모달이 뜨면 닫기
+    // 실패/오류 모달인지 확인 (가짜 제출 완료 로그 원천 차단)
+    const modalTitle = await page.locator('#modalTitle').textContent().catch(() => '');
+    if (modalTitle && (modalTitle.includes('실패') || modalTitle.includes('오류'))) {
+      const modalMsg = await page.locator('#modalMessage').textContent().catch(() => '');
+      throw new Error(`[${roomName}] ${period}교시 ${sessionLabel} 저장 실패: ${modalTitle} - ${modalMsg}`);
+    }
+
+    // 실제 저장 상태(.state-saved 또는 disabled) 확인
+    const isActuallySaved = await page.evaluate(() => {
+      const btn = document.getElementById('btnSubmit');
+      return Boolean(btn && (btn.disabled || btn.classList.contains('state-saved')));
+    });
+    if (!isActuallySaved) {
+      throw new Error(`[${roomName}] ${period}교시 ${sessionLabel} 저장 완료 상태(.state-saved) 미확인`);
+    }
+
+    // 저장 완료 안내 모달 닫기
     await dismissModalIfVisible(page);
+    await waitForLoadingDone(page);
     console.log(`[${roomName}] ${period}교시 ${sessionLabel} 제출 완료 (문항 수: ${qIndices.length})`);
-    await randomDelay(500, 1000);
+    await randomDelay(100, 250);
   }
 }
 
@@ -147,14 +168,14 @@ async function simulateRoom(context, room, index) {
     await waitForLoadingDone(page);
     await page.selectOption('#periodSelect', period);
     await waitForLoadingDone(page);
-    await randomDelay(400, 900);
+    await randomDelay(100, 250);
     await dismissModalIfVisible(page);
 
     const tabMorning = page.locator('#tabMorning');
     if (await tabMorning.isVisible({ timeout: 2000 }).catch(() => false)) {
       await tabMorning.click();
       await waitForLoadingDone(page);
-      await randomDelay(300, 600);
+      await randomDelay(80, 180);
       await fillAndSubmitCurrentTab(page, room.name, period, '오전');
     }
   }
@@ -164,14 +185,14 @@ async function simulateRoom(context, room, index) {
     await waitForLoadingDone(page);
     await page.selectOption('#periodSelect', period);
     await waitForLoadingDone(page);
-    await randomDelay(400, 900);
+    await randomDelay(100, 250);
     await dismissModalIfVisible(page);
 
     const tabAfternoon = page.locator('#tabAfternoon');
     if (await tabAfternoon.isVisible({ timeout: 2000 }).catch(() => false)) {
       await tabAfternoon.click();
       await waitForLoadingDone(page);
-      await randomDelay(300, 600);
+      await randomDelay(80, 180);
       await fillAndSubmitCurrentTab(page, room.name, period, '오후');
     }
   }
