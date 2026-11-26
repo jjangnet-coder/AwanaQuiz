@@ -240,6 +240,108 @@
       border-top: 2px solid var(--primary);
     }
 
+    /* 입력 모드 전환 세그먼트 토글 (O/X 채점 vs 점수 직접 입력) */
+    .mode-toggle-group {
+      display: inline-flex;
+      background: #e2e8f0;
+      padding: 3px;
+      border-radius: 8px;
+      gap: 3px;
+      border: 1px solid #cbd5e1;
+    }
+
+    .mode-toggle-btn {
+      padding: 4px 11px;
+      border-radius: 6px;
+      border: none;
+      background: transparent;
+      color: #475569;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.14s ease;
+      white-space: nowrap;
+    }
+
+    .mode-toggle-btn:hover:not(.active):not(.is-locked) {
+      color: #0f172a;
+      background: rgba(255, 255, 255, 0.55);
+    }
+
+    .mode-toggle-btn.active {
+      background: #ffffff;
+      color: #1d4ed8;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.12);
+    }
+
+    .mode-toggle-btn.is-locked {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .direct-team-sum-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 9px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      background: #ecfdf5;
+      color: #047857;
+      border: 1px solid #a7f3d0;
+    }
+
+    .direct-team-sum-badge.is-over {
+      background: #fef2f2;
+      color: #dc2626;
+      border-color: #fca5a5;
+    }
+
+    /* 점수 직접 입력 모드 인풋 */
+    .direct-score-cell {
+      background-color: #f8faff;
+    }
+
+    tbody tr:hover .direct-score-cell {
+      background-color: #e0f2fe !important;
+    }
+
+    .direct-score-input {
+      width: 96px;
+      height: 80%;
+      max-height: 30px;
+      min-height: 22px;
+      text-align: center;
+      padding: 1px 6px;
+      border: 1.5px solid #94a3b8;
+      border-radius: 6px;
+      font-size: 0.92rem;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      color: #0f172a;
+      background: #ffffff;
+      outline: none;
+      transition: border-color 0.14s ease, background-color 0.14s ease, box-shadow 0.14s ease;
+    }
+
+    .direct-score-input.is-unfilled {
+      border-color: #f59e0b;
+      background: #fffbeb;
+    }
+
+    .direct-score-input:focus {
+      border-color: #2563eb;
+      background: #eff6ff !important;
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.22);
+    }
+
+    .direct-score-input.invalid {
+      border-color: #e11d48 !important;
+      background: #fff1f2 !important;
+      color: #be123c;
+    }
+
     .room-badge-info {
       font-size: 0.85rem;
       font-weight: 700;
@@ -1095,15 +1197,22 @@
       </div>
     </header>
 
-    <!-- 서브 바 (세션 탭 + 시험장 안내) -->
+    <!-- 서브 바 (세션 탭 + 입력 모드 토글 + 시험장 안내) -->
     <div class="sub-bar" id="subBarArea" style="display: none;">
-      <div class="session-tabs" id="sessionTabs">
-        <button class="tab-btn active" id="tabMorning" onclick="switchSession('morning')">객관식(오전)</button>
-        <button class="tab-btn" id="tabAfternoon" onclick="switchSession('afternoon')">오후 세션</button>
+      <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+        <div class="session-tabs" id="sessionTabs">
+          <button class="tab-btn active" id="tabMorning" onclick="switchSession('morning')">객관식(오전)</button>
+          <button class="tab-btn" id="tabAfternoon" onclick="switchSession('afternoon')">오후 세션</button>
+        </div>
+        <div class="mode-toggle-group" id="inputModeToggle" title="점수 입력 방식 선택">
+          <button type="button" class="mode-toggle-btn active" id="btnModeGrid" onclick="requestInputModeChange('grid')">☑️ O/X 채점</button>
+          <button type="button" class="mode-toggle-btn" id="btnModeDirect" onclick="requestInputModeChange('direct')">⌨️ 점수 직접 입력</button>
+        </div>
       </div>
 
       <div class="room-badge-info" id="roomInfoBar">
         <span id="roomInfoText">-</span>
+        <span id="directSumBadge" class="direct-team-sum-badge" style="display: none;"></span>
         <span style="font-size: 0.78rem; font-weight: 600; color: #475569;" id="guideHintText">
           * 문제번호 클릭: 전원 정답(O) | 좌클릭: 토글 | 우클릭: 오답(X)
         </span>
@@ -1186,18 +1295,146 @@
     // 채점 셀 상태: studentId -> [문항1, 문항2, ...] ('O', 'X', '')
     let GRID_STATE = {};
 
+    // 입력 모드 관리 ('grid': O/X 문항별 채점 | 'direct': 점수 직접 입력)
+    let USER_PREFERRED_MODE = localStorage.getItem('awana_input_mode') === 'direct' ? 'direct' : 'grid';
+    let CURRENT_INPUT_MODE = USER_PREFERRED_MODE;
+    let IS_CURRENT_SESSION_DIRECT_LOCKED = false;
+    let IS_CURRENT_SESSION_SAVED = false;
+    let CURRENT_SESSION_SAVED_MODE = null; // null | 'grid' | 'direct'
+    let DIRECT_SCORES_STATE = {};
+    let INITIAL_DIRECT_SCORES = {};
+
     // 저장 상태 머신: 'empty'(미입력 대기) | 'in_progress'(작성중) | 'ready'(전원입력완료) | 'saved'(제출완료)
     let SUBMIT_LIFECYCLE_STATE = 'empty';
+
+    function getSpeedMaxPersonalScore() {
+      const maxO = Number((MASTER_DATA.settings && MASTER_DATA.settings['스피드_최대정답수']) || 3);
+      return 20 * maxO;
+    }
+
+    function hasDirectScoreEdits() {
+      return CURRENT_STUDENTS.some(s => String(DIRECT_SCORES_STATE[s.id] ?? '') !== String(INITIAL_DIRECT_SCORES[s.id] ?? ''));
+    }
 
     /**
      * 채점 미제출 또는 수정 후 미저장 상태 여부 확인
      */
     function hasUnsavedChanges() {
+      if (CURRENT_INPUT_MODE === 'direct') {
+        return hasDirectScoreEdits();
+      }
       return (
         SUBMIT_LIFECYCLE_STATE === 'in_progress' ||
         SUBMIT_LIFECYCLE_STATE === 'ready' ||
         SUBMIT_LIFECYCLE_STATE === 'ready_modified'
       );
+    }
+
+    function syncInputModeToggleUI() {
+      const btnGrid = document.getElementById('btnModeGrid');
+      const btnDirect = document.getElementById('btnModeDirect');
+      if (!btnGrid || !btnDirect) return;
+
+      btnGrid.classList.toggle('active', CURRENT_INPUT_MODE === 'grid');
+      btnDirect.classList.toggle('active', CURRENT_INPUT_MODE === 'direct');
+      btnGrid.classList.toggle('is-locked', IS_CURRENT_SESSION_DIRECT_LOCKED);
+      btnGrid.title = IS_CURRENT_SESSION_DIRECT_LOCKED
+        ? '이미 [점수 직접 입력]으로 저장된 교시라 O/X 모드로 전환할 수 없습니다.'
+        : '문항별 O/X 클릭 채점 모드';
+    }
+
+    function updateGuideHintForCurrentMode() {
+      const guideHint = document.getElementById('guideHintText');
+      if (!guideHint) return;
+      if (CURRENT_INPUT_MODE === 'direct') {
+        if (CURRENT_SESSION_TYPE === 'speed') {
+          const maxPersonal = getSpeedMaxPersonalScore();
+          guideHint.innerText = `* 점수 직접 입력(스피드): 0~${maxPersonal}점 (20점 단위, 조 합계 최대 200점) | Enter/↓ 이동`;
+        } else {
+          guideHint.innerText = '* 점수 직접 입력(객관식): 0~80점 (10점 단위) | Enter/↓ 고속 이동';
+        }
+      } else {
+        if (CURRENT_SESSION_TYPE === 'speed') {
+          guideHint.innerText = '* 스피드 퀴즈: 문항당 정답(O) 최대 1명 | 3회 정답 시 만점 완료, 3회 오답 시 도전 완료(자동 잠금)';
+        } else {
+          guideHint.innerText = '* 문제번호 클릭: 전원 정답(O) | 좌클릭: 토글 | 우클릭: 오답(X)';
+        }
+      }
+    }
+
+    function requestInputModeChange(targetMode) {
+      if (!CURRENT_PERIOD) return;
+      if (CURRENT_INPUT_MODE === targetMode) return;
+
+      // 1. 이미 [점수 직접 입력]으로 저장 완료된 교시는 O/X 역변환 원천 차단
+      if (targetMode === 'grid' && IS_CURRENT_SESSION_DIRECT_LOCKED) {
+        showCustomAlert(
+          '모드 전환 불가',
+          `<div class="modal-callout-box callout-danger">
+             <b>이미 [점수 직접 입력]으로 전송 완료된 교시입니다.</b><br>
+             개별 문항 O/X 기록이 없으므로 O/X 채점 모드로 되돌릴 수 없습니다.
+           </div>
+           점수 수정은 현재 <b>[점수 직접 입력]</b> 모드에서 진행해 주세요.`,
+          'warn'
+        );
+        return;
+      }
+
+      const applySwitch = () => {
+        USER_PREFERRED_MODE = targetMode;
+        localStorage.setItem('awana_input_mode', targetMode);
+        SUBMIT_LIFECYCLE_STATE = 'empty';
+        initGridAndRender(targetMode);
+      };
+
+      // 2. 미전송(작성·수정 중) 데이터가 있을 때 이탈 경고 팝업
+      if (hasUnsavedChanges()) {
+        const targetLabel = targetMode === 'direct' ? '점수 직접 입력' : 'O/X 채점';
+        showCustomConfirm(
+          '입력 모드 전환 경고',
+          `<div class="modal-callout-box callout-danger">
+             <b>⚠️ 주의:</b> 현재 입력·수정 중인 점수가 아직 본부로 전송되지 않았습니다.<br>
+             지금 <b>[${targetLabel}]</b> 모드로 전환하면 입력 중이던 내용이 초기화됩니다.
+           </div>
+           정말로 입력을 취소하고 모드를 전환하시겠습니까?`,
+          applySwitch,
+          null,
+          'danger',
+          {
+            confirmText: '취소하고 모드 전환',
+            cancelText: '계속 입력하기',
+            confirmClass: 'modal-btn-danger',
+            cancelClass: 'modal-btn-confirm',
+            focusCancel: true
+          }
+        );
+        return;
+      }
+
+      // 3. 이미 O/X로 저장된 교시에서 [점수 직접 입력]으로 전환 시 사전 확인 팝업
+      if (targetMode === 'direct' && IS_CURRENT_SESSION_SAVED && CURRENT_SESSION_SAVED_MODE === 'grid') {
+        showCustomConfirm(
+          '점수 직접 입력 모드 전환 확인',
+          `<div class="modal-callout-box callout-danger">
+             <b>⚠️ 안내:</b> 이미 <b>O/X 문항별</b>로 저장된 교시입니다.<br>
+             <b>[점수 직접 입력]</b> 모드에서 점수를 수정·재전송하면 이후에는 다시 O/X 모드로 되돌릴 수 없습니다.
+           </div>
+           [점수 직접 입력] 모드로 전환하시겠습니까?`,
+          applySwitch,
+          null,
+          'warn',
+          {
+            confirmText: '점수 직접 입력으로 전환',
+            cancelText: 'O/X 모드 유지',
+            confirmClass: 'modal-btn-confirm',
+            cancelClass: 'modal-btn-cancel',
+            focusCancel: true
+          }
+        );
+        return;
+      }
+
+      applySwitch();
     }
 
     // 교실 보안 잠금 상태
@@ -1975,44 +2212,63 @@
       return `${CURRENT_ROOM}_${CURRENT_PERIOD}_${CURRENT_SESSION_NAME}`;
     }
 
-    function initGridAndRender() {
+    function initGridAndRender(modeOverride = null) {
       const qCount = CURRENT_SESSION_TYPE === 'multiple' ? 8 : 10;
       const sessionKey = getSessionKey();
+      const scoreKey = CURRENT_SESSION_TYPE === 'speed' ? 'speedAfternoon' : (CURRENT_SESSION_NAME === '오전' ? 'multipleMorning' : 'multipleAfternoon');
 
       GRID_STATE = {};
+      DIRECT_SCORES_STATE = {};
+      INITIAL_DIRECT_SCORES = {};
 
       CURRENT_STUDENTS.forEach(s => {
         GRID_STATE[s.id] = new Array(qCount).fill('');
       });
 
-      // 1. 방금 메모리에 제출 완료된 세션 캐시가 있는 경우 그대로 복원
+      // 1. 기존 저장 이력 및 저장 방식('grid' vs 'direct') 판별
       const cachedSession = SUBMITTED_SESSIONS_CACHE[sessionKey];
       let isAlreadySaved = false;
+      let savedMode = null; // 'grid' | 'direct' | null
+      let cachedScoresMap = null;
 
-      if (cachedSession && cachedSession.answersMap) {
-        Object.keys(cachedSession.answersMap).forEach(sid => {
-          if (GRID_STATE[sid]) {
-            GRID_STATE[sid] = [...cachedSession.answersMap[sid]];
-          }
-        });
+      if (cachedSession && cachedSession.isSubmitted) {
         isAlreadySaved = true;
+        if (cachedSession.inputMode === 'direct') {
+          savedMode = 'direct';
+          cachedScoresMap = cachedSession.scoresMap || {};
+        } else if (cachedSession.answersMap) {
+          savedMode = 'grid';
+          Object.keys(cachedSession.answersMap).forEach(sid => {
+            if (GRID_STATE[sid]) {
+              GRID_STATE[sid] = [...cachedSession.answersMap[sid]];
+            }
+          });
+        }
       } else {
-        // 2. [서버 직결 복원] 구글 시트 로그에 이미 제출된 최신 O/X 문항 답안이 있는 경우 완벽 복원
+        // 2. [서버 직결 복원] 구글 시트 로그의 최신 답안 확인
         let hasAnyServerAnswers = false;
+        let hasDirectMarker = false;
         CURRENT_STUDENTS.forEach(s => {
           const logKey = `${s.id}_${CURRENT_PERIOD}_${CURRENT_SESSION_NAME}`;
           const serverAns = MASTER_DATA.submittedAnswers && MASTER_DATA.submittedAnswers[logKey];
           if (serverAns && Array.isArray(serverAns) && serverAns.length > 0) {
-            GRID_STATE[s.id] = [...serverAns];
-            hasAnyServerAnswers = true;
+            if (String(serverAns[0]).trim() === '직접입력') {
+              hasDirectMarker = true;
+            } else {
+              GRID_STATE[s.id] = [...serverAns];
+              hasAnyServerAnswers = true;
+            }
           }
         });
 
-        if (hasAnyServerAnswers) {
+        if (hasDirectMarker) {
           isAlreadySaved = true;
+          savedMode = 'direct';
+        } else if (hasAnyServerAnswers) {
+          isAlreadySaved = true;
+          savedMode = 'grid';
         } else {
-          // 3. 문항 답안은 없으나 최종집계에 총점이 있는 경우 확인
-          const scoreKey = CURRENT_SESSION_TYPE === 'speed' ? 'speedAfternoon' : (CURRENT_SESSION_NAME === '오전' ? 'multipleMorning' : 'multipleAfternoon');
+          // 3. 문항 답안은 없으나 최종집계에 총점이 있는 경우 -> 직접 입력 저장분으로 간주
           let hasAnySheetScore = false;
           CURRENT_STUDENTS.forEach(s => {
             const sc = MASTER_DATA.scores && MASTER_DATA.scores[s.id];
@@ -2022,17 +2278,236 @@
           });
           if (hasAnySheetScore) {
             isAlreadySaved = true;
+            savedMode = 'direct';
           }
         }
       }
 
-      renderTableStructure(qCount);
-      updateTableAll();
+      IS_CURRENT_SESSION_SAVED = isAlreadySaved;
+      CURRENT_SESSION_SAVED_MODE = savedMode;
 
-      if (isAlreadySaved) {
+      // [대회 운영 무결성] 직접 입력으로 저장 완료된 교시는 무조건 직접 입력 모드로 열고 O/X 역변환 잠금
+      // (단, 사용자의 localStorage 선호 모드는 덮어쓰지 않음)
+      if (savedMode === 'direct') {
+        IS_CURRENT_SESSION_DIRECT_LOCKED = true;
+        CURRENT_INPUT_MODE = 'direct';
+      } else {
+        IS_CURRENT_SESSION_DIRECT_LOCKED = false;
+        CURRENT_INPUT_MODE = modeOverride || USER_PREFERRED_MODE;
+      }
+
+      syncInputModeToggleUI();
+      updateGuideHintForCurrentMode();
+
+      const sumBadge = document.getElementById('directSumBadge');
+      if (CURRENT_INPUT_MODE === 'direct') {
+        // 직접 입력 모드 초기값 구성
+        const pointPerQ = CURRENT_SESSION_TYPE === 'speed' ? 20 : 10;
+        CURRENT_STUDENTS.forEach(s => {
+          let val = '';
+          if (isAlreadySaved) {
+            if (cachedScoresMap && cachedScoresMap[s.id] !== undefined) {
+              val = String(cachedScoresMap[s.id]);
+            } else if (MASTER_DATA.scores && MASTER_DATA.scores[s.id] && MASTER_DATA.scores[s.id][scoreKey] !== null && MASTER_DATA.scores[s.id][scoreKey] !== undefined) {
+              val = String(MASTER_DATA.scores[s.id][scoreKey]);
+            } else if (savedMode === 'grid') {
+              const oCnt = (GRID_STATE[s.id] || []).filter(v => v === 'O').length;
+              val = String(oCnt * pointPerQ);
+            }
+          } else if (CURRENT_SESSION_TYPE === 'speed') {
+            // 스피드 퀴즈 미제출 초기값: 전원 0점 기본 세팅
+            val = '0';
+          }
+          DIRECT_SCORES_STATE[s.id] = val;
+          INITIAL_DIRECT_SCORES[s.id] = val;
+        });
+
+        renderDirectScoreTable();
+        updateDirectModeLiveState();
+      } else {
+        if (sumBadge) sumBadge.style.display = 'none';
+        renderTableStructure(qCount);
+        updateTableAll();
+
+        if (isAlreadySaved) {
+          updateSubmitButtonState('saved');
+        } else {
+          updateSubmitButtonState('empty');
+        }
+      }
+    }
+
+    function renderDirectScoreTable() {
+      const theadRow = document.getElementById('tableHeaderRow');
+      const isSpeed = CURRENT_SESSION_TYPE === 'speed';
+      const maxScore = isSpeed ? getSpeedMaxPersonalScore() : 80;
+      const step = isSpeed ? 20 : 10;
+      const scoreHeaderLabel = isSpeed
+        ? `스피드 점수 (0~${maxScore}, ${step}점 단위)`
+        : `객관식 점수 (0~80, 10점 단위)`;
+
+      theadRow.innerHTML = `
+        <th style="width: 6%;">NO</th>
+        <th style="width: 18%;">핸드북</th>
+        <th style="width: 6%;">조</th>
+        <th style="width: 26%;">교회명</th>
+        <th style="width: 18%;">이름</th>
+        <th style="width: 26%;">${scoreHeaderLabel}</th>
+      `;
+
+      const tbody = document.getElementById('tableBody');
+      if (DISPLAY_SLOTS.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" style="padding: 30px;">해당 조 단원이 없습니다.</td></tr>`;
+        return;
+      }
+
+      let rowsHtml = '';
+      let activeIdx = 0;
+      DISPLAY_SLOTS.forEach(slot => {
+        if (slot.isVacant) {
+          rowsHtml += `
+            <tr class="tr-vacant">
+              <td class="col-no">${slot.num}</td>
+              <td class="col-handbook">-</td>
+              <td class="col-team">-</td>
+              <td class="col-church">-</td>
+              <td class="col-name"><span class="badge-vacant">공석</span></td>
+              <td class="direct-score-cell"><input type="text" class="direct-score-input" value="-" disabled /></td>
+            </tr>
+          `;
+        } else {
+          const s = slot.student;
+          const val = DIRECT_SCORES_STATE[s.id] ?? '';
+          const isUnfilled = val === '';
+          const idx = activeIdx++;
+          rowsHtml += `
+            <tr id="row_${s.id}">
+              <td class="col-no">${s.num}</td>
+              <td class="col-handbook">${s.handbook}</td>
+              <td class="col-team">${s.team}</td>
+              <td class="col-church">${s.church}</td>
+              <td class="col-name">${s.name}</td>
+              <td class="direct-score-cell">
+                <input type="number"
+                       id="direct_input_${s.id}"
+                       data-sid="${s.id}"
+                       data-idx="${idx}"
+                       min="0"
+                       max="${maxScore}"
+                       step="${step}"
+                       class="direct-score-input ${isUnfilled ? 'is-unfilled' : ''}"
+                       value="${val}"
+                       placeholder="0~${maxScore}"
+                       onfocus="this.select()"
+                       onkeydown="handleDirectScoreKeydown(event, ${idx})"
+                       oninput="handleDirectScoreInput(this)" />
+              </td>
+            </tr>
+          `;
+        }
+      });
+
+      tbody.innerHTML = rowsHtml;
+      applyScoringTableHeight();
+    }
+
+    function validateDirectInputElement(el) {
+      const isSpeed = CURRENT_SESSION_TYPE === 'speed';
+      const maxScore = isSpeed ? getSpeedMaxPersonalScore() : 80;
+      const step = isSpeed ? 20 : 10;
+      const raw = el.value.trim();
+
+      el.classList.remove('invalid', 'is-unfilled');
+      if (raw === '') {
+        el.classList.add('is-unfilled');
+        return { empty: true, valid: false, value: null };
+      }
+      const num = Number(raw);
+      if (Number.isNaN(num) || !Number.isInteger(num) || num < 0 || num > maxScore || num % step !== 0) {
+        el.classList.add('invalid');
+        return { empty: false, valid: false, value: num };
+      }
+      return { empty: false, valid: true, value: num };
+    }
+
+    function handleDirectScoreInput(el) {
+      const sid = el.getAttribute('data-sid');
+      if (sid) {
+        DIRECT_SCORES_STATE[sid] = el.value.trim();
+      }
+      validateDirectInputElement(el);
+      updateDirectModeLiveState();
+    }
+
+    function handleDirectScoreKeydown(e, currentIdx) {
+      if (e.key === 'Enter' || e.key === 'ArrowDown') {
+        e.preventDefault();
+        const nextEl = document.querySelector(`.direct-score-input[data-idx="${currentIdx + 1}"]`);
+        if (nextEl) {
+          nextEl.focus();
+          nextEl.select();
+        }
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        const prevEl = document.querySelector(`.direct-score-input[data-idx="${currentIdx - 1}"]`);
+        if (prevEl) {
+          prevEl.focus();
+          prevEl.select();
+        }
+      }
+    }
+
+    function updateDirectModeLiveState() {
+      const inputs = Array.from(document.querySelectorAll('.direct-score-input:not([disabled])'));
+      const isSpeed = CURRENT_SESSION_TYPE === 'speed';
+      let filledCount = 0;
+      let invalidCount = 0;
+      let teamSum = 0;
+      let scorerCount = 0;
+
+      inputs.forEach(el => {
+        const res = validateDirectInputElement(el);
+        if (!res.empty) {
+          filledCount++;
+          if (res.valid) {
+            teamSum += res.value;
+            if (res.value > 0) scorerCount++;
+          } else {
+            invalidCount++;
+          }
+        }
+      });
+
+      const isSpeedOverLimit = isSpeed && teamSum > 200;
+      const sumBadge = document.getElementById('directSumBadge');
+      if (sumBadge) {
+        if (isSpeed) {
+          sumBadge.style.display = 'inline-flex';
+          sumBadge.classList.toggle('is-over', isSpeedOverLimit);
+          sumBadge.innerText = isSpeedOverLimit
+            ? `⚠️ 조 합계 초과: ${teamSum} / 200점 (득점 ${scorerCount}명)`
+            : `조 합계: ${teamSum} / 200점 (득점 ${scorerCount}명)`;
+        } else {
+          sumBadge.style.display = 'none';
+        }
+      }
+
+      const dirty = hasDirectScoreEdits();
+      const allFilledAndValid = inputs.length > 0 && filledCount === inputs.length && invalidCount === 0 && !isSpeedOverLimit;
+
+      if (IS_CURRENT_SESSION_SAVED && !dirty) {
         updateSubmitButtonState('saved');
+      } else if (allFilledAndValid) {
+        updateSubmitButtonState(IS_CURRENT_SESSION_SAVED ? 'ready_modified' : 'ready');
+      } else if (filledCount > 0 || dirty) {
+        updateSubmitButtonState('in_progress');
       } else {
         updateSubmitButtonState('empty');
+      }
+
+      const btnSubmit = document.getElementById('btnSubmit');
+      if (btnSubmit && (invalidCount > 0 || isSpeedOverLimit)) {
+        btnSubmit.disabled = true;
       }
     }
 
@@ -2391,47 +2866,126 @@
 
       const pointPerQ = CURRENT_SESSION_TYPE === 'speed' ? 20 : 10;
       const qCount = CURRENT_SESSION_TYPE === 'multiple' ? 8 : 10;
+      const isDirectMode = CURRENT_INPUT_MODE === 'direct';
+      let records = [];
+      let extraSummaryHtml = '';
 
-      // ★ 객관식 퀴즈 엄격 검증: 실제 출석 학생 중 빈칸("")이 1개라도 남아있으면 제출 차단
-      if (CURRENT_SESSION_TYPE === 'multiple') {
-        clearMissingHighlights();
+      if (isDirectMode) {
+        const isSpeed = CURRENT_SESSION_TYPE === 'speed';
+        const maxScore = isSpeed ? getSpeedMaxPersonalScore() : 80;
+        const step = isSpeed ? 20 : 10;
         let missingCount = 0;
+        let invalidCount = 0;
+        let teamSum = 0;
+        let scorerCount = 0;
+        let firstBadEl = null;
 
         CURRENT_STUDENTS.forEach(s => {
-          for (let q = 0; q < qCount; q++) {
-            if (GRID_STATE[s.id][q] === '') {
-              missingCount++;
-              const cellEl = document.getElementById(`cell_${s.id}_${q}`);
-              if (cellEl) cellEl.classList.add('missing-highlight');
+          const el = document.getElementById(`direct_input_${s.id}`);
+          const raw = el ? el.value.trim() : String(DIRECT_SCORES_STATE[s.id] ?? '').trim();
+          if (raw === '') {
+            missingCount++;
+            if (el) {
+              el.classList.add('is-unfilled');
+              if (!firstBadEl) firstBadEl = el;
             }
+            return;
           }
+          const num = Number(raw);
+          if (Number.isNaN(num) || !Number.isInteger(num) || num < 0 || num > maxScore || num % step !== 0) {
+            invalidCount++;
+            if (el) {
+              el.classList.add('invalid');
+              if (!firstBadEl) firstBadEl = el;
+            }
+            return;
+          }
+          teamSum += num;
+          if (num > 0) scorerCount++;
+          records.push({
+            id: s.id,
+            name: s.name,
+            answers: ['직접입력'],
+            score: num
+          });
         });
 
         if (missingCount > 0) {
           showCustomAlert(
-            '⚠️ 채점 누락 안내',
-            `아직 채점되지 않은 빈칸이 총 ${missingCount}개 있습니다.\n\n빨간색 테두리로 표시된 빈칸을 모두 O 또는 X로 채점 완료한 후 제출해 주세요.`,
+            '⚠️ 점수 미입력 안내',
+            `아직 점수가 입력되지 않은 단원이 총 ${missingCount}명 있습니다.\n\n주황색 테두리 입력칸에 점수를 모두 입력한 뒤 전송해 주세요.`,
+            'warn',
+            () => { if (firstBadEl) firstBadEl.focus(); }
+          );
+          return;
+        }
+
+        if (invalidCount > 0) {
+          showCustomAlert(
+            '⚠️ 점수 입력 오류',
+            `유효하지 않은 점수가 ${invalidCount}건 있습니다.\n\n${isSpeed ? `스피드 퀴즈는 0~${maxScore}점 (${step}점 단위)` : '객관식은 0~80점 (10점 단위)'}로 입력해 주세요.`,
+            'warn',
+            () => { if (firstBadEl) { firstBadEl.focus(); firstBadEl.select(); } }
+          );
+          return;
+        }
+
+        if (isSpeed && teamSum > 200) {
+          showCustomAlert(
+            '⚠️ 스피드 퀴즈 조 합계 초과',
+            `현재 조 전체 점수 합계가 <b>${teamSum}점</b>으로 최대 가능 합계(<b>200점</b> = 10문항 × 20점)를 초과했습니다.\n\n득점 단원의 점수를 다시 확인해 주세요.`,
             'warn'
           );
           return;
         }
-      }
 
-      const records = CURRENT_STUDENTS.map(s => {
-        const answers = GRID_STATE[s.id] || [];
-        let oCount = 0;
-        for (let i = 0; i < qCount; i++) {
-          if (answers[i] === 'O') oCount++;
+        if (isSpeed) {
+          extraSummaryHtml = `• <b>스피드 합계:</b> 득점 <b>${scorerCount}명</b> · 조 합계 <b>${teamSum} / 200점</b><br>`;
+        } else {
+          extraSummaryHtml = `• <b>입력 방식:</b> 점수 직접 입력 (0~80점, 10점 단위)<br>`;
         }
-        const score = oCount * pointPerQ;
+      } else {
+        // ★ 객관식 퀴즈 엄격 검증: 실제 출석 학생 중 빈칸("")이 1개라도 남아있으면 제출 차단
+        if (CURRENT_SESSION_TYPE === 'multiple') {
+          clearMissingHighlights();
+          let missingCount = 0;
 
-        return {
-          id: s.id,
-          name: s.name,
-          answers: answers,
-          score: score
-        };
-      });
+          CURRENT_STUDENTS.forEach(s => {
+            for (let q = 0; q < qCount; q++) {
+              if (GRID_STATE[s.id][q] === '') {
+                missingCount++;
+                const cellEl = document.getElementById(`cell_${s.id}_${q}`);
+                if (cellEl) cellEl.classList.add('missing-highlight');
+              }
+            }
+          });
+
+          if (missingCount > 0) {
+            showCustomAlert(
+              '⚠️ 채점 누락 안내',
+              `아직 채점되지 않은 빈칸이 총 ${missingCount}개 있습니다.\n\n빨간색 테두리로 표시된 빈칸을 모두 O 또는 X로 채점 완료한 후 제출해 주세요.`,
+              'warn'
+            );
+            return;
+          }
+        }
+
+        records = CURRENT_STUDENTS.map(s => {
+          const answers = GRID_STATE[s.id] || [];
+          let oCount = 0;
+          for (let i = 0; i < qCount; i++) {
+            if (answers[i] === 'O') oCount++;
+          }
+          const score = oCount * pointPerQ;
+
+          return {
+            id: s.id,
+            name: s.name,
+            answers: answers,
+            score: score
+          };
+        });
+      }
 
       const payload = {
         type: CURRENT_SESSION_TYPE,
@@ -2452,7 +3006,7 @@
           <div style="color: #334155; font-size: 0.88rem; line-height: 1.5;">
             • <b>핸드북 / 조:</b> ${CURRENT_HANDBOOK} · ${CURRENT_TEAM}조<br>
             • <b>채점 단원:</b> 총 <b>${records.length}명</b> 전원 채점 완료<br>
-            • <b>점수기록관:</b> ${recorderName} 선생님
+            ${extraSummaryHtml}• <b>점수기록관:</b> ${recorderName} 선생님
           </div>
         </div>
         <div style="font-size: 0.88rem; color: #64748b; margin-top: 4px;">
@@ -2515,16 +3069,37 @@
             }
 
             if (result && result.status === 'success') {
-              // 세션 메모리 캐시에 방금 제출한 O/X 답안과 완료 상태 영구 보존
+              // 세션 메모리 캐시에 방금 제출한 답안/점수와 입력 모드 영구 보존
               const sessionKey = getSessionKey();
-              const answersCopy = {};
-              CURRENT_STUDENTS.forEach(s => {
-                answersCopy[s.id] = [...(GRID_STATE[s.id] || [])];
-              });
-              SUBMITTED_SESSIONS_CACHE[sessionKey] = {
-                answersMap: answersCopy,
-                isSubmitted: true
-              };
+              if (isDirectMode) {
+                const scoresMap = {};
+                records.forEach(r => {
+                  scoresMap[r.id] = r.score;
+                  DIRECT_SCORES_STATE[r.id] = String(r.score);
+                  INITIAL_DIRECT_SCORES[r.id] = String(r.score);
+                });
+                SUBMITTED_SESSIONS_CACHE[sessionKey] = {
+                  inputMode: 'direct',
+                  scoresMap: scoresMap,
+                  isSubmitted: true
+                };
+                IS_CURRENT_SESSION_SAVED = true;
+                CURRENT_SESSION_SAVED_MODE = 'direct';
+                IS_CURRENT_SESSION_DIRECT_LOCKED = true;
+                syncInputModeToggleUI();
+              } else {
+                const answersCopy = {};
+                CURRENT_STUDENTS.forEach(s => {
+                  answersCopy[s.id] = [...(GRID_STATE[s.id] || [])];
+                });
+                SUBMITTED_SESSIONS_CACHE[sessionKey] = {
+                  inputMode: 'grid',
+                  answersMap: answersCopy,
+                  isSubmitted: true
+                };
+                IS_CURRENT_SESSION_SAVED = true;
+                CURRENT_SESSION_SAVED_MODE = 'grid';
+              }
 
               // MASTER_DATA.scores 로컬 갱신
               const scoreKey = CURRENT_SESSION_TYPE === 'speed' ? 'speedAfternoon' : (CURRENT_SESSION_NAME === '오전' ? 'multipleMorning' : 'multipleAfternoon');
