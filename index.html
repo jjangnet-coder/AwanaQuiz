@@ -322,7 +322,15 @@
       color: #0f172a;
       background: #ffffff;
       outline: none;
+      -moz-appearance: textfield;
+      appearance: textfield;
       transition: border-color 0.14s ease, background-color 0.14s ease, box-shadow 0.14s ease;
+    }
+
+    .direct-score-input::-webkit-outer-spin-button,
+    .direct-score-input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
     }
 
     .direct-score-input.is-unfilled {
@@ -2417,6 +2425,7 @@
                        value="${val}"
                        placeholder="0~${maxScore}"
                        onfocus="this.select()"
+                       onblur="handleDirectScoreBlur(this)"
                        onkeydown="handleDirectScoreKeydown(event, ${idx})"
                        oninput="handleDirectScoreInput(this)" />
               </td>
@@ -2455,6 +2464,13 @@
       }
       validateDirectInputElement(el);
       updateDirectModeLiveState();
+    }
+
+    function handleDirectScoreBlur(el) {
+      if (CURRENT_SESSION_TYPE === 'speed' && el.value.trim() === '') {
+        el.value = '0';
+        handleDirectScoreInput(el);
+      }
     }
 
     function handleDirectScoreKeydown(e, currentIdx) {

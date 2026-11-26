@@ -705,8 +705,16 @@
       font-size: 0.9rem;
       font-weight: 800;
       outline: none;
+      -moz-appearance: textfield;
+      appearance: textfield;
       transition: all 0.15s ease;
       background: #ffffff;
+    }
+
+    .input-written-score::-webkit-outer-spin-button,
+    .input-written-score::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
     }
 
     /* 미입력 상태 은은한 오렌지색 테두리 */
