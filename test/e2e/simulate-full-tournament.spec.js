@@ -67,7 +67,7 @@ async function waitForLoadingDone(page) {
       }
     }
     return true;
-  }, { timeout: 60_000 }).catch(() => { });
+  }, undefined, { timeout: 60_000 }).catch(() => { });
 }
 
 /**
@@ -136,7 +136,7 @@ async function fillDirectAndSubmit(page, roomName, period, sessionLabel, speedMa
       const btn = document.getElementById('btnSubmit');
       const saved = btn && (btn.disabled || btn.classList.contains('state-saved'));
       return loadingHidden && (modalVisible || saved);
-    }, { timeout: 120_000 });
+    }, undefined, { timeout: 120_000 });
 
     const modalTitle = await page.locator('#modalTitle').textContent().catch(() => '');
     if (modalTitle && (modalTitle.includes('실패') || modalTitle.includes('오류'))) {
@@ -294,7 +294,7 @@ async function simulateHqWrittenScoring(adminPin) {
           const visible = overlay && window.getComputedStyle(overlay).display !== 'none';
           const title = document.getElementById('modalTitle')?.textContent || '';
           return visible && (title.includes('저장 완료') || title.includes('실패') || title.includes('오류'));
-        }, { timeout: 120_000 });
+        }, undefined, { timeout: 120_000 });
 
         const title = await page.locator('#modalTitle').textContent().catch(() => '');
         if (title && (title.includes('실패') || title.includes('오류'))) {

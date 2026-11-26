@@ -69,7 +69,7 @@ async function waitForLoadingDone(page) {
       }
     }
     return true;
-  }, { timeout: 30_000 }).catch(() => { });
+  }, undefined, { timeout: 30_000 }).catch(() => { });
 }
 
 /**
@@ -140,7 +140,7 @@ async function fillAndSubmitCurrentTab(page, roomName = '', period = '', session
       const btn = document.getElementById('btnSubmit');
       const saved = btn && (btn.disabled || btn.classList.contains('state-saved'));
       return loadingHidden && (modalVisible || saved);
-    }, { timeout: TURBO ? 120_000 : 90_000 });
+    }, undefined, { timeout: TURBO ? 120_000 : 90_000 });
 
     // 실패/오류 모달인지 확인 (가짜 제출 완료 로그 원천 차단)
     const modalTitle = await page.locator('#modalTitle').textContent().catch(() => '');
