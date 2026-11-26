@@ -1697,8 +1697,22 @@
 
     .settings-top-row {
       display: grid;
-      grid-template-columns: 1fr 1.35fr;
+      grid-template-columns: 1fr 1fr;
       gap: 12px;
+    }
+
+    .hq-header-divider {
+      width: 1px;
+      height: 20px;
+      background: #e2e8f0;
+      margin: 0 8px;
+      flex-shrink: 0;
+    }
+
+    .btn-hq-settings.active {
+      background: #0f172a !important;
+      color: #ffffff !important;
+      border-color: #0f172a !important;
     }
 
     .settings-card {
@@ -2253,18 +2267,19 @@
         <span class="badge-hq-pill">HQ ADMIN</span>
       </div>
 
-      <!-- 6대 탭 메뉴 -->
+      <!-- 5대 탭 메뉴 -->
       <nav class="hq-nav-tabs">
         <button class="hq-tab-btn active" onclick="switchHqTab('monitor')">대시보드</button>
         <button class="hq-tab-btn" onclick="switchHqTab('roster')">단원 관리</button>
         <button class="hq-tab-btn" onclick="switchHqTab('written')">필기 채점</button>
         <button class="hq-tab-btn" onclick="switchHqTab('standings')">시상 명단·인쇄</button>
         <button class="hq-tab-btn" onclick="switchHqTab('handbook-awards')">핸드북별 결과</button>
-        <button class="hq-tab-btn" onclick="switchHqTab('settings')">대회 설정</button>
       </nav>
 
       <div class="hq-header-actions">
         <button class="btn-hq-dark-ghost" id="btnHqRefresh" onclick="refreshHqDataManual()">새로고침</button>
+        <button class="btn-hq-dark-ghost btn-hq-settings" id="btnHqSettings" onclick="switchHqTab('settings')">⚙️ 대회 설정</button>
+        <span class="hq-header-divider" aria-hidden="true"></span>
         <button class="btn-hq-dark-danger" id="btnResetAllScores" onclick="openResetScoresModal()">대회 점수 초기화</button>
         <button class="btn-hq-dark-ghost" onclick="logoutAdmin()">로그아웃</button>
       </div>
@@ -2545,7 +2560,7 @@
           <div style="font-size: 0.8rem; color: #64748b; margin-top: 2px;">저장 후 각 시험장 화면은 새로고침(F5) 시 즉시 새 설정이 반영됩니다.</div>
         </div>
         <div style="display: flex; gap: 8px;">
-          <button type="button" class="btn-hq" onclick="renderSettingsTab()">되돌리기</button>
+          <button type="button" class="btn-hq" onclick="renderSettingsTab()">변경 취소</button>
           <button type="button" class="btn-hq btn-hq-primary" onclick="saveHqSettings()">💾 설정 저장</button>
         </div>
       </div>
@@ -2595,7 +2610,7 @@
           <!-- 카드 2: 스피드 규칙 & 메달 비율 (숫자 전용) -->
           <div class="settings-card">
             <div class="settings-card-title">
-              <span>📊 채점 규칙 & 메달 비율 (숫자 전용)</span>
+              <span>📊 채점 규칙 & 메달 비율</span>
               <span id="medalRatioSumBadge" style="font-size: 0.78rem; font-weight: 800; padding: 2px 9px; border-radius: 999px; background: #ecfdf5; color: #047857;">합계 100%</span>
             </div>
             <div class="settings-field-grid" style="margin-bottom: 14px;">
@@ -3139,6 +3154,9 @@
     function doSwitchTab(tabKey) {
       document.querySelectorAll('.hq-tab-btn').forEach(btn => btn.classList.remove('active'));
       document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+
+      const settingsBtn = document.getElementById('btnHqSettings');
+      if (settingsBtn) settingsBtn.classList.toggle('active', tabKey === 'settings');
 
       const targetBtn = Array.from(document.querySelectorAll('.hq-tab-btn')).find(b => b.getAttribute('onclick')?.includes(tabKey));
       if (targetBtn) targetBtn.classList.add('active');
