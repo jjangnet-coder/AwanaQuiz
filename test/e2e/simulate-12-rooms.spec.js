@@ -34,7 +34,7 @@ async function dismissModalIfVisible(page) {
   if (await overlay.isVisible({ timeout: 1000 }).catch(() => false)) {
     const confirmBtn = page.locator('#modalBtnConfirm');
     if (await confirmBtn.isVisible({ timeout: 1000 }).catch(() => false)) {
-      await confirmBtn.click();
+      await confirmBtn.click({ force: true });
       await overlay.waitFor({ state: 'hidden', timeout: 3000 }).catch(() => { });
     }
   }
