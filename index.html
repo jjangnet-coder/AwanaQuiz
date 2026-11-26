@@ -1933,6 +1933,7 @@
             if (footerTitle) footerTitle.textContent = titleText;
           }
           MASTER_DATA.timetable = result.data.timetable || [];
+          populateRoomDropdowns();
           document.getElementById('gasEndpointInfo').innerText = '서버 연결됨';
 
           // 마스터 로드 + 시험장 단원 명단 프리패치까지 100% 완료될 때까지 대기
@@ -1952,6 +1953,57 @@
         }
       } finally {
         hideLoading();
+      }
+    }
+
+    /**
+     * [동적 시험장 목록 구성] 시간표 + 설정(CODE_*) 기반으로 드롭다운 자동 생성
+     */
+    function populateRoomDropdowns() {
+      const roomSet = new Set();
+      (MASTER_DATA.timetable || []).forEach(t => {
+        if (t && t.room) roomSet.add(String(t.room).trim());
+      });
+      Object.keys(MASTER_DATA.settings || {}).forEach(k => {
+        if (k.startsWith('CODE_')) {
+          const rn = k.slice(5).trim();
+          if (rn) roomSet.add(rn);
+        }
+      });
+
+      const rooms = Array.from(roomSet).sort((a, b) => a.localeCompare(b, 'ko', { numeric: true }));
+      if (rooms.length === 0) return;
+
+      const sparksRooms = rooms.filter(r => r.includes('스팍스') || r.toUpperCase().includes('SPARKS'));
+      const tntRooms = rooms.filter(r => r.includes('티앤티') || r.toUpperCase().includes('T&T'));
+      const otherRooms = rooms.filter(r => !sparksRooms.includes(r) && !tntRooms.includes(r));
+
+      const buildOptionsHtml = (placeholder) => {
+        let html = `<option value="">${placeholder}</option>`;
+        if (sparksRooms.length > 0) {
+          html += `<optgroup label="SPARKS 시험장">${sparksRooms.map(r => `<option value="${r}">${r}</option>`).join('')}</optgroup>`;
+        }
+        if (tntRooms.length > 0) {
+          html += `<optgroup label="T&T 시험장">${tntRooms.map(r => `<option value="${r}">${r}</option>`).join('')}</optgroup>`;
+        }
+        if (otherRooms.length > 0) {
+          html += `<optgroup label="기타 시험장">${otherRooms.map(r => `<option value="${r}">${r}</option>`).join('')}</optgroup>`;
+        }
+        return html;
+      };
+
+      const gwSel = document.getElementById('gatewayRoomSelect');
+      if (gwSel) {
+        const prev = gwSel.value;
+        gwSel.innerHTML = buildOptionsHtml('-- 시험장을 선택하세요 --');
+        if (prev && rooms.includes(prev)) gwSel.value = prev;
+      }
+
+      const hdSel = document.getElementById('roomSelect');
+      if (hdSel) {
+        const prev = hdSel.value;
+        hdSel.innerHTML = buildOptionsHtml('선택');
+        if (prev && rooms.includes(prev)) hdSel.value = prev;
       }
     }
 

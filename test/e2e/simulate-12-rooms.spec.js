@@ -2,26 +2,42 @@
 const { test, expect, chromium } = require('@playwright/test');
 
 const BASE_URL = process.env.BASE_URL || 'http://localhost:8080';
-const ROOM_LIMIT = Number(process.env.ROOM_LIMIT || 12);
+const GAS_URL = process.env.GAS_URL || 'https://script.google.com/macros/s/AKfycbwtGz5tGcXgJt-VJsYFaHOkPULVX1XOuYtTnZY2u6-6sgRXHOqWJRRcK6jkdz815yQ3Yw/exec';
+const ROOM_LIMIT = Number(process.env.ROOM_LIMIT || 0); // 0 = 시트의 전체 시험장 동적 로드
 const TARGET_ROOM = process.env.TARGET_ROOM || '';
 const HEADLESS = process.env.HEADLESS !== '0' && process.env.HEADLESS !== 'false';
 const TURBO = process.env.TURBO === '1' || process.env.TURBO === 'true';
 
-// 12개 시험장 목록 및 기본 접속 코드 (실제 환경에 맞게 수정 가능)
-const ROOMS = [
-  { name: '스팍스1', code: process.env.CODE_SP01 || 'SP01' },
-  { name: '스팍스2', code: process.env.CODE_SP02 || 'SP02' },
-  { name: '스팍스3', code: process.env.CODE_SP03 || 'SP03' },
-  { name: '스팍스4', code: process.env.CODE_SP04 || 'SP04' },
-  { name: '스팍스5', code: process.env.CODE_SP05 || 'SP05' },
-  { name: '티앤티1', code: process.env.CODE_TT01 || 'TT01' },
-  { name: '티앤티2', code: process.env.CODE_TT02 || 'TT02' },
-  { name: '티앤티3', code: process.env.CODE_TT03 || 'TT03' },
-  { name: '티앤티4', code: process.env.CODE_TT04 || 'TT04' },
-  { name: '티앤티5', code: process.env.CODE_TT05 || 'TT05' },
-  { name: '티앤티6', code: process.env.CODE_TT06 || 'TT06' },
-  { name: '티앤티7', code: process.env.CODE_TT07 || 'TT07' },
-];
+// 시트(시간표 + 설정 CODE_*)에서 실시간 시험장 목록 및 접속 코드 동적 로드
+async function fetchDynamicRooms() {
+  const resp = await fetch(`${GAS_URL}?action=init`);
+  const json = await resp.json();
+  if (json.status !== 'success') {
+    throw new Error('GAS init 로드 실패: ' + (json.message || 'unknown'));
+  }
+  const settings = json.data.settings || {};
+  const timetable = json.data.timetable || [];
+  const roomSet = new Set();
+  timetable.forEach((t) => {
+    if (t && t.room) roomSet.add(String(t.room).trim());
+  });
+  Object.keys(settings).forEach((k) => {
+    if (k.startsWith('CODE_')) {
+      const rn = k.slice(5).trim();
+      if (rn) roomSet.add(rn);
+    }
+  });
+  const sorted = Array.from(roomSet).sort((a, b) => {
+    const aSp = a.includes('스팍스') || a.toUpperCase().includes('SPARKS');
+    const bSp = b.includes('스팍스') || b.toUpperCase().includes('SPARKS');
+    if (aSp !== bSp) return aSp ? -1 : 1;
+    return a.localeCompare(b, 'ko', { numeric: true });
+  });
+  return sorted.map((name) => ({
+    name,
+    code: String(settings['CODE_' + name] || '').trim(),
+  }));
+}
 
 // 시뮬레이션할 교시 목록 (오전/오후 객관식 및 오후 스피드 퀴즈)
 const PERIODS = ['1', '2', '3', '4', '5', '6', '7'];
@@ -219,9 +235,10 @@ async function simulateRoom(context, room, index) {
 }
 
 test('시험장 실시간 클릭 시뮬레이션', async () => {
+  const allRooms = await fetchDynamicRooms();
   const targetRooms = TARGET_ROOM
-    ? ROOMS.filter((r) => r.name === TARGET_ROOM)
-    : ROOMS.slice(0, ROOM_LIMIT);
+    ? allRooms.filter((r) => r.name === TARGET_ROOM)
+    : (ROOM_LIMIT > 0 ? allRooms.slice(0, ROOM_LIMIT) : allRooms);
   expect(targetRooms.length).toBeGreaterThan(0);
 
   console.log(`🚀 ${targetRooms.length}개 시험장 동시 시뮬레이션 시작 (모드: ${HEADLESS ? 'Headless 초경량' : 'Headed 단일 브라우저 탭'}${TURBO ? ' / ⚡ TURBO 극한 동시 제출' : ''})`);

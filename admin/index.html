@@ -2653,10 +2653,10 @@
           </div>
         </div>
 
-        <!-- 카드 3: 12개 시험장 접속 코드 -->
+        <!-- 카드 3: 시험장별 접속 코드 (동적) -->
         <div class="settings-card">
           <div class="settings-card-title">
-            <span>🔐 12개 시험장 접속 코드 (PIN)</span>
+            <span id="settingsRoomCodesTitle">🔐 시험장별 접속 코드 (PIN)</span>
             <span style="font-size: 0.76rem; font-weight: 600; color: #64748b;">영문·숫자 대소문자 구분 없음</span>
           </div>
           <div class="code-room-grid" id="settingsRoomCodesGrid"></div>
@@ -3185,20 +3185,31 @@
       }
     }
 
-    const SETTINGS_ROOM_LIST = [
-      { name: '스팍스1', club: 'sparks', defaultCode: 'SP01' },
-      { name: '스팍스2', club: 'sparks', defaultCode: 'SP02' },
-      { name: '스팍스3', club: 'sparks', defaultCode: 'SP03' },
-      { name: '스팍스4', club: 'sparks', defaultCode: 'SP04' },
-      { name: '스팍스5', club: 'sparks', defaultCode: 'SP05' },
-      { name: '티앤티1', club: 'tnt', defaultCode: 'TT01' },
-      { name: '티앤티2', club: 'tnt', defaultCode: 'TT02' },
-      { name: '티앤티3', club: 'tnt', defaultCode: 'TT03' },
-      { name: '티앤티4', club: 'tnt', defaultCode: 'TT04' },
-      { name: '티앤티5', club: 'tnt', defaultCode: 'TT05' },
-      { name: '티앤티6', club: 'tnt', defaultCode: 'TT06' },
-      { name: '티앤티7', club: 'tnt', defaultCode: 'TT07' }
-    ];
+    function getDynamicSettingsRoomList() {
+      const roomSet = new Set();
+      (HQ_DATA.timetable || []).forEach(t => {
+        if (t && t.room) roomSet.add(String(t.room).trim());
+      });
+      Object.keys(HQ_DATA.settings || {}).forEach(k => {
+        if (k.startsWith('CODE_')) {
+          const rn = k.slice(5).trim();
+          if (rn) roomSet.add(rn);
+        }
+      });
+
+      const sorted = Array.from(roomSet).sort((a, b) => {
+        const aIsSparks = a.includes('스팍스') || a.toUpperCase().includes('SPARKS');
+        const bIsSparks = b.includes('스팍스') || b.toUpperCase().includes('SPARKS');
+        if (aIsSparks !== bIsSparks) return aIsSparks ? -1 : 1;
+        return a.localeCompare(b, 'ko', { numeric: true });
+      });
+
+      return sorted.map(name => ({
+        name,
+        club: (name.includes('스팍스') || name.toUpperCase().includes('SPARKS')) ? 'sparks' : 'tnt',
+        defaultCode: ''
+      }));
+    }
 
     function blockNonIntegerKey(e) {
       if (['e', 'E', '+', '-', '.'].includes(e.key)) {
@@ -3261,9 +3272,15 @@
 
       updateMedalRatioSumLive();
 
+      const dynamicRooms = getDynamicSettingsRoomList();
+      const titleEl = document.getElementById('settingsRoomCodesTitle');
+      if (titleEl) {
+        titleEl.innerText = `🔐 시험장별 접속 코드 (${dynamicRooms.length}개 시험장)`;
+      }
+
       const grid = document.getElementById('settingsRoomCodesGrid');
       if (grid) {
-        grid.innerHTML = SETTINGS_ROOM_LIST.map(r => {
+        grid.innerHTML = dynamicRooms.map(r => {
           const val = st['CODE_' + r.name] || r.defaultCode;
           return `
             <div class="code-room-item">
@@ -3334,7 +3351,8 @@
         '스피드_직접입력허용': '스피드 퀴즈 점수 직접 입력 모드 토글 표시 여부 (Y/N)'
       };
 
-      for (const r of SETTINGS_ROOM_LIST) {
+      const dynamicRooms = getDynamicSettingsRoomList();
+      for (const r of dynamicRooms) {
         const code = (document.getElementById(`set_code_${r.name}`)?.value || '').trim().toUpperCase();
         if (!code) {
           showCustomAlert('접속 코드 누락', `[${r.name}] 시험장의 접속 코드를 입력해 주세요.`, 'warn');
@@ -4756,14 +4774,45 @@
               records: records
             };
 
-            const resp = await fetch(GAS_URL, {
-              method: 'POST',
-              headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-              body: JSON.stringify(payload)
-            });
-            const res = await resp.json();
+            const MAX_RETRIES = 4;
+            const BASE_DELAYS = [1500, 3000, 5000, 7500];
+            let res = null;
 
-            if (res.status === 'success') {
+            for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+              try {
+                if (attempt > 0) {
+                  const waitMs = BASE_DELAYS[attempt - 1] + Math.floor(Math.random() * 1500);
+                  const msgEl = document.getElementById('modalMessage');
+                  if (msgEl) {
+                    msgEl.innerHTML = `<div style="padding: 10px 0;">[<b>${hb} ${team}조</b>] 서버 혼잡 — 자동 재시도 중 (${attempt}/${MAX_RETRIES})...</div>`;
+                  }
+                  await new Promise(resolve => setTimeout(resolve, waitMs));
+                }
+
+                const resp = await fetch(GAS_URL, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                  body: JSON.stringify(payload)
+                });
+                res = await resp.json();
+
+                if (res && res.status === 'success') break;
+
+                const msg = (res && res.message) ? String(res.message) : '알 수 없는 서버 오류';
+                const isRetryable = msg.includes('잠금') || msg.includes('혼잡') || msg.toLowerCase().includes('lock') || msg.toLowerCase().includes('timeout');
+                if (!isRetryable || attempt === MAX_RETRIES) {
+                  throw new Error(msg);
+                }
+              } catch (innerErr) {
+                const errMsg = String(innerErr && innerErr.message ? innerErr.message : innerErr);
+                const isRetryableErr = errMsg.includes('잠금') || errMsg.includes('혼잡') || errMsg.includes('Failed to fetch') || errMsg.includes('NetworkError') || errMsg.toLowerCase().includes('timeout');
+                if (!isRetryableErr || attempt === MAX_RETRIES) {
+                  throw innerErr;
+                }
+              }
+            }
+
+            if (res && res.status === 'success') {
               records.forEach(r => {
                 if (!HQ_DATA.scores[r.id]) HQ_DATA.scores[r.id] = {};
                 HQ_DATA.scores[r.id].written = r.score;
