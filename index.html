@@ -1208,10 +1208,10 @@
      * 2. 게이트웨이 로그인 & 교실 잠금 관리 시스템
      * =========================================================================
      */
-    function checkGatewayAuth() {
+    async function checkGatewayAuth() {
       const savedRoom = localStorage.getItem('awana_locked_room') || '';
       if (savedRoom) {
-        applyLockedRoom(savedRoom);
+        await applyLockedRoom(savedRoom);
       } else {
         openGatewayModal();
       }
@@ -1235,7 +1235,7 @@
       overlay.style.display = 'none';
     }
 
-    function processGatewayLogin() {
+    async function processGatewayLogin() {
       const roomSelect = document.getElementById('gatewayRoomSelect');
       const roomCodeInput = document.getElementById('gatewayRoomCode');
       const errMsg = document.getElementById('gatewayErrorMsg');
@@ -1263,7 +1263,7 @@
       if (expectedCode && String(enteredCode).toUpperCase() === String(expectedCode).toUpperCase()) {
         errMsg.style.display = 'none';
         closeGatewayModal();
-        applyLockedRoom(selectedRoom);
+        await applyLockedRoom(selectedRoom);
         showCustomAlert('시험장 입장 완료', `[${selectedRoom}] 점수기록관으로 입장했습니다.\n점수기록관 성함을 확인하고 교시를 선택해 주세요.`, 'success');
       } else {
         errMsg.innerText = `[${selectedRoom}]의 접속 코드가 일치하지 않습니다. 다시 확인해 주세요.`;
@@ -1272,7 +1272,7 @@
       }
     }
 
-    function applyLockedRoom(roomName) {
+    async function applyLockedRoom(roomName) {
       LOCKED_ROOM = roomName;
       localStorage.setItem('awana_locked_room', roomName);
 
@@ -1282,8 +1282,8 @@
 
       LAST_SELECTED_ROOM = roomName;
 
-      // 교실 입장 시 해당 교실 전체 선수 명단 1회 사전 로드
-      prefetchRoomStudents(roomName, () => {
+      // 시험장 입장 시 전체 단원 명단 1회 사전 로드 완료까지 대기
+      await prefetchRoomStudents(roomName, () => {
         onSelectionChange();
       });
     }
@@ -1620,20 +1620,24 @@
       }
     }
 
-    // 교실별 사전 로드된 선수 명단 캐시 (Key: roomName -> { participants, scores })
+    // 시험장별 사전 로드된 단원 명단 캐시 및 진행 중 요청 중복 방지 맵
     let ROOM_PREFETCH_CACHE = null;
+    const PREFETCH_IN_FLIGHT = {};
 
     // 제출 완료된 세션 메모리 캐시 (Key: room_period_sessionName -> { answersMap, isSubmitted })
     const SUBMITTED_SESSIONS_CACHE = {};
 
     /**
      * =========================================================================
-     * 5. 마스터 데이터 통신 (교실 단위 1회 프리패치 & 교시 0.001초 전환 구조)
+     * 5. 마스터 데이터 통신 (시험장 단위 1회 프리패치 & 교시 0.001초 전환 구조)
      * =========================================================================
      */
     async function fetchMasterData(isManual = false) {
       showLoading('대회 정보와 시간표를 불러오는 중입니다...');
       try {
+        if (isManual) {
+          ROOM_PREFETCH_CACHE = null;
+        }
         const resp = await fetch(`${GAS_URL}?action=init`, { method: 'GET' });
         const result = await resp.json();
         if (result.status === 'success') {
@@ -1651,14 +1655,14 @@
           MASTER_DATA.timetable = result.data.timetable || [];
           document.getElementById('gasEndpointInfo').innerText = '서버 연결됨';
 
-          // 마스터 로드 완료 후 게이트웨이 인증 상태 점검
-          checkGatewayAuth();
+          // 마스터 로드 + 시험장 단원 명단 프리패치까지 100% 완료될 때까지 대기
+          await checkGatewayAuth();
         } else {
           throw new Error(result.message);
         }
 
         if (isManual) {
-          showCustomAlert('새로고침 완료', '최신 시간표와 설정을 불러왔습니다.', 'success');
+          showCustomAlert('새로고침 완료', '최신 시간표와 단원 명단을 불러왔습니다.', 'success');
         }
       } catch (err) {
         console.error('마스터 로드 오류:', err);
@@ -1672,37 +1676,55 @@
     }
 
     /**
-     * [교실 프리패치] 교실 인증 직후 딱 1회만 해당 교실 전체(1~7교시) 선수 명단을 조용히 일괄 다운로드
+     * [시험장 프리패치] 인증 직후 딱 1회만 해당 시험장 전체(1~7교시) 단원 명단 일괄 다운로드 (중복 요청 방지)
      */
     async function prefetchRoomStudents(roomName, onComplete = null) {
       if (!roomName) return;
+
+      // 동일 시험장 요청이 이미 진행 중이면 중복 fetch 대신 기존 Promise 공유
+      if (PREFETCH_IN_FLIGHT[roomName]) {
+        await PREFETCH_IN_FLIGHT[roomName];
+        if (onComplete && !hasUnsavedChanges()) onComplete();
+        return;
+      }
+
       showLoading(`[${roomName}] 전체 교시 단원 명단을 준비 중입니다...`);
 
-      try {
-        const queryUrl = `${GAS_URL}?action=getRoomStudents&room=${encodeURIComponent(roomName)}`;
-        const resp = await fetch(queryUrl, { method: 'GET' });
-        const result = await resp.json();
+      const fetchTask = (async () => {
+        try {
+          const queryUrl = `${GAS_URL}?action=getRoomStudents&room=${encodeURIComponent(roomName)}`;
+          const resp = await fetch(queryUrl, { method: 'GET' });
+          const result = await resp.json();
 
-        if (result.status === 'success') {
-          ROOM_PREFETCH_CACHE = {
-            room: roomName,
-            participants: result.data.participants || [],
-            scores: result.data.scores || {},
-            submittedAnswers: result.data.submittedAnswers || {}
-          };
-          MASTER_DATA.participants = ROOM_PREFETCH_CACHE.participants;
-          MASTER_DATA.scores = ROOM_PREFETCH_CACHE.scores;
-          MASTER_DATA.submittedAnswers = ROOM_PREFETCH_CACHE.submittedAnswers;
-          document.getElementById('gasEndpointInfo').innerText = '서버 연결됨';
-          if (onComplete) onComplete();
-        } else {
-          throw new Error(result.message);
+          if (result.status === 'success') {
+            ROOM_PREFETCH_CACHE = {
+              room: roomName,
+              participants: result.data.participants || [],
+              scores: result.data.scores || {},
+              submittedAnswers: result.data.submittedAnswers || {}
+            };
+            MASTER_DATA.participants = ROOM_PREFETCH_CACHE.participants;
+            MASTER_DATA.scores = ROOM_PREFETCH_CACHE.scores;
+            MASTER_DATA.submittedAnswers = ROOM_PREFETCH_CACHE.submittedAnswers;
+            document.getElementById('gasEndpointInfo').innerText = '서버 연결됨';
+            return true;
+          } else {
+            throw new Error(result.message);
+          }
+        } catch (err) {
+          console.error('시험장 프리패치 실패:', err);
+          showCustomAlert('데이터 로드 실패', `[${roomName}] 단원 명단을 가져오지 못했습니다: ${err.message}`, 'warn');
+          return false;
+        } finally {
+          delete PREFETCH_IN_FLIGHT[roomName];
+          hideLoading();
         }
-      } catch (err) {
-        console.error('교실 프리패치 실패:', err);
-        showCustomAlert('데이터 로드 실패', `[${roomName}] 단원 명단을 가져오지 못했습니다: ${err.message}`, 'warn');
-      } finally {
-        hideLoading();
+      })();
+
+      PREFETCH_IN_FLIGHT[roomName] = fetchTask;
+      const ok = await fetchTask;
+      if (ok && onComplete && !hasUnsavedChanges()) {
+        onComplete();
       }
     }
 
@@ -2538,7 +2560,10 @@
       banner.innerHTML = '🎉 <b>[자가 진단 통과: 11번 결번 공석 고정 및 객관식 누락 방지 검증 완료]</b>';
     }
 
+    let LOADING_DEPTH = 0;
+
     function showLoading(text) {
+      LOADING_DEPTH++;
       document.getElementById('loadingText').innerText = text;
       document.getElementById('loadingOverlay').style.display = 'flex';
       const periodEl = document.getElementById('periodSelect');
@@ -2546,9 +2571,12 @@
     }
 
     function hideLoading() {
-      document.getElementById('loadingOverlay').style.display = 'none';
-      const periodEl = document.getElementById('periodSelect');
-      if (periodEl) periodEl.disabled = false;
+      LOADING_DEPTH = Math.max(0, LOADING_DEPTH - 1);
+      if (LOADING_DEPTH === 0) {
+        document.getElementById('loadingOverlay').style.display = 'none';
+        const periodEl = document.getElementById('periodSelect');
+        if (periodEl) periodEl.disabled = false;
+      }
     }
   </script>
 
