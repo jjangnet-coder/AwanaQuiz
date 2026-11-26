@@ -641,11 +641,11 @@
       border-radius: 16px;
       box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.05);
       width: 100%;
-      max-width: 480px;
+      max-width: 390px;
       max-height: calc(100vh - 24px);
       display: flex;
       flex-direction: column;
-      padding: 18px 22px 16px;
+      padding: 20px 22px 18px;
       text-align: center;
       animation: modalScaleUp 0.15s ease-out;
       word-break: keep-all;
@@ -681,16 +681,16 @@
     }
 
     .modal-icon-badge {
-      width: 44px;
-      height: 44px;
+      width: 40px;
+      height: 40px;
       border-radius: 50%;
       display: inline-flex;
       justify-content: center;
       align-items: center;
       align-self: center;
       flex-shrink: 0;
-      font-size: 1.4rem;
-      margin-bottom: 10px;
+      font-size: 1.25rem;
+      margin-bottom: 8px;
       transition: all 0.2s ease;
     }
 
@@ -732,7 +732,7 @@
     }
 
     .modal-title {
-      font-size: 1.18rem;
+      font-size: 1.08rem;
       font-weight: 800;
       color: #0f172a;
       margin-bottom: 8px;
@@ -749,15 +749,15 @@
     }
 
     .modal-message {
-      font-size: 0.92rem;
+      font-size: 0.88rem;
       font-weight: 500;
       color: #334155;
-      line-height: 1.55;
+      line-height: 1.5;
       margin-bottom: 14px;
       flex: 1;
       min-height: 0;
       overflow-y: auto;
-      white-space: pre-line;
+      white-space: normal;
       text-align: center;
     }
 
@@ -767,10 +767,30 @@
       border: 1px solid #e2e8f0;
       border-radius: 10px;
       padding: 12px 14px;
-      margin: 10px 0 14px;
-      font-size: 0.9rem;
-      line-height: 1.55;
+      margin: 4px 0 12px;
+      font-size: 0.85rem;
+      line-height: 1.5;
+      white-space: normal;
       text-align: left;
+    }
+
+    .modal-kv-grid {
+      display: grid;
+      grid-template-columns: 76px 1fr;
+      row-gap: 5px;
+      column-gap: 8px;
+      font-size: 0.84rem;
+      line-height: 1.4;
+    }
+
+    .modal-kv-label {
+      color: #64748b;
+      font-weight: 600;
+    }
+
+    .modal-kv-val {
+      color: #0f172a;
+      font-weight: 700;
     }
 
     .callout-danger {
@@ -793,13 +813,13 @@
     }
 
     .modal-btn {
-      padding: 10px 22px;
+      padding: 9px 16px;
       border-radius: 8px;
-      font-size: 0.94rem;
+      font-size: 0.88rem;
       font-weight: 700;
       cursor: pointer;
       border: none;
-      min-width: 105px;
+      min-width: 96px;
       transition: all 0.15s ease;
       display: inline-flex;
       justify-content: center;
@@ -2974,9 +2994,9 @@
         }
 
         if (isSpeed) {
-          extraSummaryHtml = `• <b>스피드 합계:</b> 득점 <b>${scorerCount}명</b> · 조 합계 <b>${teamSum} / 200점</b><br>`;
+          extraSummaryHtml = `<span class="modal-kv-label">스피드 합계</span><span class="modal-kv-val">득점 ${scorerCount}명 · ${teamSum} / 200점</span>`;
         } else {
-          extraSummaryHtml = `• <b>입력 방식:</b> 점수 직접 입력 (0~80점, 10점 단위)<br>`;
+          extraSummaryHtml = `<span class="modal-kv-label">입력 방식</span><span class="modal-kv-val">점수 직접 입력 (0~80점)</span>`;
         }
       } else {
         // ★ 객관식 퀴즈 엄격 검증: 실제 출석 학생 중 빈칸("")이 1개라도 남아있으면 제출 차단
@@ -3034,19 +3054,18 @@
 
       const confirmContent = `
         <div class="modal-callout-box callout-submit">
-          <div style="font-size: 0.95rem; font-weight: 800; color: #1e3a8a; margin-bottom: 6px;">
-            📍 ${CURRENT_ROOM} / ${CURRENT_PERIOD}교시 (${CURRENT_SESSION_NAME} 세션)
+          <div style="font-size: 0.9rem; font-weight: 800; color: #1e3a8a; padding-bottom: 8px; margin-bottom: 8px; border-bottom: 1px solid #dbeafe;">
+            📍 ${CURRENT_ROOM} · ${CURRENT_PERIOD}교시 (${CURRENT_SESSION_NAME})
           </div>
-          <div style="color: #334155; font-size: 0.88rem; line-height: 1.5;">
-            • <b>핸드북 / 조:</b> ${CURRENT_HANDBOOK} · ${CURRENT_TEAM}조<br>
-            • <b>채점 단원:</b> 총 <b>${records.length}명</b> 전원 채점 완료<br>
-            ${extraSummaryHtml}• <b>점수기록관:</b> ${recorderName} 선생님
+          <div class="modal-kv-grid">
+            <span class="modal-kv-label">핸드북 · 조</span><span class="modal-kv-val">${CURRENT_HANDBOOK} · ${CURRENT_TEAM}조</span>
+            <span class="modal-kv-label">채점 단원</span><span class="modal-kv-val">총 ${records.length}명 전원 완료</span>
+            ${extraSummaryHtml}
+            <span class="modal-kv-label">점수기록관</span><span class="modal-kv-val">${recorderName} 선생님</span>
           </div>
         </div>
-        <div style="font-size: 0.88rem; color: #64748b; margin-top: 4px;">
-          입력한 점수를 본부로 전송하시겠습니까?<br>
-          <span style="font-size: 0.82rem; color: #2563eb;">* 전송 완료 후에도 점수를 수정하여 다시 전송할 수 있습니다.</span>
-        </div>
+        <div style="font-size: 0.86rem; color: #334155; font-weight: 600;">입력한 점수를 본부로 전송하시겠습니까?</div>
+        <div style="font-size: 0.78rem; color: #2563eb; margin-top: 3px;">* 전송 완료 후에도 수정하여 다시 전송할 수 있습니다.</div>
       `;
 
       showCustomConfirm(
