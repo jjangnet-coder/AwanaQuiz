@@ -5,6 +5,7 @@ const BASE_URL = process.env.BASE_URL || 'http://localhost:8080';
 const ROOM_LIMIT = Number(process.env.ROOM_LIMIT || 12);
 const TARGET_ROOM = process.env.TARGET_ROOM || '';
 const HEADLESS = process.env.HEADLESS !== '0' && process.env.HEADLESS !== 'false';
+const TURBO = process.env.TURBO === '1' || process.env.TURBO === 'true';
 
 // 12개 시험장 목록 및 기본 접속 코드 (실제 환경에 맞게 수정 가능)
 const ROOMS = [
@@ -71,24 +72,40 @@ async function fillAndSubmitCurrentTab(page, roomName = '', period = '', session
   if (qIndices.length === 0) return;
 
   // 1번 문제(q=0)부터 마지막 문제까지 문제 번호 순서대로 모든 선수 클릭
-  for (const q of qIndices) {
-    const cellIds = await page
-      .locator(`.quiz-cell[data-q="${q}"]:not(.locked):not(.vacant)`)
-      .evaluateAll((els) => els.map((el) => el.id).filter(Boolean));
-
-    for (const cellId of cellIds) {
-      const cell = page.locator(`#${cellId}`);
-      const cls = (await cell.getAttribute('class')) || '';
-      if (cls.includes('locked') || cls.includes('vacant')) continue;
-
-      // 실제 클릭 이벤트 발생 (O 또는 X) - 고속 모드 (기존 대비 10배 빠른 클릭)
-      await cell.click({ force: true, timeout: 60_000 });
-      // 30% 확률로 한 번 더 클릭해 X로 전환
-      if (Math.random() < 0.3) {
-        await randomDelay(8, 20);
-        await cell.click({ force: true, timeout: 60_000 });
+  if (TURBO) {
+    // [TURBO 모드] 브라우저 내부에서 단 1회 호출로 실제 DOM click() 일괄 실행 (0.05초, 스피드 자동 잠금 포함 100% 동일 동작)
+    await page.evaluate((qs) => {
+      for (const q of qs) {
+        const cells = document.querySelectorAll(`.quiz-cell[data-q="${q}"]`);
+        for (const el of cells) {
+          if (el.classList.contains('locked') || el.classList.contains('vacant')) continue;
+          el.click();
+          if (Math.random() < 0.3 && !el.classList.contains('locked')) {
+            el.click();
+          }
+        }
       }
-      await randomDelay(10, 35);
+    }, qIndices);
+  } else {
+    for (const q of qIndices) {
+      const cellIds = await page
+        .locator(`.quiz-cell[data-q="${q}"]:not(.locked):not(.vacant)`)
+        .evaluateAll((els) => els.map((el) => el.id).filter(Boolean));
+
+      for (const cellId of cellIds) {
+        const cell = page.locator(`#${cellId}`);
+        const cls = (await cell.getAttribute('class')) || '';
+        if (cls.includes('locked') || cls.includes('vacant')) continue;
+
+        // 실제 클릭 이벤트 발생 (O 또는 X) - 고속 모드 (기존 대비 10배 빠른 클릭)
+        await cell.click({ force: true, timeout: 60_000 });
+        // 30% 확률로 한 번 더 클릭해 X로 전환
+        if (Math.random() < 0.3) {
+          await randomDelay(8, 20);
+          await cell.click({ force: true, timeout: 60_000 });
+        }
+        await randomDelay(10, 35);
+      }
     }
   }
 
@@ -98,7 +115,7 @@ async function fillAndSubmitCurrentTab(page, roomName = '', period = '', session
     await submitBtn.click({ force: true });
     await dismissModalIfVisible(page);
 
-    // 저장 완료 대기 (자동 재시도 포함 최대 90초, 로딩 종료 + 결과 모달 또는 .state-saved 확인)
+    // 저장 완료 대기 (자동 재시도 포함 최대 90초 / TURBO 120초, 로딩 종료 + 결과 모달 또는 .state-saved 확인)
     await page.waitForFunction(() => {
       const loading = document.getElementById('loadingOverlay');
       const loadingHidden = !loading || window.getComputedStyle(loading).display === 'none';
@@ -107,7 +124,7 @@ async function fillAndSubmitCurrentTab(page, roomName = '', period = '', session
       const btn = document.getElementById('btnSubmit');
       const saved = btn && (btn.disabled || btn.classList.contains('state-saved'));
       return loadingHidden && (modalVisible || saved);
-    }, { timeout: 90_000 });
+    }, { timeout: TURBO ? 120_000 : 90_000 });
 
     // 실패/오류 모달인지 확인 (가짜 제출 완료 로그 원천 차단)
     const modalTitle = await page.locator('#modalTitle').textContent().catch(() => '');
@@ -207,7 +224,7 @@ test('시험장 실시간 클릭 시뮬레이션', async () => {
     : ROOMS.slice(0, ROOM_LIMIT);
   expect(targetRooms.length).toBeGreaterThan(0);
 
-  console.log(`🚀 ${targetRooms.length}개 시험장 동시 시뮬레이션 시작 (모드: ${HEADLESS ? 'Headless 초경량' : 'Headed 단일 브라우저 탭'})`);
+  console.log(`🚀 ${targetRooms.length}개 시험장 동시 시뮬레이션 시작 (모드: ${HEADLESS ? 'Headless 초경량' : 'Headed 단일 브라우저 탭'}${TURBO ? ' / ⚡ TURBO 극한 동시 제출' : ''})`);
 
   // 단일 Chromium 브라우저 1개만 실행 + 시험장별 독립 BrowserContext (CPU/메모리 1/8 절감)
   const browser = await chromium.launch({

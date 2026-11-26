@@ -5,6 +5,7 @@
   "scripts": {
     "test:1room": "set ROOM_LIMIT=1&& set HEADLESS=0&& playwright test simulate-12-rooms.spec.js",
     "test:12rooms": "set HEADLESS=1&& playwright test simulate-12-rooms.spec.js",
+    "test:12rooms:turbo": "set HEADLESS=1&& set TURBO=1&& playwright test simulate-12-rooms.spec.js",
     "test:12rooms:headed": "set HEADLESS=0&& playwright test simulate-12-rooms.spec.js"
   },
   "devDependencies": {
