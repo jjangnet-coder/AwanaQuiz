@@ -159,60 +159,66 @@ async function fillDirectAndSubmit(page, roomName, period, sessionLabel, speedMa
 }
 
 async function simulateDirectRoom(context, room, index, speedMaxO) {
-  if (index > 0) {
-    await new Promise((resolve) => setTimeout(resolve, index * 600));
-  }
+  try {
+    if (index > 0) {
+      await new Promise((resolve) => setTimeout(resolve, index * 600));
+    }
 
-  const page = await context.newPage();
-  await page.goto(`${BASE_URL}/index.html`, { waitUntil: 'domcontentloaded' });
-  await waitForLoadingDone(page);
-
-  await page.selectOption('#gatewayRoomSelect', room.name);
-  await page.fill('#gatewayRoomCode', room.code);
-  await page.click('#btnGatewayEnter');
-
-  await expect(page.locator('#currentRoomText')).toHaveText(room.name, { timeout: 45_000 });
-  await waitForLoadingDone(page);
-  await dismissModalIfVisible(page);
-
-  await page.fill('#recorderName', `기록관${index + 1}`);
-
-  const availablePeriods = await page
-    .locator('#periodSelect option')
-    .evaluateAll((opts) => opts.map((o) => o.value).filter((v) => v !== ''));
-
-  // 오전 세션 전 교시
-  for (const period of availablePeriods) {
+    const page = await context.newPage();
+    await page.goto(`${BASE_URL}/index.html`, { waitUntil: 'domcontentloaded' });
     await waitForLoadingDone(page);
-    await page.selectOption('#periodSelect', period);
+
+    await page.selectOption('#gatewayRoomSelect', room.name);
+    await page.fill('#gatewayRoomCode', room.code);
+    await page.click('#btnGatewayEnter');
+
+    await expect(page.locator('#currentRoomText')).toHaveText(room.name, { timeout: 60_000 });
     await waitForLoadingDone(page);
     await dismissModalIfVisible(page);
+    console.log(`🚪 [시험장:${room.name}] 입장 완료`);
 
-    const tabMorning = page.locator('#tabMorning');
-    if (await tabMorning.isVisible({ timeout: 2000 }).catch(() => false)) {
-      await tabMorning.click();
+    await page.fill('#recorderName', `기록관${index + 1}`);
+
+    const availablePeriods = await page
+      .locator('#periodSelect option')
+      .evaluateAll((opts) => opts.map((o) => o.value).filter((v) => v !== ''));
+
+    // 오전 세션 전 교시
+    for (const period of availablePeriods) {
       await waitForLoadingDone(page);
-      await fillDirectAndSubmit(page, room.name, period, '오전', speedMaxO);
-    }
-  }
-
-  // 오후 세션 전 교시
-  for (const period of availablePeriods) {
-    await waitForLoadingDone(page);
-    await page.selectOption('#periodSelect', period);
-    await waitForLoadingDone(page);
-    await dismissModalIfVisible(page);
-
-    const tabAfternoon = page.locator('#tabAfternoon');
-    if (await tabAfternoon.isVisible({ timeout: 2000 }).catch(() => false)) {
-      await tabAfternoon.click();
+      await page.selectOption('#periodSelect', period);
       await waitForLoadingDone(page);
-      await fillDirectAndSubmit(page, room.name, period, '오후', speedMaxO);
-    }
-  }
+      await dismissModalIfVisible(page);
 
-  console.log(`✅ [시험장:${room.name}] 오전·오후 전 교시 완료!`);
-  return room.name;
+      const tabMorning = page.locator('#tabMorning');
+      if (await tabMorning.isVisible({ timeout: 2000 }).catch(() => false)) {
+        await tabMorning.click();
+        await waitForLoadingDone(page);
+        await fillDirectAndSubmit(page, room.name, period, '오전', speedMaxO);
+      }
+    }
+
+    // 오후 세션 전 교시
+    for (const period of availablePeriods) {
+      await waitForLoadingDone(page);
+      await page.selectOption('#periodSelect', period);
+      await waitForLoadingDone(page);
+      await dismissModalIfVisible(page);
+
+      const tabAfternoon = page.locator('#tabAfternoon');
+      if (await tabAfternoon.isVisible({ timeout: 2000 }).catch(() => false)) {
+        await tabAfternoon.click();
+        await waitForLoadingDone(page);
+        await fillDirectAndSubmit(page, room.name, period, '오후', speedMaxO);
+      }
+    }
+
+    console.log(`✅ [시험장:${room.name}] 오전·오후 전 교시 완료!`);
+    return room.name;
+  } catch (err) {
+    console.error(`❌ [시험장:${room.name}] 중단 원인:`, err && err.message ? err.message : err);
+    throw err;
+  }
 }
 
 /**
@@ -304,6 +310,9 @@ async function simulateHqWrittenScoring(adminPin) {
 
     console.log(`✅ [본부 필기 채점] 전체 ${totalSavedTeams}개 조 완료!`);
     return `필기채점(${totalSavedTeams}조)`;
+  } catch (err) {
+    console.error('❌ [본부 필기 채점] 중단 원인:', err && err.message ? err.message : err);
+    throw err;
   } finally {
     await headedBrowser.close().catch(() => { });
   }
@@ -355,3 +364,4 @@ test('전 종목 통합 시뮬레이션 (전체 시험장 직접입력 백그라
   console.log(`🏁 전 종목 통합 시뮬레이션 종료: 성공 ${settled.length - failed.length} / 전체 ${settled.length}`);
   expect(failed, `실패 항목: ${JSON.stringify(failed)}`).toHaveLength(0);
 });
+
