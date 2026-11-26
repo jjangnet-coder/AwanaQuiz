@@ -4,6 +4,7 @@ const { test, expect, chromium } = require('@playwright/test');
 const BASE_URL = process.env.BASE_URL || 'http://localhost:8080';
 const ROOM_LIMIT = Number(process.env.ROOM_LIMIT || 12);
 const TARGET_ROOM = process.env.TARGET_ROOM || '';
+const HEADLESS = process.env.HEADLESS !== '0' && process.env.HEADLESS !== 'false';
 
 // 12개 시험장 목록 및 기본 접속 코드 (실제 환경에 맞게 수정 가능)
 const ROOMS = [
@@ -58,7 +59,7 @@ async function waitForLoadingDone(page) {
  * 현재 열린 탭(객관식 또는 스피드)의 문제를 1번(data-q="0")부터 순서대로
  * 모든 선수에 대해 O/X 클릭 후 저장(제출)
  */
-async function fillAndSubmitCurrentTab(page) {
+async function fillAndSubmitCurrentTab(page, roomName = '', period = '', sessionLabel = '') {
   await dismissModalIfVisible(page);
 
   // 현재 테이블에 존재하는 문제 번호(data-q) 목록 추출 (0, 1, 2, ...)
@@ -94,7 +95,6 @@ async function fillAndSubmitCurrentTab(page) {
   // 제출 버튼 활성화 시 클릭
   const submitBtn = page.locator('#btnSubmit');
   if (await submitBtn.isEnabled()) {
-    console.log(`[${page.url()}] 제출 버튼 클릭 (문항 수: ${qIndices.length})`);
     await submitBtn.click({ force: true });
     await dismissModalIfVisible(page);
 
@@ -107,6 +107,7 @@ async function fillAndSubmitCurrentTab(page) {
 
     // 저장 완료 안내 모달이 뜨면 닫기
     await dismissModalIfVisible(page);
+    console.log(`[${roomName}] ${period}교시 ${sessionLabel} 제출 완료 (문항 수: ${qIndices.length})`);
     await randomDelay(500, 1000);
   }
 }
@@ -154,7 +155,7 @@ async function simulateRoom(context, room, index) {
       await tabMorning.click();
       await waitForLoadingDone(page);
       await randomDelay(300, 600);
-      await fillAndSubmitCurrentTab(page);
+      await fillAndSubmitCurrentTab(page, room.name, period, '오전');
     }
   }
 
@@ -171,10 +172,11 @@ async function simulateRoom(context, room, index) {
       await tabAfternoon.click();
       await waitForLoadingDone(page);
       await randomDelay(300, 600);
-      await fillAndSubmitCurrentTab(page);
+      await fillAndSubmitCurrentTab(page, room.name, period, '오후');
     }
   }
 
+  console.log(`✅ [${room.name}] 전체 교시 완료!`);
   return room.name;
 }
 
@@ -184,27 +186,21 @@ test('시험장 실시간 클릭 시뮬레이션', async () => {
     : ROOMS.slice(0, ROOM_LIMIT);
   expect(targetRooms.length).toBeGreaterThan(0);
 
-  // 각 시험장별 브라우저 창을 1번 모니터(3440×1440)에 4×3 무중첩 바둑판으로 배치 + 절전/GPU 부하 차단
-  const browsers = await Promise.all(
-    targetRooms.map((_, idx) => {
-      const x = -3430 + (idx % 4) * 855;
-      const y = 10 + Math.floor(idx / 4) * 465;
-      return chromium.launch({
-        headless: false,
-        args: [
-          `--window-position=${x},${y}`,
-          '--window-size=840,450',
-          '--disable-backgrounding-occluded-windows',
-          '--disable-renderer-backgrounding',
-          '--disable-background-timer-throttling',
-          '--disable-gpu',
-          '--disable-extensions',
-        ],
-      });
-    })
-  );
+  console.log(`🚀 ${targetRooms.length}개 시험장 동시 시뮬레이션 시작 (모드: ${HEADLESS ? 'Headless 초경량' : 'Headed 단일 브라우저 탭'})`);
+
+  // 단일 Chromium 브라우저 1개만 실행 + 시험장별 독립 BrowserContext (CPU/메모리 1/8 절감)
+  const browser = await chromium.launch({
+    headless: HEADLESS,
+    args: [
+      '--disable-backgrounding-occluded-windows',
+      '--disable-renderer-backgrounding',
+      '--disable-background-timer-throttling',
+      '--disable-extensions',
+    ],
+  });
+
   const roomContexts = await Promise.all(
-    browsers.map((b) => b.newContext({ viewport: { width: 820, height: 420 } }))
+    targetRooms.map(() => browser.newContext({ viewport: { width: 1280, height: 800 } }))
   );
 
   // 1개 시험장 오류 시 나머지 시험장 연쇄 종료 방지
@@ -227,7 +223,7 @@ test('시험장 실시간 클릭 시뮬레이션', async () => {
   console.log(`시뮬레이션 결과: 성공 ${succeeded.length}개 / 실패 ${failed.length}개`);
 
   // 정리
-  await Promise.all(browsers.map((b) => b.close().catch(() => { })));
+  await browser.close().catch(() => { });
 
   expect(failed, `실패한 시험장: ${JSON.stringify(failed)}`).toHaveLength(0);
 });

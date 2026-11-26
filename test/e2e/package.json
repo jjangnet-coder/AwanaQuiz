@@ -3,8 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "test:1room": "set ROOM_LIMIT=1&& playwright test simulate-12-rooms.spec.js --headed",
-    "test:12rooms": "playwright test simulate-12-rooms.spec.js --headed"
+    "test:1room": "set ROOM_LIMIT=1&& set HEADLESS=0&& playwright test simulate-12-rooms.spec.js",
+    "test:12rooms": "set HEADLESS=1&& playwright test simulate-12-rooms.spec.js",
+    "test:12rooms:headed": "set HEADLESS=0&& playwright test simulate-12-rooms.spec.js"
   },
   "devDependencies": {
     "@playwright/test": "^1.49.0"
