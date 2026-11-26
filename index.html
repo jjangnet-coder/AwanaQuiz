@@ -1205,25 +1205,25 @@
       </div>
     </header>
 
-    <!-- 서브 바 (세션 탭 + 입력 모드 토글 + 시험장 안내) -->
+    <!-- 서브 바 (좌측: 세션 탭 | 우측: 시험장 안내 + 입력 모드 토글) -->
     <div class="sub-bar" id="subBarArea" style="display: none;">
-      <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-        <div class="session-tabs" id="sessionTabs">
-          <button class="tab-btn active" id="tabMorning" onclick="switchSession('morning')">객관식(오전)</button>
-          <button class="tab-btn" id="tabAfternoon" onclick="switchSession('afternoon')">오후 세션</button>
+      <div class="session-tabs" id="sessionTabs">
+        <button class="tab-btn active" id="tabMorning" onclick="switchSession('morning')">객관식(오전)</button>
+        <button class="tab-btn" id="tabAfternoon" onclick="switchSession('afternoon')">오후 세션</button>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: flex-end;">
+        <div class="room-badge-info" id="roomInfoBar">
+          <span id="roomInfoText">-</span>
+          <span id="directSumBadge" class="direct-team-sum-badge" style="display: none;"></span>
+          <span style="font-size: 0.78rem; font-weight: 600; color: #475569;" id="guideHintText">
+            * 문제번호 클릭: 전원 정답(O) | 좌클릭: 토글 | 우클릭: 오답(X)
+          </span>
         </div>
         <div class="mode-toggle-group" id="inputModeToggle" title="점수 입력 방식 선택">
           <button type="button" class="mode-toggle-btn active" id="btnModeGrid" onclick="requestInputModeChange('grid')">☑️ O/X 채점</button>
           <button type="button" class="mode-toggle-btn" id="btnModeDirect" onclick="requestInputModeChange('direct')">⌨️ 점수 직접 입력</button>
         </div>
-      </div>
-
-      <div class="room-badge-info" id="roomInfoBar">
-        <span id="roomInfoText">-</span>
-        <span id="directSumBadge" class="direct-team-sum-badge" style="display: none;"></span>
-        <span style="font-size: 0.78rem; font-weight: 600; color: #475569;" id="guideHintText">
-          * 문제번호 클릭: 전원 정답(O) | 좌클릭: 토글 | 우클릭: 오답(X)
-        </span>
       </div>
     </div>
 
