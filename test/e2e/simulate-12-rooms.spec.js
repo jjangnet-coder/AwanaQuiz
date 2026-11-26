@@ -192,6 +192,7 @@ test('시험장 실시간 클릭 시뮬레이션', async () => {
   const browser = await chromium.launch({
     headless: HEADLESS,
     args: [
+      '--window-position=-3400,40',
       '--disable-backgrounding-occluded-windows',
       '--disable-renderer-backgrounding',
       '--disable-background-timer-throttling',
