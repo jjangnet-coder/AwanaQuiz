@@ -270,6 +270,11 @@ function doPost(e) {
     if (payload.action === 'resetAllScores') {
       return handleResetAllScores(ss);
     }
+
+    // [대회 설정 일괄 수정]: 본부 관리 포털 '대회 설정' 탭에서 설정 시트 갱신
+    if (payload.action === 'updateSettings') {
+      return handleUpdateSettings(ss, payload);
+    }
     const finalSheet = ss.getSheetByName('최종집계');
     if (!finalSheet) {
       throw new Error("'최종집계' 시트를 찾을 수 없습니다.");
@@ -614,6 +619,83 @@ function doPost(e) {
     // 트랜잭션 종료 후 Lock 반드시 해제
     lock.releaseLock();
   }
+}
+
+/**
+ * [본부 관리 포털] 설정 시트 값 일괄 갱신 (신규 키 자동 추가 지원)
+ */
+function handleUpdateSettings(ss, payload) {
+  const sSheet = ss.getSheetByName('설정');
+  if (!sSheet) {
+    throw new Error("'설정' 시트를 찾을 수 없습니다.");
+  }
+
+  const updates = payload.settings || {};
+  const descriptions = payload.descriptions || {};
+  const numericKeys = {
+    '스피드_최대정답수': true,
+    '스피드_최대오답수': true,
+    '금메달_비율': true,
+    '은메달_비율': true,
+    '동메달_비율': true
+  };
+
+  const lastRow = sSheet.getLastRow();
+  const keyToRow = {};
+  if (lastRow >= 2) {
+    const existingKeys = sSheet.getRange(2, 1, lastRow - 1, 1).getValues();
+    for (let i = 0; i < existingKeys.length; i++) {
+      const k = String(existingKeys[i][0]).trim();
+      if (k) keyToRow[k] = i + 2;
+    }
+  }
+
+  const newRows = [];
+  Object.keys(updates).forEach(k => {
+    const key = String(k).trim();
+    if (!key) return;
+    let val = updates[k];
+    if (numericKeys[key]) {
+      const n = Number(val);
+      if (isNaN(n) || !isFinite(n)) {
+        throw new Error(`[${key}] 항목은 숫자만 입력할 수 있습니다.`);
+      }
+      val = Math.round(n);
+    }
+
+    if (keyToRow[key]) {
+      sSheet.getRange(keyToRow[key], 2).setValue(val);
+    } else {
+      newRows.push([key, val, descriptions[key] || '본부 관리 포털에서 추가된 설정']);
+    }
+  });
+
+  if (newRows.length > 0) {
+    const startRow = sSheet.getLastRow() + 1;
+    sSheet.getRange(startRow, 1, newRows.length, 3).setValues(newRows);
+    sSheet.getRange(startRow, 1, newRows.length, 2).setHorizontalAlignment('center');
+    sSheet.getRange(startRow, 3, newRows.length, 1).setHorizontalAlignment('left');
+  }
+
+  SpreadsheetApp.flush();
+
+  // 갱신된 최신 설정 객체 반환
+  const refreshed = {};
+  const newLastRow = sSheet.getLastRow();
+  if (newLastRow >= 2) {
+    const rows = sSheet.getRange(2, 1, newLastRow - 1, 2).getValues();
+    rows.forEach(r => {
+      const k = String(r[0]).trim();
+      if (k) refreshed[k] = r[1];
+    });
+  }
+
+  return ContentService.createTextOutput(JSON.stringify({
+    status: 'success',
+    action: 'updateSettings',
+    settings: refreshed,
+    message: '대회 설정이 성공적으로 저장되었습니다.'
+  })).setMimeType(ContentService.MimeType.JSON);
 }
 
 /**

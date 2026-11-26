@@ -1312,6 +1312,14 @@
       return 20 * maxO;
     }
 
+    function isDirectModeAllowedForCurrentSession() {
+      const key = CURRENT_SESSION_TYPE === 'speed' ? '스피드_직접입력허용' : '객관식_직접입력허용';
+      const raw = MASTER_DATA.settings && MASTER_DATA.settings[key];
+      if (raw === undefined || raw === null || String(raw).trim() === '') return true;
+      const norm = String(raw).trim().toUpperCase();
+      return norm !== 'N' && norm !== 'NO' && norm !== 'OFF' && norm !== 'FALSE' && norm !== '0';
+    }
+
     function hasDirectScoreEdits() {
       return CURRENT_STUDENTS.some(s => String(DIRECT_SCORES_STATE[s.id] ?? '') !== String(INITIAL_DIRECT_SCORES[s.id] ?? ''));
     }
@@ -1331,9 +1339,16 @@
     }
 
     function syncInputModeToggleUI() {
+      const toggleWrap = document.getElementById('inputModeToggle');
       const btnGrid = document.getElementById('btnModeGrid');
       const btnDirect = document.getElementById('btnModeDirect');
       if (!btnGrid || !btnDirect) return;
+
+      const allowed = isDirectModeAllowedForCurrentSession();
+      if (toggleWrap) {
+        // 본부 설정에서 비허용(N)이면 토글 UI 숨김 (단, 이미 직접 입력으로 저장 완료된 교시 조회 시에는 유지)
+        toggleWrap.style.display = (allowed || IS_CURRENT_SESSION_DIRECT_LOCKED) ? 'inline-flex' : 'none';
+      }
 
       btnGrid.classList.toggle('active', CURRENT_INPUT_MODE === 'grid');
       btnDirect.classList.toggle('active', CURRENT_INPUT_MODE === 'direct');
@@ -2287,10 +2302,13 @@
       CURRENT_SESSION_SAVED_MODE = savedMode;
 
       // [대회 운영 무결성] 직접 입력으로 저장 완료된 교시는 무조건 직접 입력 모드로 열고 O/X 역변환 잠금
-      // (단, 사용자의 localStorage 선호 모드는 덮어쓰지 않음)
+      // 본부 설정에서 직접 입력이 비허용(N)이면 강제로 O/X 채점 모드 적용
       if (savedMode === 'direct') {
         IS_CURRENT_SESSION_DIRECT_LOCKED = true;
         CURRENT_INPUT_MODE = 'direct';
+      } else if (!isDirectModeAllowedForCurrentSession()) {
+        IS_CURRENT_SESSION_DIRECT_LOCKED = false;
+        CURRENT_INPUT_MODE = 'grid';
       } else {
         IS_CURRENT_SESSION_DIRECT_LOCKED = false;
         CURRENT_INPUT_MODE = modeOverride || USER_PREFERRED_MODE;

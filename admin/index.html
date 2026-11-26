@@ -1659,6 +1659,188 @@
       overflow-y: auto;
     }
 
+    /* 대회 설정 탭 (Soft Editorial Light 카드형 풀높이 레이아웃) */
+    #tab-settings.active {
+      display: flex !important;
+      flex-direction: column;
+      flex: 1;
+      min-height: 0;
+      overflow: hidden !important;
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+      padding: 0 !important;
+    }
+
+    .settings-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 18px;
+      margin-bottom: 12px;
+      background: #ffffff;
+      border: 1px solid rgba(15, 23, 42, 0.06);
+      border-radius: 14px;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+      flex-shrink: 0;
+    }
+
+    .settings-scroll-body {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding-bottom: 4px;
+    }
+
+    .settings-top-row {
+      display: grid;
+      grid-template-columns: 1fr 1.35fr;
+      gap: 12px;
+    }
+
+    .settings-card {
+      background: #ffffff;
+      border: 1px solid rgba(15, 23, 42, 0.06);
+      border-radius: 16px;
+      padding: 16px 20px;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03), 0 6px 18px -6px rgba(15, 23, 42, 0.05);
+    }
+
+    .settings-card-title {
+      font-size: 0.96rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #f1f5f9;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .settings-field-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px 14px;
+    }
+
+    .settings-field-grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .settings-field label {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: #475569;
+      margin-bottom: 4px;
+    }
+
+    .settings-input {
+      width: 100%;
+      padding: 7px 11px;
+      border-radius: 8px;
+      border: 1px solid #cbd5e1;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: #0f172a;
+      background: #ffffff;
+      outline: none;
+      font-variant-numeric: tabular-nums;
+      transition: border-color 0.14s ease, box-shadow 0.14s ease;
+    }
+
+    .settings-input:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.16);
+    }
+
+    .settings-switch-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 9px 12px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      gap: 12px;
+    }
+
+    .ios-switch {
+      position: relative;
+      display: inline-block;
+      width: 44px;
+      height: 24px;
+      flex-shrink: 0;
+    }
+
+    .ios-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .ios-slider {
+      position: absolute;
+      cursor: pointer;
+      inset: 0;
+      background-color: #cbd5e1;
+      transition: 0.2s;
+      border-radius: 999px;
+    }
+
+    .ios-slider::before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: #ffffff;
+      transition: 0.2s;
+      border-radius: 50%;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.2);
+    }
+
+    .ios-switch input:checked + .ios-slider {
+      background-color: #2563eb;
+    }
+
+    .ios-switch input:checked + .ios-slider::before {
+      transform: translateX(20px);
+    }
+
+    .code-room-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .code-room-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 10px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+    }
+
+    .code-room-item input {
+      width: 86px;
+      text-align: center;
+      text-transform: uppercase;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+    }
+
     #tab-participants .filter-bar,
     #tab-written .filter-bar {
       flex-shrink: 0;
@@ -2071,13 +2253,14 @@
         <span class="badge-hq-pill">HQ ADMIN</span>
       </div>
 
-      <!-- 5대 탭 메뉴 -->
+      <!-- 6대 탭 메뉴 -->
       <nav class="hq-nav-tabs">
         <button class="hq-tab-btn active" onclick="switchHqTab('monitor')">대시보드</button>
         <button class="hq-tab-btn" onclick="switchHqTab('roster')">단원 관리</button>
         <button class="hq-tab-btn" onclick="switchHqTab('written')">필기 채점</button>
         <button class="hq-tab-btn" onclick="switchHqTab('standings')">시상 명단·인쇄</button>
         <button class="hq-tab-btn" onclick="switchHqTab('handbook-awards')">핸드북별 결과</button>
+        <button class="hq-tab-btn" onclick="switchHqTab('settings')">대회 설정</button>
       </nav>
 
       <div class="hq-header-actions">
@@ -2351,6 +2534,109 @@
       <div id="subTabTopScorers" class="hq-panel" style="display: none; flex-direction: column; flex: 1; min-height: 0;">
         <h3 style="margin: 0 0 12px; font-size: 1.05rem; color: #1e3a8a; flex-shrink: 0;">🏆 핸드북별 최고득점자 모아보기</h3>
         <div id="topScorersSummaryContainer" style="flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); grid-template-rows: repeat(3, minmax(0, 1fr)); gap: 12px;"></div>
+      </div>
+    </section>
+
+    <!-- TAB 6: 대회 설정 (설정 시트 직접 관리) -->
+    <section id="tab-settings" class="tab-content">
+      <div class="settings-toolbar">
+        <div>
+          <div style="font-size: 1rem; font-weight: 800; color: #0f172a;">⚙️ 대회 설정 관리 (구글 시트 '설정' 탭 실시간 연동)</div>
+          <div style="font-size: 0.8rem; color: #64748b; margin-top: 2px;">저장 후 각 시험장 화면은 새로고침(F5) 시 즉시 새 설정이 반영됩니다.</div>
+        </div>
+        <div style="display: flex; gap: 8px;">
+          <button type="button" class="btn-hq" onclick="renderSettingsTab()">되돌리기</button>
+          <button type="button" class="btn-hq btn-hq-primary" onclick="saveHqSettings()">💾 설정 저장</button>
+        </div>
+      </div>
+
+      <div class="settings-scroll-body">
+        <div class="settings-top-row">
+          <!-- 카드 1: 대회 기본 설정 & 입력 모드 제어 -->
+          <div class="settings-card">
+            <div class="settings-card-title">
+              <span>🏆 대회 기본 정보 & 입력 모드 제어</span>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+              <div class="settings-field">
+                <label for="set_title">대회 제목 (헤더 · 인쇄물 · 엑셀 파일명)</label>
+                <input type="text" id="set_title" class="settings-input" placeholder="2026 AWANA 성경퀴즈대회" />
+              </div>
+              <div class="settings-field">
+                <label for="set_admin_pin">본부 관리 포털 비밀번호 (ADMIN_PIN)</label>
+                <div style="display: flex; gap: 6px;">
+                  <input type="password" id="set_admin_pin" class="settings-input" placeholder="AWANA2026" />
+                  <button type="button" class="btn-row-ghost" id="btnTogglePinEye" onclick="toggleAdminPinVisibility()" style="white-space: nowrap;">보기</button>
+                </div>
+              </div>
+              <div class="settings-switch-row">
+                <div>
+                  <div style="font-size: 0.85rem; font-weight: 700; color: #0f172a;">객관식 점수 직접 입력 허용</div>
+                  <div style="font-size: 0.74rem; color: #64748b;">OFF 시 시험장 객관식 화면에서 O/X 채점만 표시</div>
+                </div>
+                <label class="ios-switch">
+                  <input type="checkbox" id="set_allow_multiple_direct" />
+                  <span class="ios-slider"></span>
+                </label>
+              </div>
+              <div class="settings-switch-row">
+                <div>
+                  <div style="font-size: 0.85rem; font-weight: 700; color: #0f172a;">스피드 퀴즈 점수 직접 입력 허용</div>
+                  <div style="font-size: 0.74rem; color: #64748b;">OFF 시 시험장 스피드 화면에서 O/X 채점만 표시</div>
+                </div>
+                <label class="ios-switch">
+                  <input type="checkbox" id="set_allow_speed_direct" />
+                  <span class="ios-slider"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- 카드 2: 스피드 규칙 & 메달 비율 (숫자 전용) -->
+          <div class="settings-card">
+            <div class="settings-card-title">
+              <span>📊 채점 규칙 & 메달 비율 (숫자 전용)</span>
+              <span id="medalRatioSumBadge" style="font-size: 0.78rem; font-weight: 800; padding: 2px 9px; border-radius: 999px; background: #ecfdf5; color: #047857;">합계 100%</span>
+            </div>
+            <div class="settings-field-grid" style="margin-bottom: 14px;">
+              <div class="settings-field">
+                <label for="set_speed_max_o">스피드 최대 정답 수 (1~10, 정수)</label>
+                <input type="number" inputmode="numeric" id="set_speed_max_o" class="settings-input" min="1" max="10" step="1" onkeydown="blockNonIntegerKey(event)" />
+              </div>
+              <div class="settings-field">
+                <label for="set_speed_max_x">스피드 최대 오답 수 (1~10, 정수)</label>
+                <input type="number" inputmode="numeric" id="set_speed_max_x" class="settings-input" min="1" max="10" step="1" onkeydown="blockNonIntegerKey(event)" />
+              </div>
+            </div>
+            <div class="settings-field-grid-3">
+              <div class="settings-field">
+                <label for="set_gold_ratio">🥇 금메달 비율 (%)</label>
+                <input type="number" inputmode="numeric" id="set_gold_ratio" class="settings-input" min="0" max="100" step="1" onkeydown="blockNonIntegerKey(event)" oninput="updateMedalRatioSumLive()" />
+              </div>
+              <div class="settings-field">
+                <label for="set_silver_ratio">🥈 은메달 비율 (%)</label>
+                <input type="number" inputmode="numeric" id="set_silver_ratio" class="settings-input" min="0" max="100" step="1" onkeydown="blockNonIntegerKey(event)" oninput="updateMedalRatioSumLive()" />
+              </div>
+              <div class="settings-field">
+                <label for="set_bronze_ratio">🥉 동메달 비율 (%)</label>
+                <input type="number" inputmode="numeric" id="set_bronze_ratio" class="settings-input" min="0" max="100" step="1" onkeydown="blockNonIntegerKey(event)" oninput="updateMedalRatioSumLive()" />
+              </div>
+            </div>
+            <div style="margin-top: 12px; padding: 10px 12px; border-radius: 10px; background: #f8fafc; border: 1px solid #e2e8f0; font-size: 0.78rem; color: #475569; line-height: 1.5;">
+              • 스피드 최대 정답 수 변경 시 시험장 직접 입력 개인 상한(<b>20 × 최대정답수</b>)과 O/X 자동 잠금 기준이 자동 연동됩니다.<br>
+              • 금·은·동메달 비율 합계는 반드시 <b>100%</b>여야 저장할 수 있습니다.
+            </div>
+          </div>
+        </div>
+
+        <!-- 카드 3: 12개 시험장 접속 코드 -->
+        <div class="settings-card">
+          <div class="settings-card-title">
+            <span>🔐 12개 시험장 접속 코드 (PIN)</span>
+            <span style="font-size: 0.76rem; font-weight: 600; color: #64748b;">영문·숫자 대소문자 구분 없음</span>
+          </div>
+          <div class="code-room-grid" id="settingsRoomCodesGrid"></div>
+        </div>
       </div>
     </section>
   </div>
@@ -2867,7 +3153,215 @@
         renderStandingsView();
       } else if (tabKey === 'handbook-awards') {
         renderHandbookAwardsTab();
+      } else if (tabKey === 'settings') {
+        renderSettingsTab();
       }
+    }
+
+    const SETTINGS_ROOM_LIST = [
+      { name: '스팍스1', club: 'sparks', defaultCode: 'SP01' },
+      { name: '스팍스2', club: 'sparks', defaultCode: 'SP02' },
+      { name: '스팍스3', club: 'sparks', defaultCode: 'SP03' },
+      { name: '스팍스4', club: 'sparks', defaultCode: 'SP04' },
+      { name: '스팍스5', club: 'sparks', defaultCode: 'SP05' },
+      { name: '티앤티1', club: 'tnt', defaultCode: 'TT01' },
+      { name: '티앤티2', club: 'tnt', defaultCode: 'TT02' },
+      { name: '티앤티3', club: 'tnt', defaultCode: 'TT03' },
+      { name: '티앤티4', club: 'tnt', defaultCode: 'TT04' },
+      { name: '티앤티5', club: 'tnt', defaultCode: 'TT05' },
+      { name: '티앤티6', club: 'tnt', defaultCode: 'TT06' },
+      { name: '티앤티7', club: 'tnt', defaultCode: 'TT07' }
+    ];
+
+    function blockNonIntegerKey(e) {
+      if (['e', 'E', '+', '-', '.'].includes(e.key)) {
+        e.preventDefault();
+      }
+    }
+
+    function toggleAdminPinVisibility() {
+      const inp = document.getElementById('set_admin_pin');
+      const btn = document.getElementById('btnTogglePinEye');
+      if (!inp || !btn) return;
+      const isPwd = inp.type === 'password';
+      inp.type = isPwd ? 'text' : 'password';
+      btn.innerText = isPwd ? '숨김' : '보기';
+    }
+
+    function parseSettingBoolY(val) {
+      if (val === undefined || val === null || String(val).trim() === '') return true;
+      const norm = String(val).trim().toUpperCase();
+      return norm !== 'N' && norm !== 'NO' && norm !== 'OFF' && norm !== 'FALSE' && norm !== '0';
+    }
+
+    function updateMedalRatioSumLive() {
+      const g = Number(document.getElementById('set_gold_ratio')?.value || 0);
+      const s = Number(document.getElementById('set_silver_ratio')?.value || 0);
+      const b = Number(document.getElementById('set_bronze_ratio')?.value || 0);
+      const sum = g + s + b;
+      const badge = document.getElementById('medalRatioSumBadge');
+      if (!badge) return;
+      if (sum === 100) {
+        badge.style.background = '#ecfdf5';
+        badge.style.color = '#047857';
+        badge.innerText = '합계 100%';
+      } else {
+        badge.style.background = '#fef2f2';
+        badge.style.color = '#dc2626';
+        badge.innerText = `⚠️ 합계 ${sum}% (100% 필요)`;
+      }
+    }
+
+    function renderSettingsTab() {
+      const st = HQ_DATA.settings || {};
+      const setVal = (id, val) => {
+        const el = document.getElementById(id);
+        if (el) el.value = val !== undefined && val !== null ? val : '';
+      };
+
+      setVal('set_title', st['대회제목'] || '2026 AWANA 성경퀴즈대회');
+      setVal('set_admin_pin', st['ADMIN_PIN'] || 'AWANA2026');
+      setVal('set_speed_max_o', st['스피드_최대정답수'] !== undefined ? st['스피드_최대정답수'] : 3);
+      setVal('set_speed_max_x', st['스피드_최대오답수'] !== undefined ? st['스피드_최대오답수'] : 3);
+      setVal('set_gold_ratio', st['금메달_비율'] !== undefined ? st['금메달_비율'] : 30);
+      setVal('set_silver_ratio', st['은메달_비율'] !== undefined ? st['은메달_비율'] : 40);
+      setVal('set_bronze_ratio', st['동메달_비율'] !== undefined ? st['동메달_비율'] : 30);
+
+      const chkM = document.getElementById('set_allow_multiple_direct');
+      const chkS = document.getElementById('set_allow_speed_direct');
+      if (chkM) chkM.checked = parseSettingBoolY(st['객관식_직접입력허용']);
+      if (chkS) chkS.checked = parseSettingBoolY(st['스피드_직접입력허용']);
+
+      updateMedalRatioSumLive();
+
+      const grid = document.getElementById('settingsRoomCodesGrid');
+      if (grid) {
+        grid.innerHTML = SETTINGS_ROOM_LIST.map(r => {
+          const val = st['CODE_' + r.name] || r.defaultCode;
+          return `
+            <div class="code-room-item">
+              <div style="display: flex; align-items: center; gap: 7px;">
+                <span class="room-dot ${r.club}"></span>
+                <b style="font-size: 0.86rem; color: #0f172a;">${r.name}</b>
+              </div>
+              <input type="text" id="set_code_${r.name}" class="settings-input" value="${String(val).replace(/"/g, '&quot;')}" maxlength="12" />
+            </div>
+          `;
+        }).join('');
+      }
+    }
+
+    function saveHqSettings() {
+      const title = (document.getElementById('set_title')?.value || '').trim();
+      const adminPin = (document.getElementById('set_admin_pin')?.value || '').trim();
+      const maxORaw = (document.getElementById('set_speed_max_o')?.value || '').trim();
+      const maxXRaw = (document.getElementById('set_speed_max_x')?.value || '').trim();
+      const goldRaw = (document.getElementById('set_gold_ratio')?.value || '').trim();
+      const silverRaw = (document.getElementById('set_silver_ratio')?.value || '').trim();
+      const bronzeRaw = (document.getElementById('set_bronze_ratio')?.value || '').trim();
+
+      if (!title) {
+        showCustomAlert('입력 오류', '대회 제목을 입력해 주세요.', 'warn');
+        return;
+      }
+      if (!adminPin) {
+        showCustomAlert('입력 오류', '본부 관리 포털 비밀번호(ADMIN_PIN)를 입력해 주세요.', 'warn');
+        return;
+      }
+
+      const isValidInt = (str, min, max) => /^\d+$/.test(str) && Number(str) >= min && Number(str) <= max;
+      if (!isValidInt(maxORaw, 1, 10) || !isValidInt(maxXRaw, 1, 10)) {
+        showCustomAlert('숫자 입력 오류', '스피드 최대 정답 수와 최대 오답 수는 1~10 사이의 정수만 입력할 수 있습니다.', 'warn');
+        return;
+      }
+      if (!isValidInt(goldRaw, 0, 100) || !isValidInt(silverRaw, 0, 100) || !isValidInt(bronzeRaw, 0, 100)) {
+        showCustomAlert('숫자 입력 오류', '금·은·동메달 비율은 0~100 사이의 정수만 입력할 수 있습니다.', 'warn');
+        return;
+      }
+
+      const gold = Number(goldRaw);
+      const silver = Number(silverRaw);
+      const bronze = Number(bronzeRaw);
+      if (gold + silver + bronze !== 100) {
+        showCustomAlert('비율 합계 오류', `금(${gold}%) + 은(${silver}%) + 동(${bronze}%) 합계가 ${gold + silver + bronze}%입니다.\n합계가 정확히 100%가 되도록 맞춰주세요.`, 'warn');
+        return;
+      }
+
+      const allowMultiple = document.getElementById('set_allow_multiple_direct')?.checked ? 'Y' : 'N';
+      const allowSpeed = document.getElementById('set_allow_speed_direct')?.checked ? 'Y' : 'N';
+
+      const newSettings = {
+        '대회제목': title,
+        'ADMIN_PIN': adminPin,
+        '스피드_최대정답수': Number(maxORaw),
+        '스피드_최대오답수': Number(maxXRaw),
+        '금메달_비율': gold,
+        '은메달_비율': silver,
+        '동메달_비율': bronze,
+        '객관식_직접입력허용': allowMultiple,
+        '스피드_직접입력허용': allowSpeed
+      };
+
+      const descriptions = {
+        '객관식_직접입력허용': '객관식 점수 직접 입력 모드 토글 표시 여부 (Y/N)',
+        '스피드_직접입력허용': '스피드 퀴즈 점수 직접 입력 모드 토글 표시 여부 (Y/N)'
+      };
+
+      for (const r of SETTINGS_ROOM_LIST) {
+        const code = (document.getElementById(`set_code_${r.name}`)?.value || '').trim().toUpperCase();
+        if (!code) {
+          showCustomAlert('접속 코드 누락', `[${r.name}] 시험장의 접속 코드를 입력해 주세요.`, 'warn');
+          return;
+        }
+        newSettings['CODE_' + r.name] = code;
+      }
+
+      showCustomConfirm(
+        '대회 설정 저장 확인',
+        `<div class="modal-callout-box callout-submit">
+           • <b>대회 제목:</b> ${title}<br>
+           • <b>스피드 규칙:</b> 최대 정답 ${maxORaw}회 / 최대 오답 ${maxXRaw}회<br>
+           • <b>메달 비율:</b> 금 ${gold}% · 은 ${silver}% · 동 ${bronze}%<br>
+           • <b>직접 입력 허용:</b> 객관식 <b>${allowMultiple === 'Y' ? 'ON' : 'OFF'}</b> · 스피드 <b>${allowSpeed === 'Y' ? 'ON' : 'OFF'}</b>
+         </div>
+         변경된 설정을 구글 시트 '설정' 탭에 저장하시겠습니까?`,
+        async () => {
+          showHqLoading('대회 설정을 저장하는 중입니다...');
+          try {
+            const resp = await fetch(GAS_URL, {
+              method: 'POST',
+              headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+              body: JSON.stringify({
+                action: 'updateSettings',
+                settings: newSettings,
+                descriptions: descriptions
+              })
+            });
+            const result = await resp.json();
+            if (result.status !== 'success') {
+              throw new Error(result.message || '설정 저장 실패');
+            }
+            HQ_DATA.settings = result.settings || Object.assign({}, HQ_DATA.settings, newSettings);
+            document.title = title + ' - 본부 관리 포털';
+            const hqTitleEl = document.querySelector('.hq-title');
+            if (hqTitleEl) hqTitleEl.textContent = title + ' 본부 관리 포털';
+            renderSettingsTab();
+            showCustomAlert(
+              '설정 저장 완료',
+              '구글 시트 설정 탭에 정상 반영되었습니다.\n각 시험장 화면은 새로고침(F5) 시 새 설정이 즉시 적용됩니다.',
+              'success'
+            );
+          } catch (err) {
+            console.error('설정 저장 오류:', err);
+            showCustomAlert('설정 저장 실패', '저장 중 오류가 발생했습니다: ' + err.message, 'warn');
+          } finally {
+            hideHqLoading();
+          }
+        },
+        null,
+        'submit',
+        { confirmText: '💾 설정 저장하기', cancelText: '취소' }
+      );
     }
 
     const OFFICIAL_11_HANDBOOKS = [
