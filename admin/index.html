@@ -1967,7 +1967,7 @@
       grid-template-columns: 1fr 1fr;
       gap: 14px;
       overflow-y: auto;
-      align-items: start;
+      align-items: stretch;
     }
 
     .top-club-panel {
@@ -1976,6 +1976,12 @@
       border-radius: 14px;
       overflow: hidden;
       box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .top-club-panel > div:last-child {
+      flex: 1;
       display: flex;
       flex-direction: column;
     }
@@ -1992,7 +1998,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 11px 16px;
+      padding: 12px 18px;
       background: #f8fafc;
       border-bottom: 1px solid #e2e8f0;
     }
@@ -2001,15 +2007,15 @@
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      font-size: 0.96rem;
+      font-size: 1rem;
       font-weight: 800;
       color: #0f172a;
     }
 
     .top-club-count {
-      font-size: 0.78rem;
+      font-size: 0.82rem;
       font-weight: 700;
-      padding: 2px 9px;
+      padding: 3px 10px;
       border-radius: 999px;
     }
 
@@ -2024,11 +2030,12 @@
     }
 
     .top-hb-row {
+      flex: 1;
       display: grid;
-      grid-template-columns: 155px 1fr;
-      gap: 12px;
+      grid-template-columns: 185px 1fr;
+      gap: 14px;
       align-items: center;
-      padding: 12px 16px;
+      padding: 14px 18px;
       border-bottom: 1px solid #f1f5f9;
     }
 
@@ -2039,13 +2046,14 @@
     .top-hb-meta {
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      gap: 5px;
     }
 
     .top-hb-name {
-      font-size: 0.92rem;
+      font-size: 1.02rem;
       font-weight: 800;
       color: #0f172a;
+      letter-spacing: -0.01em;
     }
 
     .top-score-pill {
@@ -2053,9 +2061,9 @@
       align-items: center;
       width: fit-content;
       gap: 4px;
-      padding: 2px 8px;
+      padding: 3px 10px;
       border-radius: 999px;
-      font-size: 0.75rem;
+      font-size: 0.82rem;
       font-weight: 800;
       font-variant-numeric: tabular-nums;
       background: #fef3c7;
@@ -2070,35 +2078,34 @@
     .top-winners-wrap {
       display: flex;
       flex-wrap: wrap;
-      gap: 7px;
+      gap: 10px;
       align-items: center;
     }
 
     .top-winner-chip {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      padding: 6px 11px;
-      border-radius: 9px;
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
-      font-size: 0.85rem;
+      gap: 8px;
+      padding: 9px 15px;
+      border-radius: 10px;
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      font-size: 1.05rem;
       color: #0f172a;
+      line-height: 1.25;
+    }
+
+    .top-winner-chip b {
+      font-size: 1.12rem;
+      font-weight: 900;
+      color: #0f172a;
+      letter-spacing: -0.02em;
     }
 
     .top-winner-chip .w-church {
-      color: #475569;
-      font-size: 0.8rem;
-      font-weight: 600;
-    }
-
-    .top-winner-chip .w-meta {
-      color: #64748b;
-      font-size: 0.74rem;
-      padding: 1px 6px;
-      border-radius: 5px;
-      background: #ffffff;
-      border: 1px solid #e2e8f0;
+      color: #334155;
+      font-size: 0.96rem;
+      font-weight: 700;
     }
 
     @media print {
@@ -2752,20 +2759,20 @@
           <table class="hq-table" id="hbAwardTable">
             <thead>
               <tr>
-                <th style="width: 48px;">No.</th>
-                <th style="width: 128px;">핸드북</th>
-                <th style="width: 56px;">석차</th>
-                <th style="width: 86px;">메달</th>
-                <th style="width: 88px;">시험장</th>
-                <th style="width: 52px;">학년</th>
-                <th style="width: 52px;">조</th>
-                <th style="width: 56px;">번호</th>
-                <th>교회명</th>
-                <th style="width: 92px;">이름</th>
-                <th style="width: 82px;">필기</th>
-                <th style="width: 92px;">객관식(오전)</th>
-                <th style="width: 96px;" id="thHbAwardAfternoon">객관식(오후)</th>
-                <th style="width: 84px;">최종총점</th>
+                <th style="width: 4%;">No.</th>
+                <th style="width: 10%;">핸드북</th>
+                <th style="width: 4.5%;">석차</th>
+                <th style="width: 7%;">메달</th>
+                <th style="width: 6.5%;">시험장</th>
+                <th style="width: 4%;">학년</th>
+                <th style="width: 4%;">조</th>
+                <th style="width: 4.5%;">번호</th>
+                <th style="width: 19%;">교회명</th>
+                <th style="width: 8.5%;">이름</th>
+                <th style="width: 7%;">필기</th>
+                <th style="width: 7%;">객관식(오전)</th>
+                <th style="width: 7%;" id="thHbAwardAfternoon">오후 퀴즈</th>
+                <th style="width: 7%;">최종총점</th>
               </tr>
             </thead>
             <tbody id="hbAwardTableBody"></tbody>
@@ -3722,13 +3729,18 @@
     function renderHandbookAwardsTab() {
       const sel = document.getElementById('hbAwardFilterSelect');
       if (sel && sel.options.length === 0) {
+        const allOpt = document.createElement('option');
+        allOpt.value = 'ALL';
+        allOpt.textContent = '전체 핸드북';
+        sel.appendChild(allOpt);
+
         OFFICIAL_11_HANDBOOKS.forEach(hb => {
           const opt = document.createElement('option');
           opt.value = hb;
           opt.textContent = hb;
           sel.appendChild(opt);
         });
-        sel.value = '행글라이더 1학년';
+        sel.value = 'ALL';
       }
 
       // 최고득점자 모아보기 — SPARKS(5개) / T&T(6개) 2단 공식 명예의 전당 보드
@@ -3747,13 +3759,12 @@
             const maxScore = rows.length > 0 ? rows[0].total : 0;
 
             const winnersHtml = rows.length === 0
-              ? '<span style="color:#94a3b8; font-size:0.84rem;">아직 집계된 점수가 없습니다</span>'
+              ? '<span style="color:#94a3b8; font-size:0.9rem;">아직 집계된 점수가 없습니다</span>'
               : rows.map(r => `
                   <span class="top-winner-chip">
                     <span>🏆</span>
                     <b>${r.name}</b>
                     <span class="w-church">${r.church}</span>
-                    ${r.room ? `<span class="w-meta">${r.room} · ${r.team}조</span>` : ''}
                   </span>
                 `).join('');
 
@@ -3799,17 +3810,23 @@
     function renderHandbookAwardsTable() {
       const tbody = document.getElementById('hbAwardTableBody');
       if (!tbody) return;
-      const filterHb = document.getElementById('hbAwardFilterSelect')?.value || '행글라이더 1학년';
+      const filterHb = document.getElementById('hbAwardFilterSelect')?.value || 'ALL';
       const query = (document.getElementById('hbAwardSearchInput')?.value || '').trim().toLowerCase();
 
-      // 선택된 핸드북에 따라 오후 컬럼 헤더 동적 변경 (SPARKS: 객관식(오후), T&T: 스피드(오후))
+      // 선택된 핸드북에 따라 오후 컬럼 헤더 동적 변경
       const thAfternoon = document.getElementById('thHbAwardAfternoon');
       if (thAfternoon) {
-        const isSparks = filterHb.includes('행글라이더') || filterHb.includes('윙러너') || filterHb.includes('스카이스토머');
-        thAfternoon.textContent = isSparks ? '객관식(오후)' : '스피드(오후)';
+        if (filterHb === 'ALL') {
+          thAfternoon.textContent = '오후 퀴즈';
+        } else {
+          const isSparks = filterHb.includes('행글라이더') || filterHb.includes('윙러너') || filterHb.includes('스카이스토머');
+          thAfternoon.textContent = isSparks ? '객관식(오후)' : '스피드(오후)';
+        }
       }
 
-      let allRows = computeHandbookAwardRows(filterHb);
+      let allRows = filterHb === 'ALL'
+        ? OFFICIAL_11_HANDBOOKS.flatMap(hb => computeHandbookAwardRows(hb))
+        : computeHandbookAwardRows(filterHb);
 
       if (query) {
         allRows = allRows.filter(r =>
@@ -3858,7 +3875,7 @@
         const countStr = rows.length > 0 ? `${rows.length}명` : '-';
         const winnersHtml = rows.length === 0
           ? '<span style="color:#94a3b8;">미집계</span>'
-          : rows.map(r => `<span class="p-chip"><b>${r.name}</b> (${r.church}${r.room ? ` · ${r.room}` : ''})</span>`).join(' ');
+          : rows.map(r => `<span class="p-chip"><b>${r.name}</b> <span class="p-church">(${r.church})</span></span>`).join(' ');
 
         return `
           <tr>
@@ -3887,14 +3904,16 @@
           .sec-title { font-size: 13px; font-weight: 800; padding: 6px 10px; margin: 12px 0 6px; border-radius: 6px; }
           .sec-sparks { background: #fff1f2; color: #be123c; border-left: 4px solid #e11d48; }
           .sec-tnt { background: #ecfdf5; color: #047857; border-left: 4px solid #059669; }
-          table { width: 100%; border-collapse: collapse; font-size: 12px; table-layout: fixed; }
-          th, td { border: 1px solid #cbd5e1; padding: 7px 9px; vertical-align: middle; }
+          table { width: 100%; border-collapse: collapse; font-size: 12.5px; table-layout: fixed; }
+          th, td { border: 1px solid #cbd5e1; padding: 7px 10px; vertical-align: middle; }
           th { background: #f1f5f9; font-weight: 800; color: #1e293b; text-align: center; }
           .col-hb { width: 145px; text-align: center; background: #fafafa; }
           .col-score { width: 72px; text-align: center; color: #b45309; }
           .col-cnt { width: 52px; text-align: center; }
-          .col-winners { text-align: left; line-height: 1.65; }
-          .p-chip { display: inline-block; margin: 1px 6px 1px 0; white-space: nowrap; }
+          .col-winners { text-align: left; line-height: 1.7; }
+          .p-chip { display: inline-block; margin: 1px 10px 1px 0; white-space: nowrap; }
+          .p-chip b { font-size: 13.5px; color: #0f172a; }
+          .p-church { font-size: 12.5px; color: #334155; }
           @media print {
             body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
           }
@@ -3914,7 +3933,7 @@
                 <th class="col-hb">핸드북</th>
                 <th class="col-score">최고점수</th>
                 <th class="col-cnt">인원</th>
-                <th>최고득점자 (교회명 · 시험장)</th>
+                <th>최고득점자 (교회명)</th>
               </tr>
             </thead>
             <tbody>${sparksRows}</tbody>
@@ -3927,7 +3946,7 @@
                 <th class="col-hb">핸드북</th>
                 <th class="col-score">최고점수</th>
                 <th class="col-cnt">인원</th>
-                <th>최고득점자 (교회명 · 시험장)</th>
+                <th>최고득점자 (교회명)</th>
               </tr>
             </thead>
             <tbody>${tntRows}</tbody>
