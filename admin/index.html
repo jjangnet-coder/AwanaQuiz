@@ -1849,10 +1849,10 @@
     }
 
     .settings-input-num {
-      text-align: center;
+      text-align: right;
       font-size: 0.98rem;
       font-weight: 800;
-      padding-right: 28px;
+      padding-right: 34px;
     }
 
     .settings-num-unit {
@@ -2132,6 +2132,11 @@
     .top-club-count.tnt {
       background: #ecfdf5;
       color: #047857;
+    }
+
+    .top-club-count.other {
+      background: #e2e8f0;
+      color: #334155;
     }
 
     .top-hb-row {
@@ -2920,22 +2925,26 @@
       <div class="settings-scroll-body">
         <div class="settings-top-row">
           <!-- 카드 1: 대회 기본 설정 & 입력 모드 제어 -->
-          <div class="settings-card">
-            <div class="settings-card-title">
-              <span>🏆 대회 기본 정보 & 입력 모드 제어</span>
-            </div>
-            <div style="display: flex; flex-direction: column; gap: 10px;">
-              <div class="settings-field">
-                <label for="set_title">대회 제목 (헤더 · 인쇄물 · 엑셀 파일명)</label>
-                <input type="text" id="set_title" class="settings-input" placeholder="2026 AWANA 성경퀴즈대회" />
+          <div class="settings-card settings-card-flex">
+            <div>
+              <div class="settings-card-title">
+                <span>🏆 대회 기본 정보 & 입력 모드 제어</span>
               </div>
-              <div class="settings-field">
-                <label for="set_admin_pin">본부 관리 포털 비밀번호 (ADMIN_PIN)</label>
-                <div style="display: flex; gap: 6px;">
-                  <input type="password" id="set_admin_pin" class="settings-input" placeholder="AWANA2026" />
-                  <button type="button" class="btn-row-ghost" id="btnTogglePinEye" onclick="toggleAdminPinVisibility()" style="white-space: nowrap;">보기</button>
+              <div class="settings-sub-box" style="display: flex; flex-direction: column; gap: 10px;">
+                <div class="settings-field">
+                  <label for="set_title">대회 제목 (헤더 · 인쇄물 · 엑셀 파일명)</label>
+                  <input type="text" id="set_title" class="settings-input" placeholder="2026 AWANA 성경퀴즈대회" />
+                </div>
+                <div class="settings-field">
+                  <label for="set_admin_pin">본부 관리 포털 비밀번호 (ADMIN_PIN)</label>
+                  <div style="display: flex; gap: 6px;">
+                    <input type="password" id="set_admin_pin" class="settings-input" placeholder="AWANA2026" />
+                    <button type="button" class="btn-row-ghost" id="btnTogglePinEye" onclick="toggleAdminPinVisibility()" style="white-space: nowrap;">보기</button>
+                  </div>
                 </div>
               </div>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
               <div class="settings-switch-row">
                 <div>
                   <div style="font-size: 0.85rem; font-weight: 700; color: #0f172a;">객관식 점수 직접 입력 허용</div>
@@ -2964,7 +2973,6 @@
             <div>
               <div class="settings-card-title">
                 <span>📊 채점 규칙 & 메달 비율</span>
-                <span id="medalRatioSumBadge" style="font-size: 0.78rem; font-weight: 800; padding: 2px 9px; border-radius: 999px; background: #ecfdf5; color: #047857;">합계 100%</span>
               </div>
               <div style="display: flex; flex-direction: column; gap: 10px;">
                 <div class="settings-sub-box">
@@ -2993,7 +3001,7 @@
                 <div class="settings-sub-box">
                   <div class="settings-sub-title">
                     <span>🏅 메달 시상 비율</span>
-                    <span style="font-weight: 600; color: #64748b;">합계 100% 필수</span>
+                    <span id="medalRatioSumBadge" style="font-size: 0.76rem; font-weight: 800; padding: 2px 9px; border-radius: 999px; background: #ecfdf5; color: #047857;">합계 100%</span>
                   </div>
                   <div class="settings-field-grid-3">
                     <div class="settings-field">
@@ -3702,7 +3710,7 @@
                 <span style="display: inline-flex; align-items: center; gap: 7px;">
                   <span class="room-dot ${g.key}"></span>${g.label}
                 </span>
-                <span style="font-size: 0.76rem; font-weight: 700; color: #64748b;">${g.rooms.length}개</span>
+                <span class="top-club-count ${g.key}">${g.rooms.length}개</span>
               </div>
               <div class="code-room-grid">${itemsHtml}</div>
             </div>
