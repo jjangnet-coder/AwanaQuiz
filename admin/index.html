@@ -1716,7 +1716,7 @@
     }
 
     /* 단원 관리 · 필기 채점 · 핸드북별 결과 탭 풀높이 통일 (매직 넘버 0개) */
-    #tab-participants.active,
+    #tab-roster.active,
     #tab-written.active,
     #tab-handbook-awards.active {
       display: flex !important;
@@ -1727,7 +1727,7 @@
       overflow: hidden !important;
     }
 
-    #tab-awards.active {
+    #tab-standings.active {
       flex: 1;
       min-height: 0;
       overflow-y: auto;
@@ -1929,18 +1929,18 @@
       letter-spacing: 0.04em;
     }
 
-    #tab-participants .filter-bar,
+    #tab-roster .filter-bar,
     #tab-written .filter-bar {
       flex-shrink: 0;
     }
 
-    #tab-participants .hq-table-container {
+    #tab-roster .hq-table-container {
       flex: 1;
       min-height: 0;
       overflow-y: auto;
     }
 
-    #tab-participants .hq-table thead th,
+    #tab-roster .hq-table thead th,
     #tab-handbook-awards .hq-table thead th {
       position: sticky;
       top: 0;
@@ -1953,8 +1953,8 @@
       .container,
       .tab-content.active,
       #tab-handbook-awards.active,
-      #tab-participants.active,
-      #tab-awards.active {
+      #tab-roster.active,
+      #tab-standings.active {
         height: auto !important;
         min-height: 0 !important;
         overflow: visible !important;
