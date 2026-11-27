@@ -353,7 +353,7 @@
       justify-content: space-between;
       gap: 12px;
       padding-bottom: 16px;
-      border-bottom: 1px solid var(--border-light);
+      border-bottom: 1px solid #cbd5e1;
       margin-bottom: 16px;
     }
 
@@ -395,29 +395,49 @@
     }
 
     .hq-table th {
-      background: #f1f5f9;
-      color: #334155;
+      background: #e9eff6;
+      color: #1e293b;
       font-weight: 700;
       padding: 10px 8px;
-      border-bottom: 1px solid var(--border-color);
-      border-right: 1px solid #e2e8f0;
+      border-bottom: 2px solid #94a3b8;
+      border-right: 1px solid #cbd5e1;
       white-space: nowrap;
+    }
+
+    .hq-table th:last-child {
+      border-right: none;
     }
 
     .hq-table td {
       padding: 9px 8px;
-      border-bottom: 1px solid #e2e8f0;
-      border-right: 1px solid #f1f5f9;
+      border-bottom: 1px solid #cbd5e1;
+      border-right: 1px solid #e2e8f0;
       white-space: nowrap;
     }
 
-    .hq-table tr:hover {
-      background-color: #f8fafc;
+    .hq-table td:last-child {
+      border-right: none;
     }
 
-    .hq-table tr.row-absent {
-      background-color: #f8fafc;
+    .hq-table tbody tr:nth-child(odd) {
+      background-color: #ffffff;
+    }
+
+    .hq-table tbody tr:nth-child(even) {
+      background-color: #f4f7fb;
+    }
+
+    .hq-table tbody tr:hover {
+      background-color: #e0f2fe !important;
+    }
+
+    .hq-table tbody tr.row-absent {
+      background-color: #fef2f2;
       color: #94a3b8;
+    }
+
+    .hq-table tbody tr.hb-group-start td {
+      border-top: 2.5px solid #64748b !important;
     }
 
     .hq-table tr.row-absent td {
@@ -689,7 +709,7 @@
 
     .written-table td:last-child {
       border-right: none;
-      background-color: #f8faff;
+      background-color: rgba(59, 130, 246, 0.04);
     }
 
     /* 필기 입력 인풋 */
@@ -1309,7 +1329,7 @@
     }
 
     .summary-table tr:nth-child(even):not(.total-row) {
-      background: #fafafa;
+      background: #f1f5f9;
     }
 
     .signature-box-container {
@@ -1372,7 +1392,7 @@
       flex-shrink: 0;
       background: rgba(255, 255, 255, 0.94) !important;
       backdrop-filter: blur(12px);
-      border: 1px solid rgba(15, 23, 42, 0.07) !important;
+      border: 1px solid #d5dde8 !important;
       box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04), 0 4px 12px -4px rgba(15, 23, 42, 0.05) !important;
       border-radius: 14px !important;
       padding: 8px 16px !important;
@@ -1441,7 +1461,7 @@
     /* 탭 공통 패널 */
     .tab-content {
       background: #ffffff !important;
-      border: 1px solid rgba(15, 23, 42, 0.06) !important;
+      border: 1px solid #d5dde8 !important;
       border-radius: 16px !important;
       box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03), 0 6px 20px -6px rgba(15, 23, 42, 0.05) !important;
       padding: 18px 20px !important;
@@ -1469,7 +1489,7 @@
 
     .metric-card {
       background: #ffffff !important;
-      border: 1px solid rgba(15, 23, 42, 0.06) !important;
+      border: 1px solid #d5dde8 !important;
       border-radius: 14px !important;
       padding: 12px 18px !important;
       box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03), 0 6px 20px -6px rgba(15, 23, 42, 0.05) !important;
@@ -1516,7 +1536,7 @@
       margin-bottom: 10px !important;
       flex-shrink: 0;
       background: #ffffff;
-      border: 1px solid rgba(15, 23, 42, 0.06);
+      border: 1px solid #d5dde8;
       border-radius: 12px;
       box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
     }
@@ -1532,7 +1552,7 @@
 
     .room-monitor-card {
       background: #ffffff !important;
-      border: 1px solid rgba(15, 23, 42, 0.06) !important;
+      border: 1px solid #d5dde8 !important;
       border-radius: 14px !important;
       padding: 10px 14px !important;
       min-height: 0;
@@ -1541,7 +1561,7 @@
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      border-top: 1px solid rgba(15, 23, 42, 0.06) !important;
+      border-top: 1px solid #d5dde8 !important;
     }
 
     .room-monitor-card:hover {
@@ -1550,7 +1570,7 @@
     }
 
     .room-monitor-header {
-      border-bottom: 1px solid #f1f5f9 !important;
+      border-bottom: 1px solid #e2e8f0 !important;
       padding-bottom: 6px !important;
       margin-bottom: 7px !important;
       flex-shrink: 0;
@@ -1600,7 +1620,7 @@
 
     .period-card-item {
       background: #f8fafc !important;
-      border: 1px solid #eef2f6 !important;
+      border: 1px solid #cbd5e1 !important;
       border-radius: 9px !important;
       padding: 6px 5px !important;
     }
@@ -1710,7 +1730,7 @@
       flex: 1 !important;
       min-height: 0 !important;
       height: auto !important;
-      border: 1px solid #e2e8f0 !important;
+      border: 1px solid #cbd5e1 !important;
       border-radius: 12px !important;
       overflow-y: hidden !important;
     }
@@ -1753,7 +1773,7 @@
       padding: 12px 18px;
       margin-bottom: 12px;
       background: #ffffff;
-      border: 1px solid rgba(15, 23, 42, 0.06);
+      border: 1px solid #d5dde8;
       border-radius: 14px;
       box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
       flex-shrink: 0;
@@ -1778,7 +1798,7 @@
     .hq-header-divider {
       width: 1px;
       height: 20px;
-      background: #e2e8f0;
+      background: #cbd5e1;
       margin: 0 8px;
       flex-shrink: 0;
     }
@@ -1791,7 +1811,7 @@
 
     .settings-card {
       background: #ffffff;
-      border: 1px solid rgba(15, 23, 42, 0.06);
+      border: 1px solid #d5dde8;
       border-radius: 16px;
       padding: 16px 20px;
       box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03), 0 6px 18px -6px rgba(15, 23, 42, 0.05);
@@ -1803,7 +1823,7 @@
       color: #0f172a;
       margin-bottom: 12px;
       padding-bottom: 8px;
-      border-bottom: 1px solid #f1f5f9;
+      border-bottom: 1px solid #e2e8f0;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -1855,7 +1875,7 @@
       justify-content: space-between;
       padding: 9px 12px;
       background: #f8fafc;
-      border: 1px solid #e2e8f0;
+      border: 1px solid #cbd5e1;
       border-radius: 10px;
       gap: 12px;
     }
@@ -1918,7 +1938,7 @@
       padding: 8px 12px;
       border-radius: 10px;
       background: #f8fafc;
-      border: 1px solid #e2e8f0;
+      border: 1px solid #cbd5e1;
     }
 
     .code-room-item input {
@@ -3853,8 +3873,10 @@
         return;
       }
 
-      tbody.innerHTML = allRows.map((r, idx) => `
-        <tr>
+      tbody.innerHTML = allRows.map((r, idx) => {
+        const isGroupStart = filterHb === 'ALL' && idx > 0 && r.handbook !== allRows[idx - 1].handbook;
+        return `
+        <tr class="${isGroupStart ? 'hb-group-start' : ''}">
           <td>${idx + 1}</td>
           <td>${r.handbook}</td>
           <td><b>${r.rank || '-'}</b></td>
@@ -3870,7 +3892,8 @@
           <td>${r.afternoon}</td>
           <td><b>${r.total}</b></td>
         </tr>
-      `).join('');
+      `;
+      }).join('');
     }
 
     function printTopScorers() {
