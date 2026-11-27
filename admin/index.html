@@ -1585,6 +1585,7 @@
 
     .room-dot.sparks { background: #e11d48; }
     .room-dot.tnt { background: #059669; }
+    .room-dot.other { background: #64748b; }
 
     .room-badge-title {
       color: #0f172a !important;
@@ -1817,6 +1818,52 @@
       box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03), 0 6px 18px -6px rgba(15, 23, 42, 0.05);
     }
 
+    .settings-card-flex {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .settings-sub-box {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      padding: 11px 14px;
+    }
+
+    .settings-sub-title {
+      font-size: 0.78rem;
+      font-weight: 800;
+      color: #334155;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .settings-num-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .settings-input-num {
+      text-align: center;
+      font-size: 0.98rem;
+      font-weight: 800;
+      padding-right: 28px;
+    }
+
+    .settings-num-unit {
+      position: absolute;
+      right: 11px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #64748b;
+      pointer-events: none;
+    }
+
     .settings-card-title {
       font-size: 0.96rem;
       font-weight: 800;
@@ -1924,9 +1971,44 @@
       transform: translateX(20px);
     }
 
+    .code-club-groups {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .code-club-section {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 12px;
+      padding: 12px 14px;
+    }
+
+    .code-club-section.sparks {
+      border-left: 4px solid #e11d48;
+    }
+
+    .code-club-section.tnt {
+      border-left: 4px solid #059669;
+    }
+
+    .code-club-section.other {
+      border-left: 4px solid #64748b;
+    }
+
+    .code-club-section-hdr {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      font-size: 0.84rem;
+      font-weight: 800;
+      color: #0f172a;
+    }
+
     .code-room-grid {
       display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
       gap: 10px;
     }
 
@@ -1937,7 +2019,7 @@
       gap: 8px;
       padding: 8px 12px;
       border-radius: 10px;
-      background: #f8fafc;
+      background: #ffffff;
       border: 1px solid #cbd5e1;
     }
 
@@ -2878,49 +2960,81 @@
           </div>
 
           <!-- 카드 2: 스피드 규칙 & 메달 비율 (숫자 전용) -->
-          <div class="settings-card">
-            <div class="settings-card-title">
-              <span>📊 채점 규칙 & 메달 비율</span>
-              <span id="medalRatioSumBadge" style="font-size: 0.78rem; font-weight: 800; padding: 2px 9px; border-radius: 999px; background: #ecfdf5; color: #047857;">합계 100%</span>
+          <div class="settings-card settings-card-flex">
+            <div>
+              <div class="settings-card-title">
+                <span>📊 채점 규칙 & 메달 비율</span>
+                <span id="medalRatioSumBadge" style="font-size: 0.78rem; font-weight: 800; padding: 2px 9px; border-radius: 999px; background: #ecfdf5; color: #047857;">합계 100%</span>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 10px;">
+                <div class="settings-sub-box">
+                  <div class="settings-sub-title">
+                    <span>⚡ 스피드 퀴즈 채점 규칙</span>
+                    <span style="font-weight: 600; color: #64748b;">1~10 정수</span>
+                  </div>
+                  <div class="settings-field-grid">
+                    <div class="settings-field">
+                      <label for="set_speed_max_o">스피드 최대 정답 수</label>
+                      <div class="settings-num-wrap">
+                        <input type="number" inputmode="numeric" id="set_speed_max_o" class="settings-input settings-input-num" min="1" max="10" step="1" onkeydown="blockNonIntegerKey(event)" />
+                        <span class="settings-num-unit">회</span>
+                      </div>
+                    </div>
+                    <div class="settings-field">
+                      <label for="set_speed_max_x">스피드 최대 오답 수</label>
+                      <div class="settings-num-wrap">
+                        <input type="number" inputmode="numeric" id="set_speed_max_x" class="settings-input settings-input-num" min="1" max="10" step="1" onkeydown="blockNonIntegerKey(event)" />
+                        <span class="settings-num-unit">회</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="settings-sub-box">
+                  <div class="settings-sub-title">
+                    <span>🏅 메달 시상 비율</span>
+                    <span style="font-weight: 600; color: #64748b;">합계 100% 필수</span>
+                  </div>
+                  <div class="settings-field-grid-3">
+                    <div class="settings-field">
+                      <label for="set_gold_ratio">🥇 금메달</label>
+                      <div class="settings-num-wrap">
+                        <input type="number" inputmode="numeric" id="set_gold_ratio" class="settings-input settings-input-num" min="0" max="100" step="1" onkeydown="blockNonIntegerKey(event)" oninput="updateMedalRatioSumLive()" />
+                        <span class="settings-num-unit">%</span>
+                      </div>
+                    </div>
+                    <div class="settings-field">
+                      <label for="set_silver_ratio">🥈 은메달</label>
+                      <div class="settings-num-wrap">
+                        <input type="number" inputmode="numeric" id="set_silver_ratio" class="settings-input settings-input-num" min="0" max="100" step="1" onkeydown="blockNonIntegerKey(event)" oninput="updateMedalRatioSumLive()" />
+                        <span class="settings-num-unit">%</span>
+                      </div>
+                    </div>
+                    <div class="settings-field">
+                      <label for="set_bronze_ratio">🥉 동메달</label>
+                      <div class="settings-num-wrap">
+                        <input type="number" inputmode="numeric" id="set_bronze_ratio" class="settings-input settings-input-num" min="0" max="100" step="1" onkeydown="blockNonIntegerKey(event)" oninput="updateMedalRatioSumLive()" />
+                        <span class="settings-num-unit">%</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div class="settings-field-grid" style="margin-bottom: 14px;">
-              <div class="settings-field">
-                <label for="set_speed_max_o">스피드 최대 정답 수 (1~10, 정수)</label>
-                <input type="number" inputmode="numeric" id="set_speed_max_o" class="settings-input" min="1" max="10" step="1" onkeydown="blockNonIntegerKey(event)" />
-              </div>
-              <div class="settings-field">
-                <label for="set_speed_max_x">스피드 최대 오답 수 (1~10, 정수)</label>
-                <input type="number" inputmode="numeric" id="set_speed_max_x" class="settings-input" min="1" max="10" step="1" onkeydown="blockNonIntegerKey(event)" />
-              </div>
-            </div>
-            <div class="settings-field-grid-3">
-              <div class="settings-field">
-                <label for="set_gold_ratio">🥇 금메달 비율 (%)</label>
-                <input type="number" inputmode="numeric" id="set_gold_ratio" class="settings-input" min="0" max="100" step="1" onkeydown="blockNonIntegerKey(event)" oninput="updateMedalRatioSumLive()" />
-              </div>
-              <div class="settings-field">
-                <label for="set_silver_ratio">🥈 은메달 비율 (%)</label>
-                <input type="number" inputmode="numeric" id="set_silver_ratio" class="settings-input" min="0" max="100" step="1" onkeydown="blockNonIntegerKey(event)" oninput="updateMedalRatioSumLive()" />
-              </div>
-              <div class="settings-field">
-                <label for="set_bronze_ratio">🥉 동메달 비율 (%)</label>
-                <input type="number" inputmode="numeric" id="set_bronze_ratio" class="settings-input" min="0" max="100" step="1" onkeydown="blockNonIntegerKey(event)" oninput="updateMedalRatioSumLive()" />
-              </div>
-            </div>
-            <div style="margin-top: 12px; padding: 10px 12px; border-radius: 10px; background: #f8fafc; border: 1px solid #e2e8f0; font-size: 0.78rem; color: #475569; line-height: 1.5;">
+            <div style="padding: 9px 12px; border-radius: 10px; background: #f8fafc; border: 1px solid #cbd5e1; font-size: 0.77rem; color: #475569; line-height: 1.5;">
               • 스피드 최대 정답 수 변경 시 시험장 직접 입력 개인 상한(<b>20 × 최대정답수</b>)과 O/X 자동 잠금 기준이 자동 연동됩니다.<br>
               • 금·은·동메달 비율 합계는 반드시 <b>100%</b>여야 저장할 수 있습니다.
             </div>
           </div>
         </div>
 
-        <!-- 카드 3: 시험장별 접속 코드 (동적) -->
+        <!-- 카드 3: 시험장별 접속 코드 (시간표 기반 자동 부문 분류) -->
         <div class="settings-card">
           <div class="settings-card-title">
             <span id="settingsRoomCodesTitle">🔐 시험장별 접속 코드 (PIN)</span>
-            <span style="font-size: 0.76rem; font-weight: 600; color: #64748b;">영문·숫자 대소문자 구분 없음</span>
+            <span style="font-size: 0.76rem; font-weight: 600; color: #64748b;">시간표 배정 핸드북 기준 자동 분류 · 영문·숫자 대소문자 구분 없음</span>
           </div>
-          <div class="code-room-grid" id="settingsRoomCodesGrid"></div>
+          <div class="code-club-groups" id="settingsRoomCodesGrid"></div>
         </div>
       </div>
     </section>
@@ -3446,6 +3560,26 @@
       }
     }
 
+    function detectRoomClub(roomName) {
+      const ttRows = (HQ_DATA.timetable || []).filter(t => t && String(t.room || '').trim() === roomName);
+      let hasSparks = false;
+      let hasTnt = false;
+      ttRows.forEach(t => {
+        const hb = String(t.handbook || '');
+        if (/행글라이더|윙러너|스카이스토머/.test(hb)) hasSparks = true;
+        else if (/어드밴처|어드벤처|챌린지/.test(hb)) hasTnt = true;
+      });
+      if (hasSparks && !hasTnt) return 'sparks';
+      if (hasTnt && !hasSparks) return 'tnt';
+      if (hasSparks && hasTnt) return 'other';
+
+      // 시간표에 아직 미배정된 시험장은 이름 문자열로 보조 판별
+      const upper = String(roomName || '').toUpperCase();
+      if (roomName.includes('스팍스') || upper.includes('SPARKS')) return 'sparks';
+      if (roomName.includes('티앤티') || roomName.includes('티엔티') || upper.includes('T&T') || upper.includes('TNT')) return 'tnt';
+      return 'other';
+    }
+
     function getDynamicSettingsRoomList() {
       const roomSet = new Set();
       (HQ_DATA.timetable || []).forEach(t => {
@@ -3458,18 +3592,19 @@
         }
       });
 
-      const sorted = Array.from(roomSet).sort((a, b) => {
-        const aIsSparks = a.includes('스팍스') || a.toUpperCase().includes('SPARKS');
-        const bIsSparks = b.includes('스팍스') || b.toUpperCase().includes('SPARKS');
-        if (aIsSparks !== bIsSparks) return aIsSparks ? -1 : 1;
-        return a.localeCompare(b, 'ko', { numeric: true });
-      });
-
-      return sorted.map(name => ({
+      const clubOrder = { sparks: 0, tnt: 1, other: 2 };
+      const enriched = Array.from(roomSet).map(name => ({
         name,
-        club: (name.includes('스팍스') || name.toUpperCase().includes('SPARKS')) ? 'sparks' : 'tnt',
+        club: detectRoomClub(name),
         defaultCode: ''
       }));
+
+      enriched.sort((a, b) => {
+        if (clubOrder[a.club] !== clubOrder[b.club]) return clubOrder[a.club] - clubOrder[b.club];
+        return a.name.localeCompare(b.name, 'ko', { numeric: true });
+      });
+
+      return enriched;
     }
 
     function blockNonIntegerKey(e) {
@@ -3541,15 +3676,35 @@
 
       const grid = document.getElementById('settingsRoomCodesGrid');
       if (grid) {
-        grid.innerHTML = dynamicRooms.map(r => {
-          const val = st['CODE_' + r.name] || r.defaultCode;
-          return `
-            <div class="code-room-item">
-              <div style="display: flex; align-items: center; gap: 7px;">
-                <span class="room-dot ${r.club}"></span>
-                <b style="font-size: 0.86rem; color: #0f172a;">${r.name}</b>
+        const groups = [
+          { key: 'sparks', label: 'SPARKS 시험장', rooms: dynamicRooms.filter(r => r.club === 'sparks') },
+          { key: 'tnt', label: 'T&T 시험장', rooms: dynamicRooms.filter(r => r.club === 'tnt') },
+          { key: 'other', label: '기타 · 공통 시험장', rooms: dynamicRooms.filter(r => r.club === 'other') }
+        ].filter(g => g.rooms.length > 0);
+
+        grid.innerHTML = groups.map(g => {
+          const itemsHtml = g.rooms.map(r => {
+            const val = st['CODE_' + r.name] || r.defaultCode;
+            return `
+              <div class="code-room-item">
+                <div style="display: flex; align-items: center; gap: 7px; min-width: 0;">
+                  <span class="room-dot ${r.club}" style="flex-shrink: 0;"></span>
+                  <b style="font-size: 0.86rem; color: #0f172a; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${r.name}">${r.name}</b>
+                </div>
+                <input type="text" id="set_code_${r.name}" class="settings-input" value="${String(val).replace(/"/g, '&quot;')}" maxlength="12" />
               </div>
-              <input type="text" id="set_code_${r.name}" class="settings-input" value="${String(val).replace(/"/g, '&quot;')}" maxlength="12" />
+            `;
+          }).join('');
+
+          return `
+            <div class="code-club-section ${g.key}">
+              <div class="code-club-section-hdr">
+                <span style="display: inline-flex; align-items: center; gap: 7px;">
+                  <span class="room-dot ${g.key}"></span>${g.label}
+                </span>
+                <span style="font-size: 0.76rem; font-weight: 700; color: #64748b;">${g.rooms.length}개</span>
+              </div>
+              <div class="code-room-grid">${itemsHtml}</div>
             </div>
           `;
         }).join('');
