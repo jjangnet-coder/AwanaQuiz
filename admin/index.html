@@ -1984,6 +1984,9 @@
       flex: 1;
       display: flex;
       flex-direction: column;
+      background: #f1f5f9;
+      padding: 10px 12px;
+      gap: 8px;
     }
 
     .top-club-panel.sparks {
@@ -1999,7 +2002,7 @@
       justify-content: space-between;
       align-items: center;
       padding: 12px 18px;
-      background: #f8fafc;
+      background: #ffffff;
       border-bottom: 1px solid #e2e8f0;
     }
 
@@ -2032,21 +2035,30 @@
     .top-hb-row {
       flex: 1;
       display: grid;
-      grid-template-columns: 185px 1fr;
-      gap: 14px;
+      grid-template-columns: 195px 1fr;
+      gap: 16px;
       align-items: center;
-      padding: 14px 18px;
-      border-bottom: 1px solid #f1f5f9;
+      padding: 12px 16px;
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
     }
 
-    .top-hb-row:last-child {
-      border-bottom: none;
+    .top-club-panel.sparks .top-hb-row {
+      border-left: 4px solid #fb7185;
+    }
+
+    .top-club-panel.tnt .top-hb-row {
+      border-left: 4px solid #34d399;
     }
 
     .top-hb-meta {
       display: flex;
       flex-direction: column;
       gap: 5px;
+      padding-right: 14px;
+      border-right: 1px dashed #cbd5e1;
     }
 
     .top-hb-name {
